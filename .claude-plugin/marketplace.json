@@ -1,0 +1,27 @@
+{
+  "name": "rahul-claude-code-toolkit",
+  "owner": {
+    "name": "Rahul Surasinghe"
+  },
+  "plugins": [
+    {
+      "name": "claude-code-toolkit",
+      "description": "Universal development agents, skills, commands, and hooks for code quality, testing, security, documentation, performance, verification, and workflow automation.",
+      "source": {
+        "source": "relative",
+        "path": "."
+      },
+      "version": "2.0.0",
+      "category": "code-quality",
+      "keywords": [
+        "code-review",
+        "testing",
+        "security",
+        "documentation",
+        "performance",
+        "verification",
+        "workflow"
+      ]
+    }
+  ]
+}
