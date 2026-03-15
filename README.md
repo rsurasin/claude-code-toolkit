@@ -16,7 +16,7 @@ project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 | `qa-runner` | Runs test suite across 12+ ecosystems, classifies failures, suggests fixes |
 | `security-auditor` | Deep OWASP-aligned security audit with language-aware vulnerability detection |
 | `debugger` | Systematic hypothesis-driven bug investigation |
-| `perf-audit` | Runtime perf: re-renders, N+1 queries, bundle size, memory, concurrency |
+| `perf-audit` | Runtime perf: startup time, re-renders, N+1 queries, bundle size, memory, concurrency |
 | `verify-app` | Tiered verification: static checks → runtime validation → manual test checklist |
 | `doc-sync` | Audits docs against code, fixes documentation drift |
 | `claude-sync` | Audits `.claude/` config files against codebase |
@@ -28,7 +28,7 @@ project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 |-------|--------------|
 | `commit-message` | Generates conventional commit messages from diffs |
 | `pr-description` | Generates structured PR descriptions with testing steps |
-| `dev-tasks` | Maintains task-specific context files for cross-session memory |
+| `dev-tasks` | Generates task-specific context files for cross-session memory |
 
 ### Commands (3) — invoked via `/command-name`
 
@@ -82,7 +82,7 @@ Choose **"Install for you (user scope)"** for global availability across all pro
 > /plugin marketplace add https://github.com/rsurasin/claude-code-toolkit
 > ```
 
-### Option 3: Local (for development/testing)
+### Option 2: Local (for development/testing)
 
 ```bash
 claude --plugin-dir /path/to/claude-code-toolkit
@@ -211,7 +211,7 @@ for configuration details.
 ## Recommended Workflow
 
 ### Daily Development
-1. Start session: `/catchup` (or `/clear` + `/catchup` for fresh context)
+1. Start session: `dev-tasks` (if picking up where you left off)
 2. Plan: Use Plan Mode, then `/review-plan` before executing
 3. Implement: Let Claude work in auto-accept mode
 4. Polish: `/simplify` after completing a feature
