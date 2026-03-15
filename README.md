@@ -67,23 +67,20 @@ Monorepos with multiple sub-projects are handled by running parallel subagents p
 
 ## Installation
 
-### Option 1: Direct Plugin Install (recommended)
+### Option 1: Plugin Install (recommended)
 
-Push this repo to GitHub, then in Claude Code:
+In Claude Code:
 
 ```
-/plugin install https://github.com/YOUR_USERNAME/claude-code-toolkit
+/plugin install claude-code-toolkit@rahul-claude-code-toolkit
 ```
 
 Choose **"Install for you (user scope)"** for global availability across all projects.
 
-### Option 2: Marketplace
-
-```
-/plugin marketplace add YOUR_USERNAME/claude-code-toolkit
-```
-
-Then browse and install via `/plugin`.
+> **First time?** Register the marketplace first:
+> ```
+> /plugin marketplace add https://github.com/rsurasin/claude-code-toolkit
+> ```
 
 ### Option 3: Local (for development/testing)
 
