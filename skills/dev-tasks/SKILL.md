@@ -23,14 +23,14 @@ prevent re-explaining the same constraints every session.
 ## Directory Structure
 
 ```
-.dev/[task-name]/
+.claude/dev/[task-name]/
 ├── plan.md       # The accepted implementation plan
 ├── context.md    # Key files, decisions, constraints, gotchas
 └── tasks.md      # Checklist of work items with status & log of actions performed under tasks as subbullets
 ```
 
-Use `.dev/` at the project root. Create it if it doesn't exist.
-Use kebab-case for task names: `.dev/search-feature/`, `.dev/auth-refresh/`.
+Use `.claude/dev/` at the project root. Create it if it doesn't exist.
+Use kebab-case for task names: `.claude/dev/search-feature/`, `.claude/dev/auth-refresh/`.
 
 ## File Formats
 
@@ -91,9 +91,14 @@ Use kebab-case for task names: `.dev/search-feature/`, `.dev/auth-refresh/`.
 
 ## In Progress
 - [ ] [task description]
+    - [x] Step 1. [Exact changes made]
+    - [ ] Step 2. [Exact changes made]
 
 ## Done
-- [x] [task description] — [any notes]
+- [x] [date] [task description] — [any notes]
+    - [x] Step 1. [Exact changes made]
+    - [x] Step 2. [Exact changes made]
+    - [x] Step 3. [Exact changes made]
 
 ## Blocked
 - [ ] [task description] — blocked by: [reason]
@@ -130,4 +135,4 @@ Before ending a session or switching tasks:
 - Never delete session log entries — they're a breadcrumb trail
 - If the user says "catch me up" or "what were we working on", read the dev
   task files and summarize
-- Add `.dev/` to `.gitignore` — these are working notes, not project artifacts
+- Add `.claude/dev/` to `.gitignore` — these are working notes, not project artifacts

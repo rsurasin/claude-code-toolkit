@@ -4,7 +4,8 @@ description: >
   Audit and update project documentation to match current code. Use when docs
   may have drifted from implementation — after refactors, new features, or
   dependency upgrades. Covers READMEs, onboarding guides, architecture docs,
-  API docs, inline JSDoc/GoDoc, and any markdown in the repo.
+  API docs, inline JSDoc/GoDoc, and any markdown in the repo. Does NOT cover
+  .claude/ directory. That is claude-sync's job.
 model: sonnet
 tools:
   - Read
