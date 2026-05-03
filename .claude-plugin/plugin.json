@@ -1,7 +1,7 @@
 {
   "name": "claude-code-toolkit",
   "description": "Universal development agents, skills, commands, and hooks: code review, testing, security audits, documentation sync, cross-repo consistency, debugging, performance analysis, app verification, conventional commits, PR descriptions, harness sharpening, and auto-formatting.",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "author": {
     "name": "Rahul Surasinghe"
   },
