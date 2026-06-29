@@ -28,7 +28,7 @@ project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 |-------|--------------|
 | `commit-message` | Generates conventional commit messages from diffs |
 | `pr-description` | Generates structured PR descriptions with testing steps |
-| `dev-tasks` | Generates task-specific context files for cross-session memory |
+| `dev-tasks` | Maintains category-organized task files (plan/context/tasks) under `.claude/dev/` for cross-session memory |
 
 ### Commands (3) — invoked via `/command-name`
 
@@ -194,7 +194,7 @@ for configuration details.
 ```
 "write a commit message"         → commit-message skill
 "generate a PR description"      → pr-description skill
-"let's plan the logging feature" → dev-tasks skill (creates task context files)
+"let's plan the logging feature" → dev-tasks skill (creates .claude/dev/features/<date>-<slug>/)
 "catch me up"                    → dev-tasks skill (reads existing task files)
 ```
 
@@ -264,6 +264,18 @@ claude-code-toolkit/
 ├── .gitignore
 └── README.md
 ```
+
+The `dev-tasks` skill maintains its own working notes at runtime under a
+gitignored `.claude/dev/` tree, organized by category and date:
+
+```
+.claude/dev/<category>/<YYYY-MM-DD>-<slug>/   # e.g. refactors/2026-06-28-datetime-package/
+├── plan.md      # accepted implementation plan
+├── context.md   # append-only audit trail (decisions, constraints, gotchas)
+└── tasks.md     # work checklist with status & action log
+```
+
+Categories: `features/`, `refactors/`, `fixes/`, `chores/`, `research/`.
 
 ---
 
