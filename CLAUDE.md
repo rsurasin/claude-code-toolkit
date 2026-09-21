@@ -89,11 +89,15 @@ update or add the matching eval case in the same commit.
 
 1. Bump `version` in **both** `.claude-plugin/plugin.json` and
    `.claude-plugin/marketplace.json` (major bump for removed/renamed
-   components).
-2. Validate the manifests parse:
+   components). The version bump should be the release's final commit.
+2. The plugin `source` in marketplace.json must stay an explicit https
+   git URL (`{"source": "git", "url": "https://github.com/..."}`) — the
+   shorter `github` source type clones over SSH and breaks
+   `claude plugin update` in shells without a loaded SSH key.
+3. Validate the manifests parse:
    `node -e "require('./.claude-plugin/plugin.json'); require('./.claude-plugin/marketplace.json')"`
-3. Commit and push to `main`.
-4. Update the installed copy:
+4. Commit and push to `main`.
+5. Update the installed copy:
    `claude plugin update claude-code-toolkit@rahul-claude-code-toolkit`
    (restart Claude Code to apply; if the new version isn't found, run
    `claude plugin marketplace update rahul-claude-code-toolkit` first).
