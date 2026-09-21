@@ -35,6 +35,13 @@ Invoke this skill proactively; don't wait for `/sharpen`.
 One-off trivia doesn't qualify — sharpen when the *class* of problem
 would plausibly recur in a future session.
 
+**Routing vs native memory:** Claude Code's auto-memory is personal —
+user-level, not committed, invisible to teammates. A personal lesson or
+preference (how this user works) belongs in native memory; a
+team-enforceable rule or guard (how this repo works) belongs here, in
+committed artifacts. If both apply, do both — the consent gate covers
+only the repo artifact.
+
 ## Consent Gate (never skip)
 
 The harness belongs to the user. **Never modify a harness file —

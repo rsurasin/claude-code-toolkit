@@ -14,6 +14,14 @@ Maintain structured task documentation that survives across Claude Code
 sessions. Every non-trivial task gets a context folder. This is how you
 prevent re-explaining the same constraints every session.
 
+Dev-tasks state is repo-local but gitignored — working notes tied to
+this checkout, not project artifacts, and never committed. Route other
+kinds of persistence elsewhere: personal lessons and preferences that
+span repos go to Claude Code's native auto-memory (user-level);
+team-enforceable rules go through the sharpen skill into committed
+artifacts (CLAUDE.md / `.claude/rules/`). Dev-tasks holds task-scoped
+working state only: plan, context, and task list.
+
 ## When to Create Dev Tasks
 
 - Starting any feature that will take more than one session
