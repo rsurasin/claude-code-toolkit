@@ -6,7 +6,10 @@ description: >
   the developer has installed. Owns all security tooling — code-reviewer may
   flag surface-level issues, but this agent is the authoritative security
   assessment. Works across all languages and frameworks. Use before launches,
-  after adding auth flows, or on a regular cadence.
+  after adding auth flows, or on a regular cadence. Choose this over the
+  native security-review skill when an independent, fresh-context audit is
+  needed — especially auditing work produced in the current session — or
+  when a quality gate needs a normalized, programmatic verdict.
 model: opus
 tools:
   - Read

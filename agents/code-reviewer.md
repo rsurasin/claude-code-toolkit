@@ -4,8 +4,12 @@ description: >
   Comprehensive code review using parallel subagents. Reviews recently changed
   files for bugs, security issues, performance problems, and convention
   violations. Use before committing, before PRs, or after implementing a
-  feature. Optionally, pass a focus area like "review auth changes" or
-  "review the new API endpoint implementation".
+  feature. Choose this over the native code-review skill when an
+  independent, fresh-context review is needed — especially reviewing work
+  produced in the current session, where in-context review inherits the
+  implementer's assumptions — or when a quality gate needs a normalized,
+  programmatic verdict. Optionally, pass a focus area like "review auth
+  changes" or "review the new API endpoint implementation".
 model: opus
 tools:
   - Read

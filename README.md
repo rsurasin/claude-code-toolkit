@@ -47,6 +47,19 @@ project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 | `/simplify` | After implementing a feature — reviews for code reuse, quality, efficiency |
 | `/batch` | Large-scale refactors across many files — parallelizes into 5-30 units |
 | `/btw` | While Claude is working, provide it additional input |
+| `/code-review` | Review the working diff; `/code-review ultra` runs a multi-agent cloud review of the branch or a PR (user-triggered, billed) |
+| `security-review` | Diff-scoped security review of the current branch's pending changes — a user-facing complement to `security-auditor`, not a gate replacement |
+| `/run` | Launch and drive the project's app to confirm a change works — build repo-local verify skills on top of it |
+| `/init` | Generate a CLAUDE.md for a repo |
+| Auto-memory / `/remember` | Personal, user-level lessons and preferences (not committed, invisible to teammates) — vs `sharpen` (repo-shared rules) and `dev-tasks` (repo-shared task state) |
+
+> Availability varies by Claude Code version and surface. Where a native
+> skill overlaps a toolkit agent (`/code-review` ↔ `code-reviewer`,
+> `security-review` ↔ `security-auditor`), they complement rather than
+> replace each other: the ship-mode quality gates deliberately use the
+> dedicated toolkit agents, because a skill runs in the context of the
+> agent that just wrote the code (self-review bias), while a spawned
+> agent reviews the diff cold and returns a normalized verdict.
 
 ---
 

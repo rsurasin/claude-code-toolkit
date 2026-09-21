@@ -48,6 +48,13 @@ drift easily.
   mentions. External tracker IDs (Jira keys, GitHub issues) are fine.
 - **Atomic commits.** One commit = one task/logical change; never bundle
   unrelated changes.
+- **Quality gates are dedicated agents, not skills — independence over
+  nativeness.** Native code-review / security-review skills run in the
+  context of the agent that wrote the code (self-review bias) and their
+  output formats vary by Claude Code version; the toolkit's spawned
+  agents review cold and return verdicts the pr-description rubric can
+  normalize. Native skills are user-facing complements, never gate
+  replacements.
 - **Sharpen is proactive but consent-gated.** The skill fires on
   agent- or user-detected mistakes and inefficiencies, but never modifies
   a harness file (CLAUDE.md, `.claude/rules/`, lint config, guard tests)

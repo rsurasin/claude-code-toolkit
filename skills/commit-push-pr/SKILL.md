@@ -147,6 +147,12 @@ gates, in parallel where possible:
 5. **`perf-audit` agent** — performance audit of the branch diff.
 6. **`doc-sync` agent** — check whether docs drifted from the changes.
 
+The review and audit gates are dedicated agents on purpose — do not
+replace them with in-context skill calls (including native code-review /
+security-review): a skill runs in the context that just wrote the code
+and inherits its assumptions, while a spawned agent reviews the diff cold
+and returns a verdict the rubric can normalize.
+
 Capture each gate's outcome verbatim enough to normalize later. Do not
 skip gates in ship mode; a gate that didn't run is recorded as `NOT RUN`,
 which raises the risk level.
