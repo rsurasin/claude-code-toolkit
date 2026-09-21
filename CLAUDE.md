@@ -58,6 +58,21 @@ sessions until committed, pushed, and the plugin is updated**. Don't test
 component changes by invoking the installed skill/agent and expecting the
 new behavior.
 
+## Testing Skills — Eval Suite
+
+Behavioral eval cases live under `evals/` (one dir per case: `prompt.md`
++ `graders/criteria.md`), in the `claude plugin eval` layout. That
+command is currently **early access** (`claude plugin eval init` exits 1);
+until it's enabled, use the criteria files as manual review checklists
+when changing the corresponding skill. Once enabled:
+
+```bash
+claude plugin eval .    # eval the working tree (no push/reinstall needed)
+```
+
+When changing a skill's contract (modes, thresholds, separation rules),
+update or add the matching eval case in the same commit.
+
 ## Releasing a New Version
 
 1. Bump `version` in **both** `.claude-plugin/plugin.json` and

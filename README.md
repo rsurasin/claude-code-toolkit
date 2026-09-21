@@ -268,6 +268,7 @@ claude-code-toolkit/
 ├── commands/
 │   ├── sharpen.md                   # Mistake → harness improvement loop
 │   └── review-plan.md               # Critical plan review before execution
+├── evals/                           # Behavioral eval cases (claude plugin eval layout)
 ├── .gitignore
 ├── CLAUDE.md                        # Guidance for Claude Code working on this repo
 └── README.md
