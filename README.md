@@ -8,34 +8,36 @@ project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 
 ## What's Inside
 
-### Agents (9) — auto-dispatched by Claude based on your request
+### Agents (7) — auto-dispatched by Claude based on your request
 
 | Agent | What It Does |
 |-------|--------------|
 | `code-reviewer` | Parallel 4-axis review: bugs, security, performance, conventions |
-| `qa-runner` | Runs test suite across 12+ ecosystems, classifies failures, suggests fixes |
 | `security-auditor` | Deep OWASP-aligned security audit with language-aware vulnerability detection |
 | `debugger` | Systematic hypothesis-driven bug investigation |
 | `perf-audit` | Runtime perf: startup time, re-renders, N+1 queries, bundle size, memory, concurrency |
-| `verify-app` | Tiered verification: static checks → runtime validation → manual test checklist |
 | `doc-sync` | Audits docs against code, fixes documentation drift |
 | `claude-sync` | Audits `.claude/` config files against codebase |
 | `cross-repo-audit` | Compares two related repos for contract breaks and doc conflicts |
 
-### Skills (3) — auto-loaded by Claude when context matches
+> Test running and app verification are intentionally **not** shipped as
+> generic agents — define a qa/verify skill in each repo's `.claude/`
+> directory instead. See [Migrating from v2](#migrating-from-v2).
+
+### Skills (4) — auto-loaded by Claude when context matches
 
 | Skill | What It Does |
 |-------|--------------|
 | `commit-message` | Generates conventional commit messages from diffs |
-| `pr-description` | Generates structured PR descriptions with testing steps |
+| `pr-description` | Generates structured PR descriptions with a risk assessment (Low/Medium/High/Critical) computed from verification evidence and reversibility |
+| `commit-push-pr` | Two-mode inner loop: fast atomic task commits (no gates), then gated PR creation — quality gates (repo tests/verify + review, security, perf, docs agents) run once over the full branch diff, findings are fixed, and the PR opens with a risk assessment |
 | `dev-tasks` | Maintains category-organized task files (plan/context/tasks) under `.claude/dev/` for cross-session memory |
 
-### Commands (3) — invoked via `/command-name`
+### Commands (2) — invoked via `/command-name`
 
 | Command | What It Does |
 |---------|--------------|
 | `/sharpen` | Encode a mistake into a permanent harness improvement (test, lint rule, CLAUDE.md entry) |
-| `/commit-push-pr` | Full inner loop: stage, commit, push, open PR — one command |
 | `/review-plan` | Critical staff engineer review of a plan before execution |
 
 ### Bundled (already in Claude Code — use alongside this plugin)
@@ -99,9 +101,9 @@ managed as immutable by home-manager. Run `/plugin install` once after
 
 ## MCP Server Configuration (optional, for mobile verification)
 
-The `verify-app` agent works out of the box for most project types. For
-**mobile app verification** (React Native / Expo), pairing with MCP servers
-enables native device automation:
+If your repo-local verification skill covers a **mobile app** (React
+Native / Expo), pairing it with MCP servers enables native device
+automation:
 
 ### Android (works on Linux/NixOS)
 
@@ -179,8 +181,6 @@ for configuration details.
 
 ```
 "review my changes"              → code-reviewer agent
-"run the tests"                  → qa-runner agent
-"verify the app works"           → verify-app agent
 "why is this broken"             → debugger agent
 "security audit"                 → security-auditor agent
 "check performance"              → perf-audit agent
@@ -189,11 +189,16 @@ for configuration details.
 "compare these two repos"        → cross-repo-audit agent
 ```
 
+For "run the tests" or "verify the app works", define qa/verify skills in
+each repo's `.claude/` directory — see [Migrating from v2](#migrating-from-v2).
+
 ### Skills activate automatically
 
 ```
 "write a commit message"         → commit-message skill
-"generate a PR description"      → pr-description skill
+"generate a PR description"      → pr-description skill (with risk assessment)
+"commit this"                    → commit-push-pr skill (commit mode: fast atomic commit + push)
+"ship this / open a PR"          → commit-push-pr skill (ship mode: gates over full branch diff, then PR)
 "let's plan the logging feature" → dev-tasks skill (creates .claude/dev/features/<date>-<slug>/)
 "catch me up"                    → dev-tasks skill (reads existing task files)
 ```
@@ -202,7 +207,7 @@ for configuration details.
 
 ```
 /sharpen                         → encode a mistake into a harness improvement
-/commit-push-pr                  → stage, commit, push, open PR
+/commit-push-pr                  → commit mode by default; ship mode (gates + PR) when asked to ship
 /review-plan                     → critical review before executing a plan
 ```
 
@@ -215,10 +220,13 @@ for configuration details.
 2. Plan: Use Plan Mode, then `/review-plan` before executing
 3. Implement: Let Claude work in auto-accept mode
 4. Polish: `/simplify` after completing a feature
-5. Test: `qa-runner` agent will run all tests
-6. Verify: `verify-app` agent for runtime checks
-7. Ship: `/commit-push-pr` to stage, commit, push, and open PR
-8. Learn: `/sharpen` after any mistake
+5. Commit per task: `/commit-push-pr` — commit mode makes a fast, atomic
+   commit (one task = one commit) and pushes; no gates, no PR
+6. Ship: when the feature is complete, "open a PR" — ship mode runs the
+   quality gates once over the full branch diff (your repo's qa/verify
+   skills plus code review, security, performance, and docs agents), fixes
+   any findings, then opens a PR with a risk assessment
+7. Learn: `/sharpen` after any mistake
 
 ### Weekly Maintenance
 1. `doc-sync` agent: "sync documentation with current code"
@@ -226,10 +234,10 @@ for configuration details.
 3. `cross-repo-audit` agent: "check consistency between repos"
 
 ### Before Releases
-1. `qa-runner` agent: "run all tests"
+1. Your repo's qa skill/agent: "run all tests"
 2. `security-auditor` agent: "full security audit"
 3. `perf-audit` agent: "performance audit before release"
-4. `verify-app` agent: "full verification"
+4. Your repo's verify skill/agent: "full verification"
 
 ---
 
@@ -242,11 +250,9 @@ claude-code-toolkit/
 │   └── marketplace.json             # Distribution catalog
 ├── agents/
 │   ├── code-reviewer.md             # Parallel multi-axis code review
-│   ├── qa-runner.md                 # Test suite runner & failure analyzer
 │   ├── security-auditor.md          # Deep security audit (OWASP-aligned)
 │   ├── debugger.md                  # Systematic bug investigation
 │   ├── perf-audit.md                # Runtime performance analysis
-│   ├── verify-app.md                # Tiered project verification
 │   ├── doc-sync.md                  # Documentation parity auditor
 │   ├── claude-sync.md               # .claude directory updater
 │   └── cross-repo-audit.md          # Cross-repo consistency checker
@@ -254,14 +260,16 @@ claude-code-toolkit/
 │   ├── commit-message/
 │   │   └── SKILL.md                 # Git conventional commit generator
 │   ├── pr-description/
-│   │   └── SKILL.md                 # Structured PR description generator
+│   │   └── SKILL.md                 # PR description generator w/ risk assessment
+│   ├── commit-push-pr/
+│   │   └── SKILL.md                 # Two-mode commit → PR inner loop
 │   └── dev-tasks/
 │       └── SKILL.md                 # Task-specific cross-session context
 ├── commands/
 │   ├── sharpen.md                   # Mistake → harness improvement loop
-│   ├── commit-push-pr.md            # Full commit → PR inner loop
 │   └── review-plan.md               # Critical plan review before execution
 ├── .gitignore
+├── CLAUDE.md                        # Guidance for Claude Code working on this repo
 └── README.md
 ```
 
@@ -286,9 +294,11 @@ This plugin is built on three principles observed across staff-level engineers:
 1. **Feedback loops over configuration.** `/sharpen` encodes every mistake
    into a permanent improvement. Each session makes the next one more capable.
 
-2. **Verification over trust.** `verify-app` confirms the project actually works,
-   not just that the code looks right. Verification 2-3x the quality of
-   unverified work.
+2. **Verification over trust.** The `/commit-push-pr` gates confirm the
+   project actually works — via each repo's own qa/verify skills, which
+   know the project's real commands — before a PR opens, and the PR carries
+   a risk assessment showing exactly what was and wasn't verified.
+   Verification 2-3x the quality of unverified work.
 
 3. **Vanilla over complex.** The agents handle post-implementation analysis
    (review, test, debug, audit). They don't try to control how Claude
@@ -296,13 +306,61 @@ This plugin is built on three principles observed across staff-level engineers:
 
 ---
 
+## Migrating from v2
+
+v3.0.0 removed the generic `qa-runner` and `verify-app` agents. They
+auto-detected ecosystems to guess test/verify commands; a small skill in
+each repo that knows the *actual* commands is more reliable and feeds the
+`/commit-push-pr` quality gates directly.
+
+Create per-repo skills like `.claude/skills/qa/SKILL.md`:
+
+```markdown
+---
+name: qa
+description: Run this project's test suite and report failures.
+---
+
+Run `make test` (unit + integration). On failure, report the failing test
+names and the relevant output. Never edit tests to make them pass.
+```
+
+And `.claude/skills/verify/SKILL.md` with the project's real build/run/smoke
+steps. `/commit-push-pr` discovers these automatically; if a repo has
+neither, its gates are recorded as `NOT RUN`, which raises the PR's risk
+level.
+
+Also in v3.0.0: `commit-push-pr` moved from `commands/` to `skills/` —
+`/commit-push-pr` still works as an invocation. Note that the quality
+gates run at **PR creation** (ship mode), not on every commit — intermediate
+task commits stay fast and gate-free.
+
+---
+
 ## Updating
 
-Bump `version` in `.claude-plugin/plugin.json` when pushing changes.
+Releasing a new version:
 
-If installed via marketplace with auto-update enabled, Claude Code pulls
-new versions on startup. Otherwise:
+1. Bump `version` in `.claude-plugin/plugin.json` **and**
+   `.claude-plugin/marketplace.json`
+2. Commit and push to `main` — the marketplace serves the plugin from the
+   GitHub repo, so unpushed local changes are never picked up
+
+Then update the installed copy from the CLI:
+
+```bash
+claude plugin update claude-code-toolkit@rahul-claude-code-toolkit
+```
+
+(Restart Claude Code to apply. If the new version isn't found, refresh the
+marketplace clone first: `claude plugin marketplace update
+rahul-claude-code-toolkit`.)
+
+Or from inside Claude Code:
 
 ```
 /plugin → "Manage and uninstall plugins" → claude-code-toolkit → "Update now"
 ```
+
+If installed via marketplace with auto-update enabled, Claude Code pulls
+new versions on startup.
