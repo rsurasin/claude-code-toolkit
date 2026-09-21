@@ -48,6 +48,10 @@ drift easily.
   mentions. External tracker IDs (Jira keys, GitHub issues) are fine.
 - **Atomic commits.** One commit = one task/logical change; never bundle
   unrelated changes.
+- **Sharpen is proactive but consent-gated.** The skill fires on
+  agent- or user-detected mistakes and inefficiencies, but never modifies
+  a harness file (CLAUDE.md, `.claude/rules/`, lint config, guard tests)
+  without explicit user approval in that conversation.
 
 ## Working Tree vs Installed Plugin
 

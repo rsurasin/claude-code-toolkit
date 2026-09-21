@@ -27,3 +27,4 @@ layout (`evals/<case>/prompt.md` + `evals/<case>/graders/criteria.md`).
 | `commit-mode-atomic-split` | commit-push-pr | Multi-task working trees become separate atomic commits |
 | `ship-mode-base-branch` | commit-push-pr | Ship mode asks for the PR base branch when unstated |
 | `commit-message-no-devtasks` | commit-message | Commit messages carry zero trace of dev-tasks state |
+| `sharpen-consent-gate` | sharpen | Self-detected mistakes are proposed as harness rules, never applied without consent |
