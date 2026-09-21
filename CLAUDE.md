@@ -90,10 +90,13 @@ update or add the matching eval case in the same commit.
 1. Bump `version` in **both** `.claude-plugin/plugin.json` and
    `.claude-plugin/marketplace.json` (major bump for removed/renamed
    components). The version bump should be the release's final commit.
-2. The plugin `source` in marketplace.json must stay an explicit https
-   git URL (`{"source": "git", "url": "https://github.com/..."}`) — the
-   shorter `github` source type clones over SSH and breaks
-   `claude plugin update` in shells without a loaded SSH key.
+2. The plugin `source` in marketplace.json must stay the relative path
+   `"./"` — the plugin lives in the marketplace repo, so it is served
+   straight from the marketplace clone with no second clone. Do not use
+   the `github` source type (clones over SSH, which breaks
+   `claude plugin update` in shells without a loaded key) or the `git`
+   type (not a supported plugin source type; only marketplaces accept
+   it — plugins accept a relative path or `{"source": "url", ...}`).
 3. Validate the manifests parse:
    `node -e "require('./.claude-plugin/plugin.json'); require('./.claude-plugin/marketplace.json')"`
 4. Commit and push to `main`.
