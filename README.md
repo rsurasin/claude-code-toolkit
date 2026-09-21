@@ -367,15 +367,17 @@ Releasing a new version:
 2. Commit and push to `main` — the marketplace serves the plugin from the
    GitHub repo, so unpushed local changes are never picked up
 
-Then update the installed copy from the CLI:
+Then update the installed copy from the CLI — the marketplace refresh
+comes **first**, not as a fallback: the plugin is served from the
+marketplace clone (`"source": "./"`), so refreshing that clone is what
+actually fetches the new version:
 
 ```bash
+claude plugin marketplace update rahul-claude-code-toolkit
 claude plugin update claude-code-toolkit@rahul-claude-code-toolkit
 ```
 
-(Restart Claude Code to apply. If the new version isn't found, refresh the
-marketplace clone first: `claude plugin marketplace update
-rahul-claude-code-toolkit`.)
+(Restart Claude Code to apply.)
 
 Or from inside Claude Code:
 

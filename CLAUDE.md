@@ -100,7 +100,8 @@ update or add the matching eval case in the same commit.
 3. Validate the manifests parse:
    `node -e "require('./.claude-plugin/plugin.json'); require('./.claude-plugin/marketplace.json')"`
 4. Commit and push to `main`.
-5. Update the installed copy:
+5. Update the installed copy — marketplace refresh first (the plugin is
+   served from the marketplace clone, so this is what fetches the new
+   version), then the plugin update, then restart Claude Code:
+   `claude plugin marketplace update rahul-claude-code-toolkit`
    `claude plugin update claude-code-toolkit@rahul-claude-code-toolkit`
-   (restart Claude Code to apply; if the new version isn't found, run
-   `claude plugin marketplace update rahul-claude-code-toolkit` first).
