@@ -24,7 +24,7 @@ project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 > generic agents — define a qa/verify skill in each repo's `.claude/`
 > directory instead. See [Migrating from v2](#migrating-from-v2).
 
-### Skills (5) — auto-loaded by Claude when context matches
+### Skills (6) — auto-loaded by Claude when context matches
 
 | Skill | What It Does |
 |-------|--------------|
@@ -33,12 +33,7 @@ project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 | `commit-push-pr` | Two-mode inner loop: fast atomic task commits (no gates), then gated PR creation — quality gates (repo tests/verify + review, security, perf, docs agents) run once over the full branch diff, findings are fixed, and the PR opens with a risk assessment |
 | `dev-tasks` | Maintains category-organized task files (plan/context/tasks) under `.claude/dev/` for cross-session memory |
 | `sharpen` | Proactively encodes a mistake or inefficiency (agent- or user-detected) into a permanent harness improvement — test, lint rule, CLAUDE.md entry — always with user consent before touching the harness |
-
-### Commands (1) — invoked via `/command-name`
-
-| Command | What It Does |
-|---------|--------------|
-| `/review-plan` | Critical staff engineer review of a plan before execution |
+| `review-plan` | Fresh-context staff engineer critique of a plan before execution, with a LOW/MEDIUM/HIGH/CRITICAL risk level on the pr-description scale — fires proactively before non-trivial plans |
 
 ### Bundled (already in Claude Code — use alongside this plugin)
 
@@ -222,7 +217,7 @@ each repo's `.claude/` directory — see [Migrating from v2](#migrating-from-v2)
 ```
 /sharpen                         → encode a mistake into a harness improvement (skill; also fires proactively)
 /commit-push-pr                  → commit mode by default; ship mode (gates + PR) when asked to ship
-/review-plan                     → critical review before executing a plan
+/review-plan                     → critical plan review with risk level (skill; also fires proactively)
 ```
 
 ---
@@ -231,7 +226,9 @@ each repo's `.claude/` directory — see [Migrating from v2](#migrating-from-v2)
 
 ### Daily Development
 1. Start session: `dev-tasks` (if picking up where you left off)
-2. Plan: Use Plan Mode, then `/review-plan` before executing
+2. Plan: Use Plan Mode; the `review-plan` skill critiques the plan in a
+   fresh-context subagent before executing (LOW/MEDIUM/HIGH/CRITICAL —
+   CRITICAL means reconsider the approach)
 3. Implement: Let Claude work in auto-accept mode
 4. Polish: `/simplify` after completing a feature
 5. Commit per task: `/commit-push-pr` — commit mode makes a fast, atomic
@@ -281,10 +278,10 @@ claude-code-toolkit/
 │   │   └── SKILL.md                 # Two-mode commit → PR inner loop
 │   ├── dev-tasks/
 │   │   └── SKILL.md                 # Task-specific cross-session context
-│   └── sharpen/
-│       └── SKILL.md                 # Mistake → harness improvement loop (consent-gated)
-├── commands/
-│   └── review-plan.md               # Critical plan review before execution
+│   ├── sharpen/
+│   │   └── SKILL.md                 # Mistake → harness improvement loop (consent-gated)
+│   └── review-plan/
+│       └── SKILL.md                 # Fresh-context plan critique with risk rubric
 ├── evals/                           # Behavioral eval cases (claude plugin eval layout)
 ├── .gitignore
 ├── CLAUDE.md                        # Guidance for Claude Code working on this repo
@@ -348,13 +345,16 @@ steps. `/commit-push-pr` discovers these automatically; if a repo has
 neither, its gates are recorded as `NOT RUN`, which raises the PR's risk
 level.
 
-Also in v3.0.0: `commit-push-pr` and `sharpen` moved from `commands/` to
-`skills/` — `/commit-push-pr` and `/sharpen` still work as invocations.
-Note that the quality gates run at **PR creation** (ship mode), not on
-every commit — intermediate task commits stay fast and gate-free. And
-`sharpen` now also fires proactively on detected mistakes or
-inefficiencies, proposing harness improvements that are applied only with
-explicit user consent.
+Also in v3.0.0: all three commands — `commit-push-pr`, `sharpen`, and
+`review-plan` — moved from `commands/` to `skills/` (the `commands/`
+directory is gone; the `/commit-push-pr`, `/sharpen`, and `/review-plan`
+invocations still work). Note that the quality gates run at **PR
+creation** (ship mode), not on every commit — intermediate task commits
+stay fast and gate-free. `sharpen` now also fires proactively on detected
+mistakes or inefficiencies, proposing harness improvements that are
+applied only with explicit user consent. And `review-plan` rates plans
+LOW/MEDIUM/HIGH/CRITICAL on the same scale as the pr-description risk
+assessment, running its critique in a fresh-context subagent.
 
 ---
 

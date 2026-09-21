@@ -15,10 +15,10 @@ consistent.
 - `agents/*.md` — subagent definitions (frontmatter + system prompt),
   auto-dispatched by request.
 - `skills/<name>/SKILL.md` — model-invoked skills, also invocable as
-  `/<name>`. `$ARGUMENTS` substitution works in `commands/*.md` but NOT in
-  SKILL.md files — skills must phrase argument handling as "if the user
-  provided X in their request".
-- `commands/*.md` — user-invoked slash commands.
+  `/<name>`. `$ARGUMENTS` substitution does NOT work in SKILL.md files
+  (it's a command-template feature) — skills must phrase argument
+  handling as "if the user provided X in their request". The repo no
+  longer ships a `commands/` directory; all former commands are skills.
 - `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` — the
   plugin manifest and the marketplace catalog. Both carry a `version`
   field that must stay in sync.
