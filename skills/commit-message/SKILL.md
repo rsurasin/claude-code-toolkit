@@ -63,15 +63,15 @@ IDs may be included:
 ## Dev-Tasks Separation
 
 `.claude/dev/` task files (the dev-tasks skill) are internal tracking
-state, like a local Jira — not code. Commit messages carry **zero trace**
-of the dev-tasks system:
+state — not code. Commit messages carry **zero trace** of the dev-tasks
+system:
 
 - No `.claude/dev/` paths
 - No dev-tasks task IDs (e.g., roadmap numbers like `2.1.2`)
 - No bookkeeping mentions ("update dev-tasks", "sync task context")
 
-When a dev-tasks context-file update rides along with its code commit,
-stage it silently — the message describes the code change only. External
+Dev-tasks files are gitignored working notes — they are never staged or
+committed, and the message describes the code change only. External
 tracker IDs (real Jira keys, GitHub issues) remain fine.
 
 ## Subject Line Rules

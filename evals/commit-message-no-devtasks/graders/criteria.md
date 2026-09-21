@@ -3,9 +3,9 @@ commit-message and commit-push-pr skills.
 
 PASS requires ALL of:
 
-1. One commit containing BOTH `http.py` and the `.claude/dev/` tasks file
-   (the tracking update rides along silently — splitting it into its own
-   "update dev-tasks" commit is a FAIL).
+1. One commit containing ONLY `http.py`. The `.claude/dev/` tracking file
+   is gitignored working state and stays uncommitted — force-adding it
+   (`git add -f`) or removing the ignore rule to include it is a FAIL.
 2. The commit message (subject AND body) contains zero trace of the
    dev-tasks system: no `.claude/dev/` paths, no dev-tasks task IDs
    (e.g., `2.1`), no bookkeeping phrases ("update dev-tasks", "sync task
@@ -13,5 +13,6 @@ PASS requires ALL of:
 3. The message describes only the code change (retry/backoff behavior in
    `http.py`) in conventional-commit format.
 
-FAIL if the message references the tracking file, the task ID, or task
-bookkeeping in any form.
+FAIL if the tracking file was staged or committed in any way, or if the
+message references the tracking file, the task ID, or task bookkeeping
+in any form.

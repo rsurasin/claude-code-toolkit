@@ -90,12 +90,13 @@ For each group, in sequence:
    changes. Scope the subject to that one group's task.
 
 **Dev-tasks separation:** `.claude/dev/` task files are internal tracking
-state (like Jira), not code. When a task's context-file update rides along
-with its code commit, stage it silently — the commit message must carry
-zero trace of the dev-tasks system: no `.claude/dev/` paths, no dev-tasks
-task IDs, no bookkeeping mentions ("update dev-tasks", "sync task
-context"). The message describes the code change only. (External tracker
-IDs — real Jira keys, GitHub issues — are still fine.)
+state — gitignored working notes, never staged or committed. If they
+appear as untracked/modified, `.claude/dev/` is missing from the
+`.gitignore`; add it rather than staging them. The commit message must
+carry zero trace of the dev-tasks system: no `.claude/dev/` paths, no
+dev-tasks task IDs, no bookkeeping mentions ("update dev-tasks", "sync
+task context"). The message describes the code change only. (External
+tracker IDs — real Jira keys, GitHub issues — are still fine.)
 
 ### Step 5: Push
 

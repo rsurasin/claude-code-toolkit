@@ -43,7 +43,8 @@ drift easily.
   two-mode: commit mode (fast, atomic, gate-free) and ship mode (all gates
   once over the full branch diff, findings fixed before the PR opens).
 - **Dev-tasks separation.** `.claude/dev/` task files are internal
-  tracking state (like Jira). Commit messages and PR descriptions carry
+  tracking state — gitignored, never staged or committed, invisible to
+  other contributors. Commit messages and PR descriptions carry
   zero trace of them — no paths, no dev-tasks task IDs, no bookkeeping
   mentions. External tracker IDs (Jira keys, GitHub issues) are fine.
 - **Atomic commits.** One commit = one task/logical change; never bundle
