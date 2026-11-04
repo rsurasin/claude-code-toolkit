@@ -64,17 +64,20 @@ git diff --function-context <merge-base>  # each hunk with its enclosing functio
 - Read the **enclosing function of every hunk**, not just the changed
   lines — `--function-context` gives a start; open the file when the
   function is long or the language isn't recognized.
-- If the current branch IS the base branch, fall back to the last commit
-  plus staged and unstaged changes (`git diff --name-only HEAD~1`,
-  `--staged`, and the working tree). Guard it with
-  `git rev-parse --verify --quiet HEAD~1`; in a single-commit repo,
-  review the whole tree with `HEAD` as the reference point.
+- If the current branch IS the base branch — compare branch names, with
+  any `origin/` prefix stripped, so local `main` matches `origin/main` —
+  fall back to the last commit plus staged and unstaged changes
+  (`git diff --name-only HEAD~1`, `--staged`, and the working tree).
+  Guard it with `git rev-parse --verify --quiet HEAD~1`; in a
+  single-commit repo, use the empty tree
+  (`git hash-object -t tree /dev/null`) as the reference point, so the
+  first commit's lines are `introduced`.
 - If the merge base equals `HEAD` on a feature branch (no commits yet),
   review only the staged, unstaged, and untracked changes.
 - If there's no git history, ask the user which files to review.
 
-Record the reference point — the merge base, or `HEAD~1` in the
-fallback: it decides whether a finding is **introduced** or **existing**
+Record the reference point — the merge base, or `HEAD~1` (or the empty
+tree) in the fallback: it decides whether a finding is **introduced** or **existing**
 (see Severity and Tags). "Merge base" below means this reference point.
 
 ## Parallel Review Dispatch
@@ -230,12 +233,11 @@ verification but must still cite file:line.
   also correct the severity or the introduced/existing tag.
 - Drop rejected candidates. A finding whose failure scenario can't be
   reproduced by reading the code is rejected, not downgraded.
-- Merge duplicates across subagents, keeping the highest severity.
-
 ## Synthesis
 
-Synthesize the confirmed findings into a single report. Format each
-finding as:
+Merge duplicates across subagents, keeping the highest severity. Then
+synthesize the confirmed MEDIUM-or-higher findings and the unverified
+LOW findings into a single report. Format each finding as:
 
 `- **[SEVERITY]** [introduced|existing] path/to/file.ext:LINE — what is wrong. Failure: <inputs/state → wrong result>. Fix: <concrete change>.`
 
@@ -243,7 +245,7 @@ finding as:
 ## Code Review — [files reviewed count] files
 **Scope:** [diff range or file list] (merge base: [short sha])
 **Verdict:** PASS | ISSUES ([highest severity among introduced findings])
-**Verification:** [n] candidates, [n] confirmed, [n] rejected
+**Verification:** [n] candidates verified, [n] confirmed, [n] rejected; [n] LOW reported unverified
 
 ### Critical / High (fix before merging)
 [CRITICAL and HIGH introduced findings]
@@ -262,8 +264,8 @@ finding as:
 etc. Positive feedback matters.]
 ```
 
-The verdict is `PASS` when no introduced findings survive verification;
-existing findings alone don't change it.
+The verdict is `PASS` only when no introduced finding is reported —
+LOW included; existing findings alone don't change it.
 
 ## Rules
 
