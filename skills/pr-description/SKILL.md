@@ -42,7 +42,9 @@ state why: migration, deletion, published contract, irreversible infra]
 | Tests | [repo's qa/test skill or agent, or test command] | [PASS / ISSUES (severity) / NOT RUN] |
 | Runtime verification | [repo's verify skill or agent] | [PASS / ISSUES (severity) / NOT RUN] |
 | Code review | `code-reviewer` agent | [PASS / ISSUES (severity) / NOT RUN] |
+| Code review (built-in) | `/code-review` skill | [PASS / ISSUES (severity) / NOT RUN / N/A] |
 | Security | `security-auditor` agent | [PASS / ISSUES (severity) / NOT RUN] |
+| Security (built-in) | `/security-review` skill | [PASS / ISSUES (severity) / NOT RUN / N/A] |
 | Performance | `perf-audit` agent | [PASS / ISSUES (severity) / NOT RUN] |
 | Docs | `doc-sync` agent | [PASS / ISSUES (severity) / NOT RUN] |
 
@@ -96,27 +98,37 @@ The risk level is computed from two inputs: **reversibility** of the change
 and **verification evidence** from this session. Fill the evidence table from
 what actually ran — never from what should have run.
 
+`NOT RUN` means the check exists but didn't run (no repo qa skill, a
+gate that errored or was skipped). `N/A` means a built-in skill isn't
+available in the running Claude Code version. Both are verification
+gaps.
+
 ### Levels
 
 - **LOW** — Two-way door AND every dimension ran clean: tests pass
-  end-to-end, and code review, security, performance, and docs checks all
-  ran with no issues found.
+  end-to-end, and every review, security, performance, and docs check
+  (agents and built-in skills alike) ran with no issues found. No
+  `NOT RUN` and no `N/A` rows.
 - **MEDIUM** — Two-way door with minor gaps: a non-critical dimension
-  (docs, performance, or runtime verification) was `NOT RUN`, or only
-  LOW-severity findings exist and all are acknowledged in the description.
+  (docs, performance, runtime verification, either code-review row, or
+  one of the two security rows while the other ran) was `NOT RUN` or
+  `N/A`, or only LOW-severity findings exist and all are acknowledged in
+  the description.
 - **HIGH** — One-way door with clean checks, OR significant verification
-  gaps (tests or security NOT RUN), OR unresolved MEDIUM/HIGH-severity
-  findings. Qualify the label so reviewers can tell the cause apart:
-  **HIGH (unverified)** when driven by `NOT RUN` gaps or a one-way door
-  with clean checks; **HIGH (findings)** when driven by unresolved
-  findings.
+  gaps (tests `NOT RUN`, or neither security gate ran), OR unresolved
+  MEDIUM/HIGH-severity findings. Qualify the label so reviewers can tell
+  the cause apart: **HIGH (unverified)** when driven by `NOT RUN` / `N/A`
+  gaps or a one-way door with clean checks; **HIGH (findings)** when
+  driven by unresolved findings.
 - **CRITICAL** — One-way door combined with gaps or findings, OR a critical
   security vulnerability, OR a serious performance regression, OR
   verification was largely skipped.
 
 ### Floors (a floor can only raise the level, never lower it)
 
-- Tests or Security `NOT RUN` ⇒ at best HIGH
+- Any dimension `NOT RUN` or `N/A` ⇒ at best MEDIUM (a gap is never LOW)
+- Tests `NOT RUN` ⇒ at best HIGH
+- Security and Security (built-in) both `NOT RUN` or `N/A` ⇒ at best HIGH
 - One-way door ⇒ at best HIGH
 - Critical security finding or serious performance regression ⇒ CRITICAL
 - Failing tests ⇒ CRITICAL
@@ -134,6 +146,20 @@ Verification sources report in different vocabularies. Map them as:
 | Repo verify skill/agent | fail | ISSUES (HIGH) |
 | code-reviewer / security-auditor / perf-audit / doc-sync | no findings | PASS |
 | code-reviewer / security-auditor / perf-audit / doc-sync | findings | ISSUES (highest severity found) |
+| `/code-review` | no findings | PASS |
+| `/code-review` | findings | ISSUES (highest severity assigned during triage) |
+| `/security-review` | no findings | PASS |
+| `/security-review` | findings | ISSUES (its highest reported severity) |
+| `/code-review` / `/security-review` | skill unavailable in this Claude Code version | N/A |
+| any gate | errored, timed out, or skipped | NOT RUN |
+
+`/code-review` reports findings without a severity; ship mode's triage
+step assigns one using the `code-reviewer` agent's severity definitions.
+When ship mode's triage has tagged findings **introduced** or
+**existing**, the verdict's severity comes from introduced findings
+only — a gate with only existing findings is PASS, and those findings
+are listed under Notes for Reviewers (with issue links when filed). A
+finding merged across reviewers counts in every source's row.
 
 ### Rules of evidence
 
@@ -142,12 +168,14 @@ Verification sources report in different vocabularies. Map them as:
   commands documented in its CLAUDE.md. The toolkit deliberately does not
   ship generic test/verify agents.
 - When this skill is invoked from `commit-push-pr` ship mode, the evidence
-  table comes from that single whole-branch gate run (`<base>...HEAD`).
-  Findings above the fix threshold were already fixed and their gates
-  re-run, so surviving ISSUES entries should be LOW and acknowledged.
+  table comes from that single whole-branch gate run (`<base>...HEAD`)
+  after its triage step. Introduced findings above the fix threshold were
+  already fixed and their gates re-run, so surviving ISSUES entries
+  should be LOW and acknowledged.
 - When this skill is invoked standalone (outside `/commit-push-pr`), use
   whatever evidence already exists in the session. Mark everything else
-  `NOT RUN` and let the floors raise the level. Never claim LOW without
+  `NOT RUN` (or `N/A` for a built-in skill this Claude Code version
+  doesn't have) and let the floors raise the level. Never claim LOW without
   evidence for every dimension.
 - Reversibility is judged from the diff: data migrations, schema changes,
   deleted data, published API/package changes, and infra mutations are

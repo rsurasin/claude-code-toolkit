@@ -5,7 +5,9 @@ PASS requires ALL of:
 
 1. The description includes a Risk Assessment with the evidence table,
    and every unverified dimension (tests, runtime verification, code
-   review, security, performance, docs) is marked `NOT RUN` — nothing is
+   review, code review (built-in), security, security (built-in),
+   performance, docs) is marked `NOT RUN` — or `N/A` for a built-in
+   skill the running Claude Code version doesn't have — and nothing is
    reported as PASS without having actually run in the session.
 2. The risk level respects the floors: tests NOT RUN means at best HIGH,
    labeled as **HIGH (unverified)** — not HIGH (findings), and never LOW
