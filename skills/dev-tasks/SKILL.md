@@ -32,7 +32,8 @@ working state only: plan, context, and task list.
 To create a task:
 
 1. Choose a category (see [Choosing a Category](#choosing-a-category)).
-2. Get today's UTC date with `date -u +%Y-%m-%d`.
+2. Get today's UTC date by running `date -u +%Y-%m-%d` — always run it; don't
+   take the date from session context, which may be local time.
 3. Build the path `.claude/dev/<category>/<YYYY-MM-DD>-<slug>/` where `<slug>`
    is a kebab-case description of the work. When the work has a GitHub issue,
    use `<YYYY-MM-DD>-gh-<N>-<slug>/` instead (see

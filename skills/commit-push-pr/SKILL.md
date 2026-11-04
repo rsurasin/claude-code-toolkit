@@ -176,7 +176,9 @@ which raises the risk level.
 ### Step 3: Evaluate — fix findings before the PR opens
 
 Normalize every gate result using the verdict normalization table in the
-`pr-description` skill, then compute the risk level from its rubric.
+`pr-description` skill, then compute the risk level from its rubric —
+apply its floors exactly (e.g. Tests or Security `NOT RUN` ⇒ at best
+**HIGH (unverified)**), never an estimate like "probably MEDIUM".
 
 **Hard stops — report and ask the user whether to fix first or proceed:**
 
@@ -204,9 +206,11 @@ honestly in the risk level instead.
 
 If the user did not explicitly state which branch to merge into, ask
 before creating the PR. Suggest the repo's default branch (from
-`git symbolic-ref refs/remotes/origin/HEAD`) as the recommended option,
-and list other long-lived branches if present (`develop`, `release/*`,
-`staging`). Never silently assume the default branch.
+`git symbolic-ref refs/remotes/origin/HEAD`) as the recommended option;
+with no remote, recommend the local `main` (or `master`). List other
+long-lived branches if present (`develop`, `release/*`, `staging`) as
+alternatives. Never silently assume the default branch. When you stop to
+ask, report the gate results and the rubric risk level with it.
 
 ### Step 5: Open PR
 
