@@ -1,3 +1,9 @@
+---
+type: llm
+weight: 1
+focus: trace
+---
+
 Grade the transcript against the code-reviewer agent's contract.
 
 PASS requires ALL of:
