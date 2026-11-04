@@ -4,12 +4,14 @@ description: >
   Two-mode inner development loop. Commit mode (default): fast, gate-free
   atomic commits — stage, write a conventional commit message per task,
   push. Ship mode: when the feature is complete and a pull request should
-  open, run the quality gates (the repo's own test and verification skills
-  plus the code-reviewer, security-auditor, perf-audit, and doc-sync
-  agents) over the full branch diff, fix findings, and open a PR with a
-  structured description and risk assessment. Uses the commit-message and
-  pr-description skills. Use when asked to commit changes, or to ship /
-  open a PR.
+  open, optionally run the built-in /simplify first, then run the quality
+  gates (the repo's own test and verification skills, the code-reviewer,
+  security-auditor, perf-audit, and doc-sync agents, and the built-in
+  /code-review and /security-review skills side by side) over the full
+  branch diff, triage and merge their findings, fix introduced ones, and
+  open a PR with a structured description and risk assessment. Uses the
+  commit-message and pr-description skills. Use when asked to commit
+  changes, or to ship / open a PR.
 ---
 
 # Commit, Push, PR — Two-Mode Inner Loop
@@ -30,8 +32,8 @@ whole feature at once. This skill therefore has two modes:
   done and no follow-up work remains.
 
 When in doubt, use commit mode. A missed ship is recoverable (invoke again
-and ask to ship); running six gates on a half-done feature wastes minutes
-and tokens.
+and ask to ship); running eight gates on a half-done feature wastes
+minutes and tokens.
 
 If the user provided a title or description in their request, use it as
 the PR title/summary override in ship mode Step 5.
@@ -40,8 +42,10 @@ the PR title/summary override in ship mode Step 5.
 
 ## Commit Mode
 
-Fast path: no gates, no PR. Note that shell variables do not persist
-between tool calls — derive values inline in the command that uses them.
+Fast path: no gates (no review agents, no built-in `/code-review`,
+`/security-review`, or `/simplify`), no PR. Note that shell variables do
+not persist between tool calls — derive values inline in the command
+that uses them.
 
 ### Step 1: Gather context
 
@@ -131,11 +135,26 @@ for speed.
 If uncommitted changes exist, run Commit Mode Steps 1–5 first (atomic
 grouping included). Ship mode starts from a clean tree.
 
+### Step 1b: Optional `/simplify` pre-pass
+
+Consider running the built-in `/simplify` over the branch diff before the
+gates, so cleanup (reuse, simplification, efficiency) lands before
+review rather than as review findings. Run it when the branch adds or
+restructures non-trivial code; skip it for docs-only or tiny diffs, or
+when the skill isn't available.
+
+`/simplify` applies its fixes to the working tree, so commit them
+atomically before Step 2 starts — Commit Mode Steps 3–5, e.g.
+`refactor(<scope>): simplify <area>` — and review the changes before
+staging them. The gates then review the simplified code. `/simplify` is
+a pre-step, not a gate: it gets no row in the risk table.
+
 ### Step 2: Run quality gates over the full branch diff
 
 Gates review the **entire feature** — `<base>...HEAD` — not the last
 commit. Discover the repo's own verification capabilities, then run all
-gates, in parallel where possible:
+gates, in parallel where possible — spawn the agents first, then invoke
+the built-in skills while the agents run:
 
 1. **Tests** — If the target repo defines a qa/test skill or agent in its
    `.claude/` directory, run that. Otherwise run the test suite using the
@@ -143,25 +162,74 @@ gates, in parallel where possible:
    neither exists, record `NOT RUN`.
 2. **Runtime verification** — If the repo defines a verify skill or agent
    in its `.claude/` directory, run that. Otherwise record `NOT RUN`.
-3. **`code-reviewer` agent** — review the branch diff.
-4. **`security-auditor` agent** — security audit of the branch diff.
+3. **`code-reviewer` agent** — review the branch diff (pass
+   `<base>...HEAD`).
+4. **`security-auditor` agent** — security audit of the branch diff, in
+   gate mode (tell it it runs unattended, so it records questions under
+   Scanning Gaps instead of prompting).
 5. **`perf-audit` agent** — performance audit of the branch diff.
 6. **`doc-sync` agent** — check whether docs drifted from the changes.
+7. **Built-in `/code-review`** — invoke the skill on the branch, so it
+   reviews `<base>...HEAD`, at its default effort level. Don't pass
+   `--fix` (fixes go through Step 3) or `--comment` (no PR exists yet).
+   **Never run `/code-review ultra` automatically** — it runs in the
+   cloud and is billed to the user, so only the user triggers it.
+8. **Built-in `/security-review`** — invoke the skill on the branch; it
+   reviews the changes the branch introduces.
 
-The review and audit gates are dedicated agents on purpose — do not
-replace them with in-context skill calls (including native code-review /
-security-review): a skill runs in the context that just wrote the code
-and inherits its assumptions, while a spawned agent reviews the diff cold
-and returns a verdict the rubric can normalize.
+Agents and built-in skills run side by side, never one instead of the
+other: side-by-side runs showed each catches defects the other misses.
+The agents bring installed tooling, existing-code coverage, performance,
+docs, test coverage, and `.claude/rules/`; `/code-review` traces callers
+and audits removed behavior; `/security-review` confirms every finding
+with a strict false-positive check. Step 2b merges them into one verdict.
+
+If a built-in skill isn't available in the running Claude Code version
+(not in the available skills list), record it as **`N/A`**. `N/A` is a
+verification gap and raises the risk level — a PR with an `N/A` gate is
+never LOW (see the `pr-description` floors).
 
 Capture each gate's outcome verbatim enough to normalize later. Do not
-skip gates in ship mode; a gate that didn't run is recorded as `NOT RUN`,
-which raises the risk level.
+skip gates in ship mode; a gate that is available but didn't run (or
+errored) is recorded as `NOT RUN`, which raises the risk level.
+
+### Step 2b: Triage — merge every reviewer's findings
+
+Triage the findings from all gates, agents and skills alike, into one
+list before evaluating:
+
+1. **Assign severities.** `/code-review` findings carry no severity:
+   assign CRITICAL / HIGH / MEDIUM / LOW to each from its failure
+   scenario, using the `code-reviewer` agent's severity definitions
+   (a reachable race that leaves inconsistent state is HIGH, however
+   small the fix). `/security-review` already reports HIGH, MEDIUM, or
+   LOW — keep it.
+2. **Merge duplicates.** When reviewers report the same defect (same
+   root cause, same location), keep one finding with the **highest**
+   severity any source gave it and name **every** source, e.g.
+   `[HIGH] (code-reviewer, /code-review)`.
+3. **Tag introduced vs existing.** **Introduced**: the defect lives in
+   lines this branch adds or changes, or the branch causes it.
+   **Existing**: already present at `git merge-base <base> HEAD` and not
+   worsened. Keep the agents' tags after a sanity check; tag
+   `/code-review` findings yourself (check `git diff <base>...HEAD` and
+   `git blame`). `/security-review` findings are introduced by design.
+4. **Check open issues.** For each existing finding, search the repo's
+   open issues (`gh issue list --state open --search "<keywords>"`) and
+   link a match.
+5. **Route.** Introduced findings go into the Step 3 fix-before-PR loop.
+   Existing findings don't block the PR: report them in the PR's Notes
+   for Reviewers with the matching issue link, or file a new issue
+   (`gh issue create`) when the user asked for it or approves — never
+   fix them inside this PR unprompted.
+
+Then normalize each gate's verdict from its triaged findings using the
+`pr-description` verdict normalization table.
 
 ### Step 3: Evaluate — fix findings before the PR opens
 
-Normalize every gate result using the verdict normalization table in the
-`pr-description` skill, then compute the risk level from its rubric.
+Using the normalized verdicts from Step 2b, compute the risk level from
+the `pr-description` rubric.
 
 **Hard stops — report and ask the user whether to fix first or proceed:**
 
@@ -171,19 +239,21 @@ Normalize every gate result using the verdict normalization table in the
 
 **Fix-before-PR loop — findings do not ship:**
 
-If the gates produced any HIGH-severity finding, or two or more
-MEDIUM-severity findings:
+If the triaged **introduced** findings include any HIGH-severity
+finding, or two or more MEDIUM-severity findings:
 
 1. Report the findings to the user
 2. Append them to the active dev-tasks context file, if one exists
 3. Fix the issues
-4. Re-run the affected gates (only the ones whose findings you fixed)
+4. Re-run the affected gates (only the ones whose findings you fixed —
+   every source named on a merged finding), then re-triage
 5. Repeat until the threshold is no longer met, or the user says to
    proceed anyway
 
 Only LOW-severity findings (acknowledged in the PR description) or clean
-gates proceed directly. `NOT RUN` gaps don't block — they are reflected
-honestly in the risk level instead.
+gates proceed directly. `NOT RUN` and `N/A` gaps don't block — they are
+reflected honestly in the risk level instead. Existing findings never
+block; Step 2b already routed them.
 
 ### Step 4: Confirm the PR base branch
 
@@ -201,7 +271,9 @@ Using the `pr-description` skill (including its Risk Assessment section):
 2. Generate the PR description with:
    - Summary (1-3 sentences, PM-readable)
    - Risk assessment — level, reversibility, and the evidence table filled
-     from the final Step 2/3 gate results
+     from the final Step 2/2b/3 gate results
+   - Existing findings from Step 2b under Notes for Reviewers, with
+     issue links
    - Changes grouped by area
    - Testing steps
    - Notes for reviewers
@@ -227,7 +299,8 @@ update the PR description's risk assessment with the latest gate results.
 
 **Branch:** <branch> → <base>
 **Risk:** <LOW / MEDIUM / HIGH / CRITICAL> (<one-line justification>)
-**Gates:** <n> ran clean, <n> fixed then clean, <n> not run
+**Gates:** <n> ran clean, <n> fixed then clean, <n> not run, <n> N/A
+**Existing issues:** <n> reported, <n> linked or filed
 **PR:** <url or instructions>
 **Files:** <count> changed, <insertions> insertions, <deletions> deletions
 ```
@@ -240,9 +313,15 @@ update the PR description's risk assessment with the latest gate results.
   per intermediate commit
 - One commit = one task; never bundle unrelated changes
 - Commit messages carry zero trace of the dev-tasks system
-- Findings above the threshold (any HIGH, or 2+ MEDIUM) are fixed before
-  the PR opens — never shipped with a risk label as a substitute for
-  fixing
+- Ship mode runs the review agents and the built-in `/code-review` and
+  `/security-review` side by side — never one instead of the other; an
+  unavailable built-in skill is `N/A`, which keeps the PR above LOW
+- Never run `/code-review ultra` automatically — it is user-triggered
+  and billed
+- Introduced findings above the threshold (any HIGH, or 2+ MEDIUM) are
+  fixed before the PR opens — never shipped with a risk label as a
+  substitute for fixing; existing findings are reported or filed, not
+  blocking
 - Never force push
 - Never commit `.env`, secrets, or large binary files
 - Never commit feature work directly to the default branch
