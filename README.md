@@ -31,7 +31,7 @@ project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 | `commit-message` | Generates conventional commit messages from diffs |
 | `pr-description` | Generates structured PR descriptions with a risk assessment (Low/Medium/High/Critical) computed from verification evidence and reversibility |
 | `commit-push-pr` | Two-mode inner loop: fast atomic task commits (no gates), then gated PR creation — quality gates (repo tests/verify + review, security, perf, docs agents) run once over the full branch diff, findings are fixed, and the PR opens with a risk assessment. Release mode (integration branch → default branch) lists the features merged since the last release with their release steps, and after the merge confirms the issues closed and marks the task folders released |
-| `dev-tasks` | Maintains category-organized task files (plan/context/tasks) under `.claude/dev/` for cross-session memory, with a status line per task (`in progress` → `PR open (#N)` → `merged to <base> (<sha>), not released` → `released (<release PR #N>, <date>)`) and the release steps each feature needs |
+| `dev-tasks` | Maintains category-organized task files (plan/context/tasks) under `.claude/dev/` for cross-session memory, with a status line per task (`in progress` → `PR open (#N)` → `merged to <base> (<sha>), not released` → `released (<release PR #N>, <date>)`) and the release steps each feature needs. Every product decision reached in conversation is recorded in the same turn, with the options considered, their pros and cons, why the winner won, and the trade-offs accepted |
 | `sharpen` | Proactively encodes a mistake or inefficiency (agent- or user-detected) into a permanent harness improvement — test, lint rule, CLAUDE.md entry — always with user consent before touching the harness |
 | `review-plan` | Fresh-context staff engineer critique of a plan before execution, with a LOW/MEDIUM/HIGH/CRITICAL risk level on the pr-description scale — fires proactively before non-trivial plans |
 
@@ -232,7 +232,10 @@ each repo's `.claude/` directory — see [Migrating from v2](#migrating-from-v2)
 2. Plan: Use Plan Mode; the `review-plan` skill critiques the plan in a
    fresh-context subagent before executing (LOW/MEDIUM/HIGH/CRITICAL —
    CRITICAL means reconsider the approach)
-3. Implement: Let Claude work in auto-accept mode
+3. Implement: Let Claude work in auto-accept mode. Whenever you settle a
+   product question along the way, `dev-tasks` records the decision in
+   the task's `context.md` in the same turn: options, pros and cons, why
+   it won, trade-offs, and when to revisit it
 4. Polish: `/simplify` after completing a feature
 5. Commit per task: `/commit-push-pr` — commit mode makes a fast, atomic
    commit (one task = one commit) and pushes; no gates, no PR
@@ -313,7 +316,7 @@ gitignored `.claude/dev/` tree, organized by category and date:
 ```
 .claude/dev/<category>/<YYYY-MM-DD>-<slug>/   # e.g. refactors/2026-06-28-datetime-package/
 ├── plan.md      # accepted implementation plan
-├── context.md   # append-only audit trail (decisions, constraints, gotchas)
+├── context.md   # append-only audit trail (decision records, constraints, gotchas)
 └── tasks.md     # work checklist with action log, release steps, and a final status line
 ```
 

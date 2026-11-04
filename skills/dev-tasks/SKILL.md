@@ -4,10 +4,12 @@ description: >
   Maintain task-specific context files (plan, context, tasks) under
   .claude/dev/ that persist across Claude Code sessions, including each
   task's status from in progress through PR, merge, and release, and the
-  steps a release must carry out. Use when starting a non-trivial feature,
-  when resuming work from a previous session, when a release closes out
-  merged work, or when asked to create or update development task
-  documentation. Bridges the "daily amnesia" problem. Repo-local so
+  steps a release must carry out, and a record of every product decision
+  with the options considered, their pros and cons, and why one won. Use
+  when starting a non-trivial feature, when resuming work from a previous
+  session, when a product decision is reached in conversation, when a
+  release closes out merged work, or when asked to create or update
+  development task documentation. Bridges the "daily amnesia" problem. Repo-local so
   contributors share the convention.
 ---
 
@@ -24,6 +26,24 @@ span repos go to Claude Code's native auto-memory (user-level);
 team-enforceable rules go through the sharpen skill into committed
 artifacts (CLAUDE.md / `.claude/rules/`). Dev-tasks holds task-scoped
 working state only: plan, context, and task list.
+
+## Top Priority: Record Product Decisions in the Same Turn
+
+This rule outranks everything else in the skill. Whenever a product
+decision or a statement of intended app behavior is reached in
+conversation (the user picks between options, settles how a feature
+should behave, or a review or follow-up discussion changes either),
+write it to the active task folder's `context.md` as a
+[decision record](#decision-records) **in the same turn, before moving on
+to any other work**. A decision is never left only in chat: months later
+the reasoning and the rejected options are what nobody remembers.
+
+- Record decisions made after the plan too: during implementation, in
+  review, or in follow-up discussion.
+- If no task folder is active, ask which task the decision belongs to,
+  or create one; never skip the record.
+- Session end checks that every decision discussed has a record (see
+  [Session End Behavior](#session-end-behavior)).
 
 ## When to Create Dev Tasks
 
@@ -95,8 +115,8 @@ choice is predictable:
 [Numbered steps of the implementation strategy]
 
 ## Key Decisions
-- [Decision 1]: [rationale]
-- [Decision 2]: [rationale]
+- [Decision title]: see context.md → Decisions → "[Decision title] ([YYYY-MM-DDThh:mm:ssZ])"
+- [Decision title]: see context.md → Decisions → "[Decision title] ([YYYY-MM-DDThh:mm:ssZ])"
 
 ## Files to Modify
 - [path]: [what changes]
@@ -137,9 +157,47 @@ note), leaving the original in place. Timestamp entries in **UTC ISO 8601**
 ## Gotchas Discovered
 - [gotcha 1]: [what happened and how to avoid it]
 
+## Decisions
+[One decision record per product decision; format below]
+
 ## Session Log
 - [YYYY-MM-DDThh:mm:ssZ]: [what was accomplished, what's left]
 ```
+
+### Decision records
+
+Each product decision gets one record under `## Decisions` in
+`context.md`. Records are append-only like the rest of the file:
+
+```markdown
+### [Decision title] ([YYYY-MM-DDThh:mm:ssZ])
+- **Decision:** [the intended behavior, in product terms]
+- **Context:** [the question, and what forced it]
+- **Options considered:**
+  - **[Option A]**: Pros: [...]. Cons: [...].
+  - **[Option B]**: Pros: [...]. Cons: [...].
+- **Chosen and why:** [the option, and why it beat each alternative]
+- **Trade-offs accepted:** [what the chosen option gives up]
+- **Revisit when:** [the conditions under which to reconsider it]
+- **Where it lives:** [issues, PRs, or committed docs that carry it, e.g.
+  "promoted to docs/product/logging.md in #52", or "not promoted"]
+```
+
+- List every option that was seriously discussed, including the ones
+  rejected, each with its own pros and cons. "Chosen and why" answers why
+  the winner beat each alternative, not just why it is good.
+- **Superseding:** a later change of mind is a *new* record with a
+  `- **Supersedes:** [old title] ([old timestamp])` line. The old record
+  stays. The only change allowed to it is one appended line,
+  `- **Superseded by:** [new title] ([new timestamp])`, so a reader of the
+  old record finds the new one.
+- **Promoting:** a durable product rule also belongs in the repo's
+  committed docs (which may need sign-off) or in an issue. When it is
+  promoted, append that to the record's "Where it lives" as a new line.
+  The committed copy states the rule and never references `.claude/dev/`;
+  the record keeps the full option comparison.
+- `plan.md` → Key Decisions links to records by title and timestamp
+  instead of holding one-line rationales.
 
 ### tasks.md
 
@@ -270,9 +328,16 @@ Before ending a session or switching tasks:
 2. Append any gotchas discovered to `context.md` (never overwrite)
 3. Append a session log entry to `context.md` with a UTC ISO 8601 timestamp and a summary
 4. If the plan changed during the session, update `plan.md`
+5. Decision check: go back over the session's conversation for product
+   decisions and statements of intended behavior. Any without a
+   [decision record](#decision-records) gets one now, and `plan.md` → Key
+   Decisions links to it
 
 ## Rules
 
+- **Product decisions are recorded in the same turn they are reached**, as a
+  [decision record](#decision-records) in `context.md`, never left only in chat
+  (see [Top Priority](#top-priority-record-product-decisions-in-the-same-turn))
 - Dev task files are living documents — update them as you learn, not just at start
 - **`context.md` is append-only — never delete or overwrite its content.** It is the
   session audit trail; record corrections and new findings as new entries, preserving
