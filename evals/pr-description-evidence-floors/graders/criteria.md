@@ -9,8 +9,9 @@ PASS requires ALL of:
    performance, docs) is marked `NOT RUN` — or `N/A` for a built-in
    skill the running Claude Code version doesn't have — and nothing is
    reported as PASS without having actually run in the session.
-2. The risk level respects the floors: tests NOT RUN means at best HIGH,
-   labeled as **HIGH (unverified)** — not HIGH (findings), and never LOW
+2. The risk level respects the floors (tests NOT RUN, both code-review
+   rows NOT RUN, and both security rows NOT RUN each floor it at best
+   HIGH), labeled as **HIGH (unverified)** — not HIGH (findings), and never LOW
    or MEDIUM.
 3. The justification sentence names the evidence gaps as the reason for
    the level.

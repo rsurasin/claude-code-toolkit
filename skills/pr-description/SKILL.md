@@ -31,7 +31,7 @@ this solve?" without requiring the reviewer to read the diff.]
 
 ## Risk Assessment
 
-**Risk Level: [LOW / MEDIUM / HIGH (unverified) / HIGH (findings) / CRITICAL]**
+**Risk Level: [LOW / MEDIUM / HIGH (unverified) / HIGH (findings) / HIGH (findings, unverified) / CRITICAL]**
 
 **Reversibility:** [Two-way door — revertible with a simple `git revert`,
 no data migrations, no published API/schema/infra changes | One-way door —
@@ -134,11 +134,11 @@ gaps.
 - Code review and Code review (built-in) both `NOT RUN` or `N/A` ⇒ at
   best HIGH
 - One-way door ⇒ at best HIGH
-- An introduced CRITICAL finding of any kind — or any CRITICAL security
-  finding when the evidence has no introduced/existing tags — or a
-  serious performance regression ⇒ CRITICAL. An existing critical
-  security finding doesn't set the PR's level — ship mode makes it a
-  hard stop instead
+- An introduced CRITICAL finding of any kind, or any CRITICAL security
+  finding outside ship mode (untagged, or from a full-scope audit), or
+  a serious performance regression ⇒ CRITICAL. Only in ship mode does
+  an existing critical security finding skip this floor — ship mode
+  makes it a hard stop instead
 - Failing tests ⇒ CRITICAL
 
 ### Verdict normalization
@@ -157,7 +157,7 @@ Verification sources report in different vocabularies. Map them as:
 | `/code-review` | no findings | PASS |
 | `/code-review` | findings | ISSUES (highest severity assigned during triage) |
 | `/security-review` | no findings | PASS |
-| `/security-review` | findings | ISSUES (its highest reported severity) |
+| `/security-review` | findings | ISSUES (highest severity after triage) |
 | `/code-review` / `/security-review` | skill unavailable in this Claude Code version | N/A |
 | any gate | errored, timed out, or skipped | NOT RUN |
 
@@ -168,7 +168,7 @@ triage has tagged findings **introduced** or **existing**, the verdict's
 severity comes from introduced findings only (LOW included) — a gate
 with only existing findings is PASS. Existing non-security findings are
 listed under Notes for Reviewers (with issue links when filed); existing
-security findings at MEDIUM or above are reported to the user, not
+security findings, at any severity, are reported to the user, not
 published in the PR body. A finding merged across reviewers appears in
 every source's row at the severity that source gave it (triage-assigned
 for `/code-review`); the merged, highest severity drives the fix loop
@@ -234,5 +234,7 @@ likelihood only when the triggering state is shown to be unreachable.
   the diff didn't introduce — or of any security finding from a
   full-scope audit — into the description. Write "security finding(s)
   reported privately", tell the user the details directly, and
-  recommend a private channel such as a GitHub security advisory
+  recommend a private channel such as a GitHub security advisory. When
+  a security finding's provenance is unclear (no introduced/existing
+  tag), treat it as not introduced
 - Keep it concise — a PR description longer than the diff is a red flag
