@@ -16,13 +16,13 @@ reports early access). Run from the repo root:
 
 ```bash
 # Whole suite against the working tree (no push or reinstall needed)
-claude plugin eval . --allow-tools Bash Write Edit
+claude plugin eval .
 
 # One case, one run per arm, no no-plugin baseline: a quick check
-claude plugin eval . --case pr-description-non-ui-output --runs 1 --ablation none --allow-tools Bash Write Edit
+claude plugin eval . --case pr-description-non-ui-output --runs 1 --ablation none
 
 # Against the installed plugin instead of the working tree
-claude plugin eval claude-code-toolkit@rahul-claude-code-toolkit --allow-tools Bash Write Edit
+claude plugin eval claude-code-toolkit@rahul-claude-code-toolkit
 ```
 
 Both targets run a second, no-plugin baseline arm by default, so the
@@ -30,8 +30,6 @@ report shows what the plugin adds; `--ablation none` skips it.
 
 Useful options:
 
-- `--allow-tools Bash Write Edit` — every case builds a scratch git
-  project, so they need these tools.
 - `--case <glob>` — run only matching cases.
 - `--runs <n>` — runs per arm (default 3). Single runs are noisy; confirm
   a change at 3.
@@ -42,6 +40,34 @@ Useful options:
 
 The criteria files also work as manual review checklists when changing
 the corresponding skills and agents.
+
+## Case Format
+
+Each case is a directory with a `prompt.md` and a `graders/criteria.md`.
+Both files need frontmatter; the runner rejects a case without it.
+
+`prompt.md`: every case builds a scratch git project, so it grants the
+tools for that:
+
+```markdown
+---
+max_turns: 30
+allowed_tools: [Read, Glob, Grep, Skill, Bash, Write, Edit, Agent]
+---
+<user-style prompt>
+```
+
+`graders/criteria.md`: an LLM-judged checklist:
+
+```markdown
+---
+type: llm
+weight: 1
+---
+<PASS / FAIL criteria>
+```
+
+Add a row for each new case to the tables below.
 
 ## Skill Cases
 

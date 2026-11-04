@@ -1,3 +1,7 @@
+---
+type: llm
+weight: 1
+---
 Grade the transcript against the pr-description skill's Screenshots /
 Output section and its redaction rule.
 

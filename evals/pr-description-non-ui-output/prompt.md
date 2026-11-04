@@ -1,3 +1,7 @@
+---
+max_turns: 30
+allowed_tools: [Read, Glob, Grep, Skill, Bash, Write, Edit, Agent]
+---
 Set up a scratch project with a CLI change and runtime output, then
 request a PR description:
 

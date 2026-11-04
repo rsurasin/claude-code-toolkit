@@ -78,14 +78,17 @@ Behavioral eval cases live under `evals/` (one dir per case: `prompt.md`
 
 ```bash
 # whole suite against the working tree (no push/reinstall needed)
-claude plugin eval . --allow-tools Bash Write Edit
+claude plugin eval .
 # one case, quick check
-claude plugin eval . --allow-tools Bash Write Edit --case <case> --runs 1 --ablation none
+claude plugin eval . --case <case> --runs 1 --ablation none
 ```
 
-Every case builds a scratch git project, hence `--allow-tools`. Single
-runs are noisy; confirm a change at the default 3 runs. See
-`evals/README.md` for more options.
+Every case needs frontmatter or the runner rejects it. `prompt.md`
+starts with `max_turns` and `allowed_tools` (every case builds a scratch
+git project, so it needs Bash, Write and Edit); `graders/criteria.md`
+starts with `type: llm` and `weight: 1`. Copy an existing case's
+frontmatter; `evals/README.md` has the exact block. Single runs are
+noisy; confirm a change at the default 3 runs.
 
 When changing a skill's contract (modes, thresholds, separation rules),
 update or add the matching eval case in the same commit.
