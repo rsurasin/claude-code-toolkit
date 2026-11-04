@@ -100,7 +100,9 @@ For each group, in sequence:
    generated files that should be in `.gitignore`
 3. Write the message using the `commit-message` skill conventions — type,
    scope, imperative subject <72 chars, body with what/why for non-trivial
-   changes. Scope the subject to that one group's task.
+   changes. Scope the subject to that one group's task. Pass the message
+   with `git commit -F - <<'EOF'` … `EOF` rather than `-m "<message>"`, so
+   backticks and `$(...)` in it stay literal.
 
 **Dev-tasks separation:** `.claude/dev/` task files are internal tracking
 state — gitignored working notes, never staged or committed. If they
@@ -224,14 +226,23 @@ If the user provided a title/description override, use it instead of
 generating one.
 
 ```bash
-gh pr create --title "<title>" --body "<description>" --base <confirmed-base>
+gh pr create --title '<title>' --base <confirmed-base> --body-file - <<'EOF'
+<description>
+EOF
 
 # Or if gh isn't available, provide the URL
 echo "Create PR at: https://github.com/$(git remote get-url origin | sed 's/.*github.com[:/]//' | sed 's/.git$//')/compare/<confirmed-base>...<branch>"
 ```
 
+Pass the description through `--body-file -` and a quoted heredoc
+(`<<'EOF'`), never inline as `--body "<description>"`: descriptions are
+markdown full of backticks, and diffs or gate findings can put `$(...)` or
+`$VAR` in them, which a double-quoted argument would execute or expand.
+Single-quote the title (write a literal `'` as `'\''`).
+
 If the branch already has an open PR, push without creating a new one and
-update the PR description's risk assessment with the latest gate results.
+update the PR description's risk assessment with the latest gate results
+(`gh pr edit <number> --body-file - <<'EOF'` … `EOF`, same quoting rule).
 
 ### Step 6: Report
 
