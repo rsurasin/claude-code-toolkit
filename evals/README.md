@@ -32,7 +32,7 @@ substitute) and the agent's *contract* (its output holds its promises).
 | `commit-mode-no-gates` | commit-push-pr | Intermediate commits run no gate agents and open no PR |
 | `commit-mode-atomic-split` | commit-push-pr | Multi-task working trees become separate atomic commits |
 | `ship-mode-base-branch` | commit-push-pr | Ship mode asks for the PR base branch when unstated |
-| `ship-mode-builtin-gates` | commit-push-pr | Ship mode runs `/code-review` and `/security-review` alongside the agents, triages their findings into one risk table, fixes the introduced race, and keeps `N/A` gates above LOW |
+| `ship-mode-builtin-gates` | commit-push-pr | Ship mode runs `/code-review` and `/security-review` alongside the agents, triages their findings into one risk table, commits a fix for the introduced race before re-running gates, and keeps `N/A` gates above LOW |
 | `commit-message-no-devtasks` | commit-message | Commit messages carry zero trace of dev-tasks state |
 | `commit-message-breaking-change` | commit-message | Breaking API changes get `!` and a `BREAKING CHANGE:` footer |
 | `pr-description-evidence-floors` | pr-description | Unverified dimensions are NOT RUN and floor the risk at HIGH (unverified) |
