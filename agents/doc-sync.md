@@ -99,6 +99,13 @@ For each fix:
 6. If uncertain about intent, flag it with `<!-- TODO: verify intent -->` and
    move on — never guess at what the code *should* do
 
+**Gate mode:** when invoked as a quality gate (commit-push-pr ship mode,
+or any caller that says it runs unattended and report-only), skip this
+step entirely. Don't ask for permission, don't edit any file, and don't
+insert TODO markers — report every needed change, with its severity and
+the exact suggested text, under "Proposed Fixes" in the summary. The
+caller applies the fixes.
+
 ### Step 5: Summary Report
 
 ```
@@ -110,6 +117,9 @@ For each fix:
 - [count] MISSING coverage gaps filled
 - [count] MINOR fixes
 
+### Proposed Fixes (gate mode only)
+- [severity] path:line — current text → suggested text
+
 ### Flagged for Human Review
 - [list any items where intent was unclear]
 
@@ -120,7 +130,8 @@ For each fix:
 ## Rules
 
 - Provide summary report to user
-- Ask for permission to make updates to documentation
+- Ask for permission to make updates to documentation — in gate mode,
+  never ask and never edit; report proposed fixes instead
 - Never delete documentation — update it or flag it
 - Never invent documentation for code you don't understand — flag it instead
 - Preserve the existing voice and style of each document
