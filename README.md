@@ -208,6 +208,7 @@ each repo's `.claude/` directory — see [Migrating from v2](#migrating-from-v2)
 "commit this"                    → commit-push-pr skill (commit mode: fast atomic commit + push)
 "ship this / open a PR"          → commit-push-pr skill (ship mode: gates over full branch diff, then PR)
 "let's plan the logging feature" → dev-tasks skill (creates .claude/dev/features/<date>-<slug>/)
+"let's plan GitHub issue #31"    → dev-tasks skill (creates .claude/dev/features/<date>-gh-31-<slug>/)
 "catch me up"                    → dev-tasks skill (reads existing task files)
 "no, do it this way" (a correction) → sharpen skill (proposes a harness rule; asks consent first)
 ```

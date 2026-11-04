@@ -19,10 +19,19 @@ understand what changed, why, how risky it is, and how to verify it.
 2. Read any related CLAUDE.md rules for context
 3. Identify the category and scope of changes
 4. Gather verification evidence from the session (see Risk Assessment Rubric)
-5. Check the branch name for an issue number (`git rev-parse --abbrev-ref HEAD`):
-   if it carries `gh-<N>-` (e.g. `feat/gh-31-password-reset`) and the body has no
-   `Closes #N` / `Fixes #N` for it, suggest adding `Closes #N` — GitHub links
-   the issue through the PR body, not the branch name
+5. Collect the GitHub issues this PR resolves. Sources: issues the user named,
+   and a `gh-<N>-` segment in the branch name (`git rev-parse --abbrev-ref HEAD`,
+   e.g. `feat/gh-31-password-reset`) — use it only when `<N>` is digits only.
+   GitHub links issues through the PR body, not the branch name, so the
+   description must carry the reference:
+   - Write `Closes #N` (on its own line at the end of the Summary) when the
+     user named the issue, or the branch number agrees with the active
+     dev-tasks folder's `gh-<N>-` — two sources confirm it.
+   - If the branch number is the only source, or the PR only partly
+     addresses the issue, write `Refs #N` instead and mention it in your
+     report, so a stale or reused branch name never closes the wrong issue.
+   - Closing keywords only fire when the PR merges into the default branch;
+     for another base, `Closes #N` still documents intent but won't auto-close.
 6. Generate the description
 
 ## Template

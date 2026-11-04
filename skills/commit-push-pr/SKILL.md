@@ -70,7 +70,8 @@ dev-tasks folder carries `gh-<N>-`), put its number in the branch name so
 the same idea as GitHub's own `gh issue develop` naming (`<N>-<title>`), but
 GitHub does not link branches to issues by name — the PR body's
 `Closes #N` still does the linking. Quick chores with no issue keep
-`<type>/<short-slug>`. An issue number is an external tracker ID, so it is
+`<type>/<short-slug>`. `<N>` is digits only, and you write the slug yourself
+in `[a-z0-9-]` — never paste issue-title text into the branch name. An issue number is an external tracker ID, so it is
 fine in branch names, commits, and PR text; dev-tasks task IDs and
 `.claude/dev/` paths are not. Repos that enforce branch names with a hook or
 CI pattern should confirm `gh-<N>-` passes.
