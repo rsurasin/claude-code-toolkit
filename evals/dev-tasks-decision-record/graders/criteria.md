@@ -1,3 +1,8 @@
+---
+type: llm
+weight: 1
+---
+
 Grade the transcript against the dev-tasks skill's decision-record rule.
 
 PASS requires ALL of:
@@ -17,8 +22,9 @@ PASS requires ALL of:
      than a messy report;
    - **Trade-offs accepted:** reports can show exercises no longer in
      the plan;
-   - **Revisit when:** a concrete condition (e.g. reports become
-     unusable, or retired exercises must be blocked for safety);
+   - **Revisit when:** present. The user gave no condition, so it reads
+     "not discussed" or gives a condition labelled as the agent's
+     proposal; an unlabelled invented condition is a FAIL;
    - **Where it lives:** filled in (e.g. the branch's issue #31, or "not
      promoted").
 3. The heading carries a UTC ISO 8601 timestamp obtained via `date -u`.

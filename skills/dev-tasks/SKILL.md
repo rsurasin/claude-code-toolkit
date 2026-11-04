@@ -33,8 +33,9 @@ decision or a statement of intended app behavior is reached in
 conversation (the user picks between options, settles how a feature
 should behave, or a review or follow-up discussion changes either),
 write it to the active task folder's `context.md` as a
-[decision record](#decision-records) **in the same turn, before moving on
-to any other work**. A decision is never left only in chat: months later
+[decision record](#decision-records), and link it from `plan.md` → Key
+Decisions, **in the same turn, before moving on to any other work**. A
+decision is never left only in chat: months later
 the reasoning and the rejected options are what nobody remembers.
 
 - Record decisions made after the plan too: during implementation, in
@@ -185,13 +186,17 @@ Each product decision gets one record under `## Decisions` in
 - List every option that was seriously discussed, including the ones
   rejected, each with its own pros and cons. "Chosen and why" answers why
   the winner beat each alternative, not just why it is good.
+- Never invent what wasn't discussed. If only one option came up, write
+  "only this option was discussed". If no revisit condition came up, write
+  "not discussed", or suggest one labelled "(proposed by the agent)".
 - **Superseding:** a later change of mind is a *new* record with a
   `- **Supersedes:** [old title] ([old timestamp])` line. The old record
   stays. The only change allowed to it is one appended line,
   `- **Superseded by:** [new title] ([new timestamp])`, so a reader of the
   old record finds the new one.
 - **Promoting:** a durable product rule also belongs in the repo's
-  committed docs (which may need sign-off) or in an issue. When it is
+  committed docs (which may need sign-off) or in an issue. Propose the
+  promotion and do it only with the user's approval. When it is
   promoted, append that to the record's "Where it lives" as a new line.
   The committed copy states the rule and never references `.claude/dev/`;
   the record keeps the full option comparison.

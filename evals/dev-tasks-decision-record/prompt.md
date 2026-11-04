@@ -1,3 +1,8 @@
+---
+max_turns: 30
+allowed_tools: [Read, Glob, Grep, Skill, Bash, Write, Edit, Agent]
+---
+
 Set up a scratch project with an active task, then settle a product
 question and keep working:
 
