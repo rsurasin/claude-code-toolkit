@@ -7,16 +7,21 @@ description: >
   open, run the quality gates (the repo's own test and verification skills
   plus the code-reviewer, security-auditor, perf-audit, and doc-sync
   agents) over the full branch diff, fix findings, and open a PR with a
-  structured description and risk assessment. Uses the commit-message and
-  pr-description skills. Use when asked to commit changes, or to ship /
-  open a PR.
+  structured description and risk assessment. Release mode, ship mode's
+  variant for a PR from an integration branch (e.g. dev) to the default
+  branch: list the features merged since the last release, put them and
+  their release steps in the release PR, and after it merges confirm the
+  issues closed and close out the dev-tasks folders. Uses the
+  commit-message, pr-description, and dev-tasks skills. Use when asked to
+  commit changes, to ship / open a PR, or to open or close out a release.
 ---
 
 # Commit, Push, PR — Two-Mode Inner Loop
 
 Intermediate task commits should be fast and frequent. Quality gates are
 expensive and belong at the pull-request boundary, where they review the
-whole feature at once. This skill therefore has two modes:
+whole feature at once. This skill therefore has two modes, plus a release
+variant of ship mode:
 
 ## Mode Selection
 
@@ -28,6 +33,13 @@ whole feature at once. This skill therefore has two modes:
   pull request", or provided a PR title), OR when you judge the feature
   complete on your own — e.g., every task in the active dev-tasks file is
   done and no follow-up work remains.
+- **Release mode** — ship mode's variant for a release PR: the head is a
+  long-lived integration branch (`dev`, `develop`, `staging`) and the base
+  is the default branch. Enter it when the user asks to release, to
+  promote the integration branch ("promote dev to main", "open the release
+  PR"), or to close out a merged release ("the release PR merged"), and
+  when a PR is requested while HEAD is the integration branch and the
+  base is the default branch.
 
 When in doubt, use commit mode. A missed ship is recoverable (invoke again
 and ask to ship); running six gates on a half-done feature wastes minutes
@@ -105,6 +117,17 @@ git push -u origin "$(git rev-parse --abbrev-ref HEAD)"
 ```
 
 If push fails due to divergence, report the conflict — don't force push.
+
+**Task status:** if an active dev-tasks folder exists for this work, keep
+its `tasks.md` status line current (states and transitions are defined in
+the dev-tasks skill's Status and Release Tracking section). Set
+`Status: in progress` when the line is missing or the folder's PR was
+closed without merging; leave `PR open (#N)` as is when this branch
+already has an open PR. If the folder says the work already merged or
+released, stop and ask: new commits belong on a new branch with its own
+folder (as for release-mode gate fixes, see `release-mode.md`). Never create
+a folder just to hold a status. The status update is gitignored working
+state and is never staged.
 
 ### Step 6: Report
 
@@ -220,6 +243,12 @@ echo "Create PR at: https://github.com/$(git remote get-url origin | sed 's/.*gi
 If the branch already has an open PR, push without creating a new one and
 update the PR description's risk assessment with the latest gate results.
 
+Task status: before `gh pr create`, make sure the active dev-tasks
+folder's `## Release Steps` lists anything the release will need (deploy
+pairings, migrations, flags), or `None`. Once the PR exists, set its
+status line to `Status: PR open (#N)` and append the transition to its
+`context.md` Session Log.
+
 ### Step 6: Report
 
 ```
@@ -231,6 +260,18 @@ update the PR description's risk assessment with the latest gate results.
 **PR:** <url or instructions>
 **Files:** <count> changed, <insertions> insertions, <deletions> deletions
 ```
+
+---
+
+## Release Mode
+
+In release mode, read [`release-mode.md`](release-mode.md) in this
+skill's directory and follow it. In short: list the PRs merged into the
+integration branch since the last release, map each to its dev-tasks
+folder, run the gates over the release diff, and open the release PR with
+the feature list, release steps, and a `Closes #N` per issue. After it
+merges, confirm the issues closed, do (with per-step approval) or hand
+off the release steps, and mark the folders `released`.
 
 ---
 
@@ -250,4 +291,10 @@ update the PR description's risk assessment with the latest gate results.
 - On a hard stop (failing tests, critical security finding, serious perf
   regression), never push without explicit user approval
 - Ask for the PR base branch unless the user stated it
+- Release PRs list features, PR and issue numbers, and release steps,
+  never dev-tasks paths, folder names, task IDs, or secret values
+- Never commit onto the integration or default branch in release mode
+- Never mark a task folder `released` before its release PR merges, and
+  never run a release step without the user's explicit approval for that
+  step
 - If `gh` CLI isn't available, provide the manual PR creation URL

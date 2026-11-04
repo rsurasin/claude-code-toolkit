@@ -30,8 +30,8 @@ project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 |-------|--------------|
 | `commit-message` | Generates conventional commit messages from diffs |
 | `pr-description` | Generates structured PR descriptions with a risk assessment (Low/Medium/High/Critical) computed from verification evidence and reversibility |
-| `commit-push-pr` | Two-mode inner loop: fast atomic task commits (no gates), then gated PR creation — quality gates (repo tests/verify + review, security, perf, docs agents) run once over the full branch diff, findings are fixed, and the PR opens with a risk assessment |
-| `dev-tasks` | Maintains category-organized task files (plan/context/tasks) under `.claude/dev/` for cross-session memory |
+| `commit-push-pr` | Two-mode inner loop: fast atomic task commits (no gates), then gated PR creation — quality gates (repo tests/verify + review, security, perf, docs agents) run once over the full branch diff, findings are fixed, and the PR opens with a risk assessment. Release mode (integration branch → default branch) lists the features merged since the last release with their release steps, and after the merge confirms the issues closed and marks the task folders released |
+| `dev-tasks` | Maintains category-organized task files (plan/context/tasks) under `.claude/dev/` for cross-session memory, with a status line per task (`in progress` → `PR open (#N)` → `merged to <base> (<sha>), not released` → `released (<release PR #N>, <date>)`) and the release steps each feature needs. Every product decision reached in conversation is recorded in the same turn, with the options considered, their pros and cons, why the winner won, and the trade-offs accepted |
 | `sharpen` | Proactively encodes a mistake or inefficiency (agent- or user-detected) into a permanent harness improvement — test, lint rule, CLAUDE.md entry — always with user consent before touching the harness |
 | `review-plan` | Fresh-context staff engineer critique of a plan before execution, with a LOW/MEDIUM/HIGH/CRITICAL risk level on the pr-description scale — fires proactively before non-trivial plans |
 
@@ -207,6 +207,8 @@ each repo's `.claude/` directory — see [Migrating from v2](#migrating-from-v2)
 "generate a PR description"      → pr-description skill (with risk assessment)
 "commit this"                    → commit-push-pr skill (commit mode: fast atomic commit + push)
 "ship this / open a PR"          → commit-push-pr skill (ship mode: gates over full branch diff, then PR)
+"promote dev to main"            → commit-push-pr skill (release mode: feature list + release steps in the release PR)
+"the release PR merged"          → commit-push-pr skill (release mode: confirm issues closed, close out task folders)
 "let's plan the logging feature" → dev-tasks skill (creates .claude/dev/features/<date>-<slug>/)
 "catch me up"                    → dev-tasks skill (reads existing task files)
 "no, do it this way" (a correction) → sharpen skill (proposes a harness rule; asks consent first)
@@ -216,7 +218,7 @@ each repo's `.claude/` directory — see [Migrating from v2](#migrating-from-v2)
 
 ```
 /sharpen                         → encode a mistake into a harness improvement (skill; also fires proactively)
-/commit-push-pr                  → commit mode by default; ship mode (gates + PR) when asked to ship
+/commit-push-pr                  → commit mode by default; ship mode (gates + PR) when asked to ship; release mode for an integration → default branch PR
 /review-plan                     → critical plan review with risk level (skill; also fires proactively)
 ```
 
@@ -225,18 +227,24 @@ each repo's `.claude/` directory — see [Migrating from v2](#migrating-from-v2)
 ## Recommended Workflow
 
 ### Daily Development
-1. Start session: `dev-tasks` (if picking up where you left off)
+1. Start session: `dev-tasks` (if picking up where you left off); it also
+   lists task folders still `merged to <base> (<sha>), not released`
 2. Plan: Use Plan Mode; the `review-plan` skill critiques the plan in a
    fresh-context subagent before executing (LOW/MEDIUM/HIGH/CRITICAL —
    CRITICAL means reconsider the approach)
-3. Implement: Let Claude work in auto-accept mode
+3. Implement: Let Claude work in auto-accept mode. Whenever you settle a
+   product question along the way, `dev-tasks` records the decision in
+   the task's `context.md` in the same turn: options, pros and cons, why
+   it won, trade-offs, and when to revisit it
 4. Polish: `/simplify` after completing a feature
 5. Commit per task: `/commit-push-pr` — commit mode makes a fast, atomic
    commit (one task = one commit) and pushes; no gates, no PR
 6. Ship: when the feature is complete, "open a PR" — ship mode runs the
    quality gates once over the full branch diff (your repo's qa/verify
    skills plus code review, security, performance, and docs agents), fixes
-   any findings, then opens a PR with a risk assessment
+   any findings, then opens a PR with a risk assessment. The task folder's
+   status moves to `PR open (#N)`, then to `merged to <base> (<sha>), not
+   released` once the PR merges into an integration branch
 7. Learn: the `sharpen` skill fires on any mistake or correction — agent-
    or user-detected — and proposes a permanent harness improvement,
    applying it only with your consent (`/sharpen` still works explicitly)
@@ -251,6 +259,24 @@ each repo's `.claude/` directory — see [Migrating from v2](#migrating-from-v2)
 2. `security-auditor` agent: "full security audit"
 3. `perf-audit` agent: "performance audit before release"
 4. Your repo's verify skill/agent: "full verification"
+
+### Releasing an Integration Branch
+For repos that merge features into an integration branch (e.g. `dev`) and
+promote it to the default branch later:
+
+1. "Promote dev to main": `commit-push-pr` release mode lists the PRs
+   merged since the last release, maps each to its task folder (by the
+   `gh-<N>` in the branch or folder name, or the issue it closes), runs
+   the gates over the release diff, and opens the release PR with the
+   feature list, each feature's release steps (deploy pairings,
+   migrations, flags), and a `Closes #N` per issue. It carries no `.claude/dev/` paths or task IDs.
+2. "The release PR merged": release mode confirms every `Closes #N` issue
+   closed, does the release steps you approve or hands them off, and marks
+   each task folder `released (<release PR #N>, <date>)`.
+
+In repos without an integration branch, a feature PR merged straight into
+the default branch is its own release: the same post-merge closeout runs
+for it.
 
 ---
 
@@ -275,7 +301,8 @@ claude-code-toolkit/
 │   ├── pr-description/
 │   │   └── SKILL.md                 # PR description generator w/ risk assessment
 │   ├── commit-push-pr/
-│   │   └── SKILL.md                 # Two-mode commit → PR inner loop
+│   │   ├── SKILL.md                 # Two-mode commit → PR inner loop
+│   │   └── release-mode.md          # Release PR + post-merge closeout (read in release mode)
 │   ├── dev-tasks/
 │   │   └── SKILL.md                 # Task-specific cross-session context
 │   ├── sharpen/
@@ -294,8 +321,8 @@ gitignored `.claude/dev/` tree, organized by category and date:
 ```
 .claude/dev/<category>/<YYYY-MM-DD>-<slug>/   # e.g. refactors/2026-06-28-datetime-package/
 ├── plan.md      # accepted implementation plan
-├── context.md   # append-only audit trail (decisions, constraints, gotchas)
-└── tasks.md     # work checklist with status & action log
+├── context.md   # append-only audit trail (decision records, constraints, gotchas)
+└── tasks.md     # work checklist with action log, release steps, and a final status line
 ```
 
 Categories: `features/`, `refactors/`, `fixes/`, `chores/`, `research/`.

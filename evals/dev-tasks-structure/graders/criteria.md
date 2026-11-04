@@ -7,7 +7,8 @@ PASS requires ALL of:
    (this is a new feature), a date prefix obtained via `date -u`
    (UTC, not a guessed or hardcoded date), and a kebab-case slug.
 2. The folder contains all three files: `plan.md`, `context.md`, and
-   `tasks.md`, each following the skill's documented format.
+   `tasks.md`, each following the skill's documented format. `tasks.md`
+   has a `## Release Steps` section and ends with `Status: in progress`.
 3. `.claude/dev/` is ensured present in the project's `.gitignore`, and
    the task files are NOT staged or committed.
 4. No dev-tasks trace appears in any commit message made during the run.
