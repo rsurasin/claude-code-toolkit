@@ -79,9 +79,9 @@ the feature can test it.]
 
 ## Screenshots / Output
 
-[UI change: screenshots. Non-UI change: trimmed runtime-verification
-output. Nothing runnable: "N/A — <why>". See "Screenshots / Output
-Guidance" below.]
+[UI change: screenshots. Non-UI change or refactor: trimmed runtime
+output, or "Runtime verification NOT RUN — no output captured". Nothing
+runnable: "N/A — <reason>". See "Screenshots / Output Guidance" below.]
 
 ## Notes for Reviewers
 
@@ -174,17 +174,24 @@ edited out.
 
 - Anywhere in the description (output, Testing steps, examples, notes),
   never include tokens (test tokens too), API keys, passwords, JWTs,
-  private keys, cookies (request or `Set-Cookie`), `Authorization` / `X-Api-Key` /
-  other auth headers, credentials inside URLs (`user:pass@host`), signed
-  URLs or query-string tokens, or values from `.env*` or other secret
-  files. Replace each with the literal text `<redacted>`, never with a
-  `$VAR` reference (a shell can expand it back to the real value).
+  private keys, cookies (request or `Set-Cookie`), `Authorization` /
+  `X-Api-Key` / other auth headers, credentials inside URLs
+  (`user:pass@host`), signed URLs or query-string tokens, or values from
+  `.env*` or other secret files. In captured output, replace each with
+  the literal text `<redacted>`. In Testing steps, which a reader runs
+  in their own shell, a placeholder such as `$API_TOKEN` or
+  `<your-token>` is fine.
 - Use only throwaway or local test data (local servers, seeded
   fixtures, fake users). Never paste production records or real users'
   personal data.
-- Before finishing, scan the whole description for each value in the
-  repo's `.env*` files and for common secret shapes (`sk-`, `ghp_`,
-  `AKIA`, `eyJ`, `-----BEGIN`, `://…:…@`). Fix every hit.
+- Before finishing, scan the whole description for the values of
+  secret-like keys (`*TOKEN*`, `*KEY*`, `*SECRET*`, `*PASS*`, `*AUTH*`,
+  `*DSN*`) in the repo's `.env*` files (skip `.env.example` /
+  `.env.sample`), and for common secret shapes (`sk-`, `sk_live_`,
+  `ghp_`, `github_pat_`, `glpat-`, `xox`, `AIza`, `AKIA`, `eyJ`,
+  `Bearer `, `-----BEGIN`, `://…:…@`). Compare with `grep -F -f` against
+  the description file so secret values are never printed or put on a
+  command line. Fix every hit.
 - If the only output available can't be made safe, leave it out and
   write `Output withheld — contains <kind of data>` with the
   verification verdict. Withholding is fine; "N/A" is not.
@@ -266,6 +273,9 @@ Verification sources report in different vocabularies. Map them as:
   reason when nothing is runnable
 - Follow the redaction rule across the whole description: no secrets,
   only test data, scanned before finishing
+- If posting with `gh`, write the body to a temp file and pass
+  `--body-file`; never pass it as a quoted shell argument, where
+  backticks run and `$VAR` expands
 - If the PR is large (>15 files), add a "How to Review" section suggesting
   an order to read the files
 - If the PR introduces a new pattern, call it out explicitly

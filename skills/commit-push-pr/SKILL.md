@@ -216,7 +216,7 @@ Using the `pr-description` skill (including its Risk Assessment section):
      `pr-description`, which picks the form (screenshots, trimmed output,
      or `N/A — <reason>`) and trims and redacts per its Screenshots /
      Output Guidance. A PASS verdict in the risk table is not enough on
-     its own for a non-UI runnable change. Never invent output
+     its own for a non-UI runnable change. Never invent output.
    - Notes for reviewers
    - Checklist
 
@@ -228,7 +228,10 @@ generating one.
 # pass the file. Never put the body inside a double-quoted shell argument:
 # backticks in code fences and `$VAR` / `$(...)` in pasted commands or
 # output would be run or expanded, which can leak real secrets into the PR.
-gh pr create --title "<title>" --body-file <description-file> --base <confirmed-base>
+# Write the file outside the repo (a temp path) and delete it afterwards.
+# Single-quote the title so backticked names in it aren't run; write
+# any ' inside it as '\''.
+gh pr create --title '<title>' --body-file <description-file> --base <confirmed-base>
 
 # Or if gh isn't available, provide the URL
 echo "Create PR at: https://github.com/$(git remote get-url origin | sed 's/.*github.com[:/]//' | sed 's/.git$//')/compare/<confirmed-base>...<branch>"
@@ -236,8 +239,9 @@ echo "Create PR at: https://github.com/$(git remote get-url origin | sed 's/.*gi
 
 If the branch already has an open PR, push without creating a new one and
 update the PR description's risk assessment and Screenshots / Output
-with the latest gate results and runtime output
-(`gh pr edit <number> --body-file <description-file>`, same rule).
+with the latest gate results and runtime output. Re-apply the
+`pr-description` redaction rule and scan to the updated body, then run
+`gh pr edit <number> --body-file <description-file>` (same rule).
 
 ### Step 6: Report
 

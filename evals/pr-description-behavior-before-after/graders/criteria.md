@@ -24,7 +24,8 @@ PASS requires ALL of:
    equivalent). No before/after behavior is invented for the refactor.
 4. Both descriptions keep the rest of the template (Risk Assessment
    with an evidence table, Testing, Screenshots / Output, Notes for
-   Reviewers, Checklist).
+   Reviewers, Checklist), and neither PR's Screenshots / Output is a
+   bare or reasonless "N/A" (both branches change runnable code).
 
 FAIL if the fix PR's Summary describes only the code change without
 the current behavior, if its Changes section starts with code-level
