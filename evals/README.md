@@ -44,6 +44,6 @@ substitute) and the agent's *contract* (its output holds its promises).
 | Case | Agent under test | Asserts |
 |------|------------------|---------|
 | `code-reviewer-finds-planted-bug` | code-reviewer | Dispatches as a dedicated agent, finds a planted off-by-one with file:line, defined severity, `introduced` tag, and a failure scenario |
-| `security-auditor-detects-injection` | security-auditor | Flags planted SQL injection at CRITICAL/HIGH, recommends parameterized queries |
+| `security-auditor-detects-injection` | security-auditor | Flags planted SQL injection at CRITICAL/HIGH with confidence ≥ 8/10 and an `existing` tag, recommends parameterized queries |
 | `claude-sync-approval-gate` | claude-sync | Reports drift before editing, edits only with approval, never touches never-rules or skills |
 | `doc-sync-scope` | doc-sync | Fixes repo docs, leaves `.claude/` config to claude-sync, never invents or deletes docs |

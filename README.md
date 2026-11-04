@@ -13,7 +13,7 @@ project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 | Agent | What It Does |
 |-------|--------------|
 | `code-reviewer` | Parallel multi-axis review of the branch diff — bugs, change impact (removed behavior, callers), security, performance, design and conventions — with a verification pass, defined severities, and introduced/existing tags |
-| `security-auditor` | Deep OWASP-aligned security audit with language-aware vulnerability detection |
+| `security-auditor` | Deep OWASP-aligned security audit with language-aware vulnerability detection, installed-tool scanning, and confidence-scored false-positive filtering |
 | `debugger` | Systematic hypothesis-driven bug investigation |
 | `perf-audit` | Runtime perf: startup time, re-renders, N+1 queries, bundle size, memory, concurrency |
 | `doc-sync` | Audits docs against code, fixes documentation drift |
