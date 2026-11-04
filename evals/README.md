@@ -16,13 +16,13 @@ reports early access). Run from the repo root:
 
 ```bash
 # Whole suite against the working tree (no push or reinstall needed)
-claude plugin eval .
+claude plugin eval . --allow-tools Bash Write Edit
 
 # One case, one run per arm, no no-plugin baseline: a quick check
-claude plugin eval . --case pr-description-non-ui-output --runs 1 --ablation none
+claude plugin eval . --case pr-description-non-ui-output --runs 1 --ablation none --allow-tools Bash Write Edit
 
 # Against the installed plugin instead of the working tree
-claude plugin eval claude-code-toolkit@rahul-claude-code-toolkit
+claude plugin eval claude-code-toolkit@rahul-claude-code-toolkit --allow-tools Bash Write Edit
 ```
 
 Both targets run a second, no-plugin baseline arm by default, so the
@@ -30,7 +30,7 @@ report shows what the plugin adds; `--ablation none` skips it.
 
 Useful options:
 
-- `--allow-tools Bash Write Edit` — most cases build a scratch git
+- `--allow-tools Bash Write Edit` — every case builds a scratch git
   project, so they need these tools.
 - `--case <glob>` — run only matching cases.
 - `--runs <n>` — runs per arm (default 3). Single runs are noisy; confirm

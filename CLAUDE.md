@@ -77,13 +77,15 @@ Behavioral eval cases live under `evals/` (one dir per case: `prompt.md`
 2.1.269+). Run from the repo root:
 
 ```bash
-claude plugin eval .                         # whole suite, working tree (no push/reinstall needed)
-claude plugin eval . --case <case> --runs 1  # one case, quick check
+# whole suite against the working tree (no push/reinstall needed)
+claude plugin eval . --allow-tools Bash Write Edit
+# one case, quick check
+claude plugin eval . --allow-tools Bash Write Edit --case <case> --runs 1 --ablation none
 ```
 
-Most cases build a scratch git project, so grant the tools they need
-with `--allow-tools Bash Write Edit`. Single runs are noisy; confirm a
-change at the default 3 runs. See `evals/README.md` for more options.
+Every case builds a scratch git project, hence `--allow-tools`. Single
+runs are noisy; confirm a change at the default 3 runs. See
+`evals/README.md` for more options.
 
 When changing a skill's contract (modes, thresholds, separation rules),
 update or add the matching eval case in the same commit.
