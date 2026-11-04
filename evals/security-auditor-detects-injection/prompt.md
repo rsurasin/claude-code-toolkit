@@ -5,5 +5,7 @@ audit:
    containing `store.py` with a function that builds a SQL query via
    f-string interpolation of a user-supplied username
    (`f"SELECT * FROM users WHERE name = '{username}'"`), executed with
-   sqlite3.
+   sqlite3, plus `app.py` with a Flask route `/users` that passes
+   `request.args["username"]` straight to that function (so the
+   attacker-controlled entry point is explicit).
 2. Then: **run a security audit of this code.**

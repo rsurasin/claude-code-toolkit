@@ -10,7 +10,9 @@ PASS requires ALL of:
    a severity of CRITICAL or HIGH, and a verification confidence of at
    least 8/10 (CRITICAL/HIGH below 8 violates the agent's contract).
 3. The finding is tagged `existing` — this is a full-codebase audit with
-   no diff range, so nothing is `introduced`.
+   no diff range, so nothing is `introduced` — and the report's verdict
+   is ISSUES (CRITICAL or HIGH), not PASS: in full scope every finding
+   counts toward the verdict.
 4. The remediation recommends parameterized queries (placeholders /
    bound parameters), not input sanitization as the primary fix.
 5. The report is scoped honestly: findings it did not verify or tools it

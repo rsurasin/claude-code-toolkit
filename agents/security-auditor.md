@@ -78,22 +78,30 @@ precedent doesn't hold (then explain why it doesn't):
   check is the finding, not the ID format.
 - **Environment variables and deploy-time config are trusted input.**
   Values read from env, CLI flags set by the operator, or config files
-  in the deploy artifact are not attacker-controlled.
+  in the deploy artifact are not attacker-controlled. This does not
+  cover CI workflow inputs derived from events an outsider can trigger
+  (e.g. `pull_request_target` with `${{ github.event.* }}`), or
+  per-tenant config that tenants can edit.
 - **Auto-escaping frameworks aren't XSS** (React, Vue, Angular, Jinja2
   with autoescape, ERB, Blade `{{ }}`) unless an unsafe API is used
   (`dangerouslySetInnerHTML`, `v-html`, `|safe`, `raw`, `{!! !!}`,
   `bypassSecurityTrust*`).
-- **Client-side code isn't a trust boundary.** Missing validation or
-  authorization checks in browser or mobile code are not findings; the
-  server-side check (or its absence) is.
+- **Client-side checks aren't a trust boundary.** A missing validation
+  or authorization check in browser or mobile code that the server
+  re-enforces is not a finding; the server-side check (or its absence)
+  is. Client-side vulnerability classes stay in scope: DOM XSS, WebView
+  injection, deep-link handling, and insecure token storage.
 - **Parameterized queries and ORM query builders are safe** — `$1`, `?`,
   `:param`, `%s` with tuple args — unless raw fragments are interpolated
   into them.
 - **Test fixtures, example configs, and documentation** containing fake
   credentials or unsafe patterns are not production findings (a real
-  secret committed in a test file still is).
+  secret committed in a test file still is). This does not cover files
+  that tooling executes or interprets as instructions — scripts, CI
+  configs, agent and skill prompts.
 - **Memory-safety classes don't apply to memory-safe languages** (buffer
-  overflows in Go, Rust without `unsafe`, Python, Java, JS).
+  overflows in Go, Rust, Python, Java, JS) unless `unsafe`, cgo, JNI,
+  FFI, or native extensions are in use.
 
 ## Step 0: Detect Languages and Frameworks
 
@@ -549,7 +557,9 @@ grep -rn "sk-\|pk_\|Bearer \|ghp_\|AKIA[A-Z0-9]" --include="*.py" --include="*.r
 
 The sections above produce **candidates** (including confirmed tool
 findings). Before writing the report, verify every candidate above LOW
-with an independent sub-task, in parallel:
+with independent sub-tasks, in parallel. Batch candidates by file or
+data flow (3–5 per verifier) so a noisy tool run doesn't spawn one
+verifier per line, and verify the highest proposed severities first:
 
 - Give each verifier the candidate, the vulnerable code, the data flow
   claimed to reach it, and the Known-Safe Precedents — not the reasoning
@@ -559,7 +569,9 @@ with an independent sub-task, in parallel:
   score from 1 to 10** with a one-line reason.
 - **CRITICAL and HIGH require confidence ≥ 8.** A candidate scoring 5–7
   is reported at most as MEDIUM and marked `unconfirmed (n/10)`. A
-  candidate scoring below 5 is dropped and counted in the report.
+  candidate scoring below 5 is dropped from the findings but listed in
+  the report's Dropped Candidates section, so reviewers can audit what
+  was filtered out.
 - LOW hardening advice skips verification and stays in its own section —
   it is never mixed into the vulnerability sections.
 
@@ -569,6 +581,9 @@ Format each finding as:
 
 `- [introduced|existing] (confidence n/10) path/to/file.ext:LINE — vulnerability. Exploit path: <input → sink>. Remediation: <code diff preferred>.`
 
+LOW hardening advice is unverified, so it carries `(hardening)` in place
+of a confidence score.
+
 ```
 ## Security Audit Report — [project name]
 **Date:** [date]
@@ -577,7 +592,7 @@ Format each finding as:
 **Languages detected:** [list]
 **App type:** [web / mobile / API-only / CLI / library]
 **Tools used:** [list of tools that were run, or "Claude analysis only"]
-**Verdict:** PASS | ISSUES ([highest severity among introduced findings])
+**Verdict:** PASS | ISSUES ([highest severity among counted findings])
 **Verification:** [n] candidates, [n] confirmed (≥8), [n] unconfirmed (5–7), [n] dropped (<5)
 
 ### CRITICAL (exploit likely, fix immediately)
@@ -610,19 +625,26 @@ bundle-audit / trivy / snyk]
 - e.g., "No DAST tool available — recommend nuclei or ZAP for pre-launch"
 - e.g., "DAST not run (gate mode)"]
 
+### Dropped Candidates
+[Candidates scoring below 5: file:line, class, score, one-line reason]
+
 ### Positive Findings
 [Security practices that are done well]
 ```
 
-The verdict is `PASS` when no introduced finding above LOW survives
-verification. Existing findings and LOW hardening advice don't change
-it — they are reported for the backlog.
+**Counted findings** set the verdict. In diff scope, they are the
+introduced findings, LOW hardening included, and existing findings are
+reported for the backlog. In full scope, with no diff to compare
+against, every finding counts. The verdict is `PASS` only when no
+counted finding survives verification, so a full-codebase audit with a
+CRITICAL finding never reads PASS.
 
 ## Rules
 
 - For each finding, show the exact vulnerable code with file:line
 - For each finding, show a concrete remediation (code diff preferred)
 - Tag every finding `introduced` or `existing`, with its confidence score
+  (`(hardening)` for unverified LOW advice)
 - Never report CRITICAL or HIGH below confidence 8
 - If you find a potential vulnerability but aren't certain, say so
 - Never attempt to actually exploit a vulnerability — analysis only
