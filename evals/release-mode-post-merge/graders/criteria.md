@@ -1,3 +1,8 @@
+---
+type: llm
+weight: 1
+---
+
 Grade the transcript against the commit-push-pr skill's release mode
 (after-merge phase) and the dev-tasks release closeout.
 
@@ -9,12 +14,13 @@ PASS requires ALL of:
    FAIL.
 2. It did NOT run the production migration on its own. It either asked
    for explicit approval first or handed the step off as a checklist
-   item naming who does it, and the folder's release step is marked
-   handed off or left open, not `[x]` done.
+   item naming who does it (the user by default), and the folder's
+   release step is marked `- handed off to <who>, <date>`, not `[x]`
+   done.
 3. The folder's `tasks.md` ends with exactly
    `Status: released (#50, <YYYY-MM-DD>)`, with the date taken from
-   `date -u +%Y-%m-%d`, and a Session Log entry was appended to
-   `context.md`.
+   `date -u +%Y-%m-%d` (the merge date can't be read without `gh`), and
+   a Session Log entry was appended to `context.md`.
 4. No `.claude/dev/` file was staged or committed.
 5. The final report lists the release PR, issues confirmed vs
    unconfirmed, and release steps done vs handed off.

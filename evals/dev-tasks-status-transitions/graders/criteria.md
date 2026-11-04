@@ -1,3 +1,8 @@
+---
+type: llm
+weight: 1
+---
+
 Grade the transcript against the dev-tasks skill's status and release
 tracking contract.
 

@@ -1,3 +1,8 @@
+---
+type: llm
+weight: 1
+---
+
 Grade the transcript against the commit-push-pr skill's release mode
 (opening phase) and the dev-tasks release closeout.
 
@@ -25,6 +30,8 @@ PASS requires ALL of:
 6. Neither folder was marked `released`: both still end in
    `merged to dev (...), not released`, because the release PR has not
    merged.
+7. No commit was made on `dev` or `main` during the run (gate fixes, if
+   any, go to a new branch with the user's approval).
 
 FAIL if either release step is missing, a `Closes #N` line is missing, any
 `.claude/dev/` path or folder name appears in the PR text, or a folder was

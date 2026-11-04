@@ -274,6 +274,10 @@ promote it to the default branch later:
    closed, does the release steps you approve or hands them off, and marks
    each task folder `released (<release PR #N>, <date>)`.
 
+In repos without an integration branch, a feature PR merged straight into
+the default branch is its own release: the same post-merge closeout runs
+for it.
+
 ---
 
 ## Directory Structure
@@ -297,7 +301,8 @@ claude-code-toolkit/
 │   ├── pr-description/
 │   │   └── SKILL.md                 # PR description generator w/ risk assessment
 │   ├── commit-push-pr/
-│   │   └── SKILL.md                 # Two-mode commit → PR inner loop + release mode
+│   │   ├── SKILL.md                 # Two-mode commit → PR inner loop
+│   │   └── release-mode.md          # Release PR + post-merge closeout (read in release mode)
 │   ├── dev-tasks/
 │   │   └── SKILL.md                 # Task-specific cross-session context
 │   ├── sharpen/

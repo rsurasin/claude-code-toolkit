@@ -2,15 +2,14 @@
 name: dev-tasks
 description: >
   Maintain task-specific context files (plan, context, tasks) under
-  .claude/dev/ that persist across Claude Code sessions, including each
-  task's status from in progress through PR, merge, and release, and the
-  steps a release must carry out, and a record of every product decision
-  with the options considered, their pros and cons, and why one won. Use
-  when starting a non-trivial feature, when resuming work from a previous
-  session, when a product decision is reached in conversation, when a
-  release closes out merged work, or when asked to create or update
-  development task documentation. Bridges the "daily amnesia" problem. Repo-local so
-  contributors share the convention.
+  .claude/dev/ that persist across Claude Code sessions: task status
+  through PR, merge, and release; the steps a release must carry out; and
+  a record of each product decision with its options and why one won. Use
+  when starting a non-trivial feature, when resuming work, when a product
+  decision is reached in conversation, when a release closes out merged
+  work, or when asked to create or update development task documentation.
+  Bridges the "daily amnesia" problem. Repo-local so contributors share
+  the convention.
 ---
 
 # Dev Tasks Skill
@@ -252,16 +251,20 @@ place — do not forcibly migrate them.
 At every session start, even when resuming a different task, also surface
 pending release work:
 
+- Find the open and unreleased folders in one local call:
+  `grep -E '^Status: (PR open|merged to)' .claude/dev/*/*/tasks.md .claude/dev/*/tasks.md`
+  (the second glob covers legacy flat folders)
 - List every folder whose status is still `merged to <base> (<sha>), not
   released`, with its base branch and open release steps, so work waiting
-  on a release stays visible:
-  `grep -l '^Status: merged to' .claude/dev/*/*/tasks.md`
-- Reconcile folders whose status is `PR open (#N)` with GitHub
-  (`gh pr view <N> --json state,mergedAt,mergeCommit,baseRefName`) and
-  apply the matching transition from
-  [Status and Release Tracking](#status-and-release-tracking) if the PR
-  has since merged or closed. If `gh` is unavailable, say the statuses
-  could not be checked rather than guessing.
+  on a release stays visible.
+- Reconcile the `PR open (#N)` folders with GitHub in one call,
+  `gh pr list --state all --limit 100 --json number,state,mergedAt,mergeCommit,baseRefName`,
+  joined locally by PR number, and apply the matching transition from
+  [Status and Release Tracking](#status-and-release-tracking) to any PR
+  that has since merged or closed. A PR merged straight into the default
+  branch is a release: propose its closeout instead of marking it
+  `released` silently. If `gh` is unavailable, say the statuses could not
+  be checked rather than guessing.
 
 ## Status and Release Tracking
 
@@ -272,16 +275,17 @@ one of these four states, with no other wording:
 |-------------|---------|--------|
 | `Status: in progress` | Work under way, no open PR | Folder creation; `commit-push-pr` commit mode |
 | `Status: PR open (#N)` | PR #N is open for this work | `commit-push-pr` ship mode, once the PR opens |
-| `Status: merged to <base> (<sha>), not released` | PR merged into a non-default integration branch (e.g. `dev`) as short SHA `<sha>`; waiting on a release | Session-start reconcile, or the user reporting the merge |
-| `Status: released (<release PR #N>, <date>)` | Reached the default branch in release PR #N on `<date>` (`date -u +%Y-%m-%d`), release steps done or handed off | `commit-push-pr` release mode, after the closeout |
+| `Status: merged to <base> (<sha>), not released` | PR merged into a non-default integration branch (e.g. `dev`) as `<sha>`, the 7-character short SHA (`git rev-parse --short=7 <oid>`); waiting on a release | Session-start reconcile, or the user reporting the merge |
+| `Status: released (<release PR #N>, <date>)`, written e.g. `Status: released (#50, 2026-11-03)` | Reached the default branch in release PR #50 on its merge date (`mergedAt`, or `date -u +%Y-%m-%d` when that can't be read), release steps done or handed off | `commit-push-pr` release mode, after the closeout |
 
 Transitions:
 
 - **PR merged into an integration branch**: `merged to <base> (<sha>),
   not released`.
 - **PR merged straight into the default branch** (repos with no
-  integration branch): the PR is its own release. Run the post-merge part
-  of the [release closeout](#release-closeout) for it, then set
+  integration branch): the PR is its own release. Run `commit-push-pr`
+  release mode's "After the release PR merges" for it (issue check,
+  release steps, then this skill's closeout), which sets
   `released (#N, <date>)`.
 - **PR closed without merging**: back to `in progress`.
 - Append every transition to `context.md`'s Session Log (e.g.
@@ -291,7 +295,9 @@ Record a release step under `## Release Steps` as soon as it is known
 during implementation: a deploy that must pair with another repo's
 change, a migration to apply, a flag to flip, a config value or secret to
 set. Write each step so someone else could do it: what, where, and what
-it must ship together with. Write `None` when the release needs nothing
+it must ship together with. For a secret or config value, name the key
+and where its value is stored, never the value itself: release steps are
+copied into the release PR. Write `None` when the release needs nothing
 beyond the merge.
 
 ### Release closeout
@@ -307,13 +313,15 @@ side of the release; the PR side lives in that skill.
    that PR number. Example: PR #41 from `feat/gh-31-password-reset` maps
    to `.claude/dev/features/2026-10-04-gh-31-password-reset/`. A PR with
    no folder is listed as "no task folder, release steps unknown" and the
-   user is asked about it. A folder still `merged to <integration> ...,
-   not released` that no PR in the release maps to is flagged too: it may
-   have been reverted or missed.
+   user is asked about it; so is a PR that matches more than one folder.
+   A folder still `merged to <integration> ...,
+   not released` that no PR in the release maps to is reported to the
+   user (never in the PR text): it may have been reverted or missed.
 2. **Gather** each mapped folder's `## Release Steps` and the issues its
    PR closes, for the release PR description.
 3. **After the release PR merges**, for each folder: mark each release
-   step done (`[x]`) or handed off (`- handed off to <who>, <date>`), set
+   step done (`[x]`, only once checked) or handed off
+   (`- handed off to <who>, <date>`; `<who>` defaults to the user), set
    the status line to `released (#<release PR>, <date>)`, and append a
    Session Log entry to `context.md`.
 
@@ -357,6 +365,4 @@ Before ending a session or switching tasks:
   task files and summarize
 - `.claude/dev/` is gitignored (working notes, not project artifacts). The relationship
   is one-way, like Jira: dev-task files may reference the codebase, but committed code,
-  comments, and docs must never reference `.claude/dev/` paths. A release PR built from
-  the closeout carries features, PR and issue numbers, and release steps, never folder
-  paths, folder names, or dev-tasks task IDs
+  comments, and docs must never reference `.claude/dev/` paths
