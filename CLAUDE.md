@@ -29,8 +29,8 @@ Components reference each other by name: `commit-push-pr` invokes the
 built-in Claude Code skills `/code-review` and `/security-review` (plus
 an optional `/simplify` pre-pass); `pr-description`'s risk rubric is
 consumed by `commit-push-pr` ship mode, whose triage assigns severities
-to `/code-review` findings using the `code-reviewer` agent's severity
-definitions. When renaming or
+to `/code-review` findings using `pr-description`'s Severity Scale —
+which the `code-reviewer` agent mirrors, so change both together. When renaming or
 changing a component's behavior, grep for its name across `skills/`,
 `agents/`, and `README.md` and update every reference — the README's
 tables, workflow section, and directory tree mirror the components and

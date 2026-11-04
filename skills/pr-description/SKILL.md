@@ -110,16 +110,17 @@ gaps.
   (agents and built-in skills alike) ran with no issues found. No
   `NOT RUN` and no `N/A` rows.
 - **MEDIUM** — Two-way door with minor gaps: a non-critical dimension
-  (docs, performance, runtime verification, either code-review row, or
-  one of the two security rows while the other ran) was `NOT RUN` or
-  `N/A`, or only LOW-severity findings exist and all are acknowledged in
-  the description.
+  (docs, performance, runtime verification, one of the two code-review
+  rows while the other ran, or one of the two security rows while the
+  other ran) was `NOT RUN` or `N/A`, or only LOW-severity findings exist
+  and all are acknowledged in the description.
 - **HIGH** — One-way door with clean checks, OR significant verification
-  gaps (tests `NOT RUN`, or neither security gate ran), OR unresolved
-  MEDIUM/HIGH-severity findings. Qualify the label so reviewers can tell
-  the cause apart: **HIGH (unverified)** when driven by `NOT RUN` / `N/A`
-  gaps or a one-way door with clean checks; **HIGH (findings)** when
-  driven by unresolved findings.
+  gaps (tests `NOT RUN`, or neither security gate ran, or neither
+  code-review gate ran), OR unresolved MEDIUM/HIGH-severity findings.
+  Qualify the label so reviewers can tell the cause apart:
+  **HIGH (unverified)** when driven by `NOT RUN` / `N/A` gaps or a
+  one-way door with clean checks; **HIGH (findings)** when driven by
+  unresolved findings.
 - **CRITICAL** — One-way door combined with gaps or findings, OR a critical
   security vulnerability, OR a serious performance regression, OR
   verification was largely skipped.
@@ -129,8 +130,13 @@ gaps.
 - Any dimension `NOT RUN` or `N/A` ⇒ at best MEDIUM (a gap is never LOW)
 - Tests `NOT RUN` ⇒ at best HIGH
 - Security and Security (built-in) both `NOT RUN` or `N/A` ⇒ at best HIGH
+- Code review and Code review (built-in) both `NOT RUN` or `N/A` ⇒ at
+  best HIGH
 - One-way door ⇒ at best HIGH
-- Critical security finding or serious performance regression ⇒ CRITICAL
+- Critical security finding (introduced, or any finding in a standalone
+  run) or serious performance regression ⇒ CRITICAL. An existing
+  critical security finding doesn't set the PR's level — ship mode
+  makes it a hard stop instead
 - Failing tests ⇒ CRITICAL
 
 ### Verdict normalization
@@ -154,12 +160,39 @@ Verification sources report in different vocabularies. Map them as:
 | any gate | errored, timed out, or skipped | NOT RUN |
 
 `/code-review` reports findings without a severity; ship mode's triage
-step assigns one using the `code-reviewer` agent's severity definitions.
-When ship mode's triage has tagged findings **introduced** or
-**existing**, the verdict's severity comes from introduced findings
-only — a gate with only existing findings is PASS, and those findings
-are listed under Notes for Reviewers (with issue links when filed). A
-finding merged across reviewers counts in every source's row.
+step assigns one using the Severity Scale below. When ship mode's
+triage has tagged findings **introduced** or **existing**, the verdict's
+severity comes from introduced findings only (LOW included) — a gate
+with only existing findings is PASS. Existing non-security findings are
+listed under Notes for Reviewers (with issue links when filed); existing
+security findings at MEDIUM or above are reported to the user, not
+published in the PR body. A finding merged across reviewers appears in
+every source's row at the severity that source gave it (triage-assigned
+for `/code-review`); the merged, highest severity drives the fix loop
+and the risk level.
+
+### Severity Scale
+
+All reviewers' findings map onto one scale, defined by consequence — not
+by how small the fix is or how unlikely the trigger feels. The
+`code-reviewer` agent uses the same definitions.
+
+- **CRITICAL** — exploitable security vulnerability, data loss or
+  corruption, or a change that breaks a core path for every user.
+- **HIGH** — a reachable path produces a wrong result: wrong persisted
+  data, a race that leaves inconsistent state, a security or
+  authorization boundary crossed, a crash or unhandled error on a normal
+  request, a removed invariant nothing re-establishes, or a caller the
+  change breaks.
+- **MEDIUM** — wrong behavior under specific but plausible conditions
+  (an edge input, a time zone, a retry), a changed path with no test in
+  a codebase that has tests, a hard project-rule violation, or
+  docs/comments that now contradict the code.
+- **LOW** — hardening, simplification, reuse, style, naming, or a
+  performance improvement without evidence of user-visible impact.
+
+A one-line fix for a real race is still HIGH. Lower a severity for
+likelihood only when the triggering state is shown to be unreachable.
 
 ### Rules of evidence
 
@@ -171,7 +204,7 @@ finding merged across reviewers counts in every source's row.
   table comes from that single whole-branch gate run (`<base>...HEAD`)
   after its triage step. Introduced findings above the fix threshold were
   already fixed and their gates re-run, so surviving ISSUES entries
-  should be LOW and acknowledged.
+  should be LOW, or at most one MEDIUM, and acknowledged.
 - When this skill is invoked standalone (outside `/commit-push-pr`), use
   whatever evidence already exists in the session. Mark everything else
   `NOT RUN` (or `N/A` for a built-in skill this Claude Code version
