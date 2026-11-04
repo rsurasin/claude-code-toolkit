@@ -203,10 +203,13 @@ Using the `pr-description` skill (including its Risk Assessment section):
 
 1. Analyze all commits on this branch vs the confirmed base
 2. Generate the PR description with:
-   - Summary (1-3 sentences, PM-readable)
+   - Summary (PM-readable) — the problem and current behavior, then one
+     sentence on the fix
    - Risk assessment — level, reversibility, and the evidence table filled
      from the final Step 2/3 gate results
-   - Changes grouped by area
+   - Changes — the new behavior first, then the detail grouped by area
+     ("No behavior change." in both places for a refactor or docs-only
+     change)
    - Testing steps
    - Screenshots / Output — pass the runtime-verification output kept in
      Step 2 (from the final run, if the gate re-ran in Step 3) through to

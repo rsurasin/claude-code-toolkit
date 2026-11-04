@@ -2,10 +2,11 @@
 name: pr-description
 description: >
   Generate structured pull request descriptions from diffs or branch changes.
-  Produces a clear summary, risk assessment (Low/Medium/High/Critical) based
-  on verification evidence and decision reversibility, change list, testing
-  notes, and review guidance. Use when creating a PR or when asked to write
-  a PR description.
+  Produces a summary stating the current behavior, risk assessment
+  (Low/Medium/High/Critical) based on verification evidence and decision
+  reversibility, a change list led by the new behavior, testing notes,
+  screenshots or runtime output, and review guidance. Use when creating a
+  PR or when asked to write a PR description.
 ---
 
 # PR Description Skill
@@ -28,8 +29,11 @@ understand what changed, why, how risky it is, and how to verify it.
 ```markdown
 ## Summary
 
-[1-3 sentences: what this PR does and why. Should answer "what problem does
-this solve?" without requiring the reviewer to read the diff.]
+[2-4 sentences, PM-readable. Open with the problem and the **current
+behavior**: what the user or caller sees today, and when. Then one
+sentence on the fix. A reviewer who doesn't know the bug should
+understand what's broken without reading the diff. Refactor or
+docs-only change: say "No behavior change." and why the PR exists.]
 
 ## Risk Assessment
 
@@ -53,8 +57,12 @@ findings exist, and what would lower the risk.]
 
 ## Changes
 
-[Grouped by area, not by file. Each item explains the *what* and *why*,
-not just the file name.]
+**New behavior:** [What the user or caller sees after this PR, in the
+same terms as the Summary's current behavior, so the two read as a
+before/after pair. Refactor or docs-only change: "No behavior change."]
+
+[Implementation detail follows, grouped by area, not by file. Each item
+explains the *what* and *why*, not just the file name.]
 
 ### [Area 1, e.g., "Authentication"]
 - [Change description with motivation]
@@ -95,6 +103,35 @@ intentional deviations from patterns, known limitations, follow-up work.]
 ```
 
 Extend this checklist with project-specific items in your `.github/PULL_REQUEST_TEMPLATE.md` or `.claude/rules/`.
+
+## Behavior Before / After
+
+The Summary and Changes sections form a before/after pair, so a
+reviewer who doesn't already know the bug can see what was broken and
+what's different without piecing it together from the change list.
+
+- **Summary — current behavior.** State the problem as the user or
+  caller sees it today, and when it happens. Describe observable
+  behavior (what an API returns, what a screen shows, what a command
+  prints), not code. Then one sentence on the fix.
+- **Changes — new behavior.** Lead with what the user or caller sees
+  after this PR, using the same terms as the current behavior. The
+  area-grouped implementation detail follows under it.
+- **No behavior change.** For a pure refactor, a docs-only change, or a
+  tests-only change, write "No behavior change." in both places instead
+  of inventing a before/after. Say what the PR does instead (e.g.,
+  "extracts the retry loop into a helper so the next feature can reuse
+  it").
+
+Example pair:
+
+> **Summary:** When a workout is synced from the phone after its plan
+> changed, the server stores the sets under the swapped-in movement, so
+> the user's history shows exercises they never did. This PR records
+> the sets under the movement the user actually performed.
+>
+> **New behavior:** Synced sets keep the movement the user did, even
+> when the plan was changed while the workout was waiting on the phone.
 
 ## Screenshots / Output Guidance
 
@@ -200,6 +237,9 @@ Verification sources report in different vocabularies. Map them as:
 ## Rules
 
 - The summary should be understandable by a PM, not just engineers
+- Summary states the problem and current behavior; Changes leads with the
+  new behavior in the same terms. A refactor or docs-only change says
+  "No behavior change." in both places
 - The risk assessment is evidence-based — report what ran, not what should have run
 - Group changes by logical area, not by file
 - Testing steps should be copy-pasteable
