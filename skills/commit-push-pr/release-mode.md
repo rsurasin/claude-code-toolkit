@@ -33,19 +33,23 @@ them: release steps come only from task folders or the user.
    gh pr list --base <integration> --state merged --limit 200 \
      --search "merged:><last-release-merged-at>" \
      --json number,title,headRefName,mergedAt,mergeCommit
-   # cross-check: commits on integration since the last release's head
-   git log --oneline <last-release-head-oid>..origin/<integration>
+   # cross-check: commits on integration since the release point
+   git log --oneline <release-point>..origin/<integration>
    # per PR: only the closing references, from the body and the commits
    gh pr view <N> --json body,commits \
      --jq '.body, (.commits[] | .messageHeadline, .messageBody)' \
      | grep -oiE '\b(close[sd]?|fix(e[sd])?|resolve[sd]?):? [a-z0-9_./-]*#[0-9]+'
    ```
 
-   Bounding the cross-check by the last release's head commit (its
-   `headRefOid`) works whether releases are merge-, squash-, or
-   rebase-merged. With no earlier release PR (releases by push or tag),
-   ask the user for the last release point (a tag, SHA, or date) instead
-   of listing every merged PR. GitHub does not link closing keywords for
+   The **release point** bounds everything that follows. It is the last
+   release PR's head commit (`headRefOid`), which works whether releases
+   are merge-, squash-, or rebase-merged. With no earlier release PR, or
+   without `gh`, use the latest release tag
+   (`git describe --tags --abbrev=0 origin/<default>`), else
+   `git merge-base origin/<default> origin/<integration>` (exact for a
+   first release and for merge-commit releases; after squash releases it
+   reaches too far back, so confirm with the user when the list looks
+   too long), else ask the user for a tag, SHA, or date. GitHub does not link closing keywords for
    a non-default base, so read the text, and check each match in context:
    skip negated ones ("does not close #31"). Only same-repo references
    (`#N` with no `owner/repo` prefix) become `Closes #N`. Write cross-repo
@@ -53,7 +57,7 @@ them: release steps come only from task folders or the user.
    release merge doesn't close them.
 
    **If `gh` is unavailable**, build the list from
-   `git log <last-release-point>..origin/<integration>` alone: the PR
+   `git log <release-point>..origin/<integration>` alone: the PR
    number from a `(#N)` subject suffix or a `Merge pull request #N from
    <branch>` subject, the branch from that merge subject, and the issues
    from closing keywords in the commit messages. Say the list was built
@@ -63,9 +67,11 @@ them: release steps come only from task folders or the user.
    listed with "release steps unknown" and the user is asked. A PR that
    only one of `gh` and `git log` shows, and a task folder no PR maps to,
    are reported to the user, never written into the PR text.
-4. **Run the gates**: Ship Mode Steps 2–3 over what the release changes,
-   `git diff origin/<default> origin/<integration>`. Each feature was
-   gated on its own, but not together with the others. A migration or
+4. **Run the gates**: Ship Mode Steps 2–3 over what the release brings
+   in, `git diff <release-point> origin/<integration>`. (A two-tree diff
+   against `origin/<default>` would show hotfixes made only on the
+   default branch as reverted.) Each feature was gated on its own, but
+   not together with the others. A migration or
    other one-way step among the release steps makes the release a
    one-way door in the risk assessment.
 
@@ -73,9 +79,10 @@ them: release steps come only from task folders or the user.
    findings and, with the user's approval, fix them on a new
    `fix/<slug>` branch off `<integration>` with its own dev-tasks folder
    (in `fixes/`), ship that through ship mode into `<integration>`, then
-   rerun release mode. Leave the feature folder's status line alone;
-   append `gate fix: PR #<fix PR>` to its Session Log so the fix maps
-   back to it.
+   rerun release mode. The gate findings and the fix PR belong to that
+   `fixes/` folder. Leave the feature folder's status line alone; its
+   Session Log gets a back-reference, `gate fix: PR #<fix PR>`, which
+   folder mapping ignores.
 5. **Open the release PR** with the `pr-description` skill, adding these
    sections after the Summary:
 
@@ -102,22 +109,26 @@ them: release steps come only from task folders or the user.
    when the release merges.
 
    The body includes text from other people's PRs, so never interpolate
-   it into a shell string. Write it to a temp file outside the repo and
-   use a fixed title that contains no PR text:
+   it into a shell string. Write it to a temp file outside the repo with
+   a quoted heredoc, and use a fixed title that contains no PR text, all
+   in one command (shell variables don't survive between tool calls):
 
    ```bash
-   body_file=$(mktemp)    # write the description into it, then:
+   body_file=$(mktemp) && cat > "$body_file" <<'BODY' && \
    gh pr create --base <default> --head <integration> \
      --title "Release <integration> → <default> (<YYYY-MM-DD>)" \
      --body-file "$body_file"
+   <description>
+   BODY
    ```
 
    If a release PR from `<integration>` to `<default>` is already open,
-   update it with `gh pr edit <N> --body-file "$body_file"` instead of
-   opening another. When more PRs merge into `<integration>` while it is
-   open, rerun steps 2–5 to regenerate the body. If `gh` isn't
-   available, give the compare URL
-   (`.../compare/<default>...<integration>`) and the drafted body.
+   update it the same way with `gh pr edit <N> --body-file "$body_file"`
+   instead of opening another. When more PRs merge into `<integration>`
+   while it is open, rerun steps 2–5 to regenerate the body. If `gh`
+   isn't available, give the compare URL
+   (`.../compare/<default>...<integration>`) and the drafted body, and
+   ask the user for the PR number once they open it.
 
    Append `release PR open (#<N>)` to each mapped folder's `context.md`
    Session Log, so a later session can find the release. Report as in

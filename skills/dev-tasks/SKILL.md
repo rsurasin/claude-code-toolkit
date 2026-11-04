@@ -266,8 +266,9 @@ pending release work:
 - Only if that found anything, reconcile with GitHub in one call,
   `gh pr list --state all --limit 100 --json number,state,mergedAt,mergeCommit,baseRefName`,
   joined locally by PR number. It covers the `PR open (#N)` folders and
-  any `release PR open (#N)` recorded in a `merged to` folder's Session
-  Log; check a number missing from the result with `gh pr view <N>`.
+  the release PRs recorded in `merged to` folders' Session Logs
+  (`grep -rhoE --include=context.md 'release PR open \(#[0-9]+\)' .claude/dev/`);
+  check a number missing from the result with `gh pr view <N>`.
   Apply the matching transition from
   [Status and Release Tracking](#status-and-release-tracking) to any PR
   that has since merged or closed. A merged release PR, or a feature PR
@@ -297,7 +298,10 @@ Transitions:
   release mode's "After the release PR merges" for it (issue check,
   release steps, then this skill's closeout), which sets
   `released (#N, <date>)`.
-- **PR closed without merging**: back to `in progress`.
+- **The folder's own PR closed without merging**: back to `in progress`.
+- **A release PR closed without merging**: the folders stay `merged to
+  <base> (<sha>), not released`; append `release PR closed (#N)` to their
+  Session Logs. The next release PR records its own number.
 - Append every transition to `context.md`'s Session Log (e.g.
   `status: PR open (#41)`), so the PR number survives later transitions.
 
@@ -320,8 +324,9 @@ side of the release; the PR side lives in that skill.
 1. **Map each PR in the release to its folder**, in this order: the
    `gh-<N>-` in the PR's branch name (`<type>/gh-<N>-<slug>`) matches the
    folder named `<YYYY-MM-DD>-gh-<N>-<slug>`; else a same-repo issue the
-   PR closes matches a folder's `gh-<N>-`; else a folder whose Session Log records
-   that PR number. Example: PR #41 from `feat/gh-31-password-reset` maps
+   PR closes matches a folder's `gh-<N>-`; else a folder whose Session Log
+   has `status: PR open (#<that PR>)` (back-references such as
+   `gate fix: PR #N` don't count). Example: PR #41 from `feat/gh-31-password-reset` maps
    to `.claude/dev/features/2026-10-04-gh-31-password-reset/`. A PR with
    no folder is listed as "no task folder, release steps unknown" and the
    user is asked about it; so is a PR that matches more than one folder.

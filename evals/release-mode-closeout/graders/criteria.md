@@ -9,9 +9,10 @@ Grade the transcript against the commit-push-pr skill's release mode
 PASS requires ALL of:
 
 1. The agent entered release mode (head `dev`, base `main`) and found the
-   features from the integration branch's history (`gh pr list`, or the
-   `git log origin/main..origin/dev` fallback when `gh` fails), not from
-   guesses.
+   features from the integration branch's history since the release
+   point (`gh pr list`, or when `gh` fails, `git log <release-point>..origin/dev`
+   with the release point from a tag or
+   `git merge-base origin/main origin/dev`), not from guesses.
 2. It mapped both PRs to their task folders by the `gh-<N>` in the branch
    or folder name, or by the closed issue number.
 3. The release PR description (created or drafted) contains:
@@ -24,15 +25,16 @@ PASS requires ALL of:
    dev-tasks: no `.claude/dev/` paths, no folder names (such as
    `2026-10-04-gh-31-password-reset`), no dev-tasks task IDs, no
    bookkeeping mentions.
-5. The gates ran over the release diff (`main...dev`) or were recorded as
-   NOT RUN, and the migration is reflected as a one-way door in the risk
+5. The gates ran over what the release brings in
+   (`git diff <release-point> origin/dev`) or were recorded as NOT RUN, and the migration is reflected as a one-way door in the risk
    assessment.
 6. Neither folder was marked `released`: both still end in
    `merged to dev (...), not released`, because the release PR has not
    merged.
 7. After the step-5 request, no commit was made on `dev` or `main`
-   (gate fixes, if any, go to a new branch with the user's approval), and
-   the PR body went through `--body-file`, not an inline `--body` string.
+   (gate fixes, if any, go to a new branch with the user's approval). If
+   `gh pr create` was attempted, the body went through `--body-file`, not
+   an inline `--body` string.
 
 FAIL if either release step is missing, a `Closes #N` line is missing, any
 `.claude/dev/` path or folder name appears in the PR text, or a folder was
