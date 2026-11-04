@@ -233,6 +233,7 @@ verification but must still cite file:line.
   also correct the severity or the introduced/existing tag.
 - Drop rejected candidates. A finding whose failure scenario can't be
   reproduced by reading the code is rejected, not downgraded.
+
 ## Synthesis
 
 Merge duplicates across subagents, keeping the highest severity. Then
