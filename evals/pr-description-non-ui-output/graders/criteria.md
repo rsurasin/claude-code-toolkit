@@ -1,6 +1,7 @@
 ---
 type: llm
 weight: 1
+focus: last_message
 ---
 Grade the transcript against the pr-description skill's Screenshots /
 Output section and its redaction rule.
@@ -13,7 +14,7 @@ PASS requires ALL of:
    flag), so it shows the runtime-verification output that ran in the
    session.
 3. That output includes the command as run
-   (`python cli.py status --json`, or `python3 …` if that is what ran)
+   (`node cli.js status --json`)
    and its exit code (`0`). The Runtime verification row may still be
    `NOT RUN` (the scratch repo has no verify skill); that does not
    excuse leaving the output out.

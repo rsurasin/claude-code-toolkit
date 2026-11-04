@@ -16,16 +16,22 @@ reports early access). Run from the repo root:
 
 ```bash
 # Whole suite against the working tree (no push or reinstall needed)
-claude plugin eval .
+claude plugin eval . --allow-tools Bash Write Edit
 
 # One case, one run per arm, no no-plugin baseline: a quick check
-claude plugin eval . --case pr-description-non-ui-output --runs 1 --ablation none
+claude plugin eval . --case pr-description-non-ui-output --runs 1 --ablation none --allow-tools Bash Write Edit
 
 # Against the installed plugin instead of the working tree
-claude plugin eval claude-code-toolkit@rahul-claude-code-toolkit
+claude plugin eval claude-code-toolkit@rahul-claude-code-toolkit --allow-tools Bash Write Edit
 ```
 
-Both targets run a second, no-plugin baseline arm by default, so the
+`--allow-tools Bash Write Edit` is required: every case builds a scratch
+git project, and a case's `allowed_tools` only grants read-only tools on
+its own. Gated tools (Bash, Write, Edit) also need this operator grant,
+or the runs fail.
+
+Each run is a full Claude session on your own credential and plan
+limits. Both targets run a second, no-plugin baseline arm by default, so the
 report shows what the plugin adds; `--ablation none` skips it.
 
 Useful options:
@@ -37,6 +43,16 @@ Useful options:
 - `--json [file]`, `--output-dir <dir>`, `--report <path>` — save results.
 - `--max-cost-usd <usd>` — stop at a cost ceiling.
 - `--trust-plugin` — skip the first-run trust prompt (for CI).
+- `--no-publish` — keep the HTML report local (it publishes to claude.ai
+  by default when your account supports it).
+
+While iterating, keep runs cheap: `--case`, `--runs 1`, `--ablation none`,
+`--no-publish`, and a `--max-cost-usd` ceiling.
+
+If a Bash-granting run fails with "the Docker credential store … holds a
+symbolic link", the sandbox refuses to run while `~/.docker` contains
+symlinks (common on WSL with Docker Desktop). Move those links out of
+`~/.docker` for the duration of the run and restore them afterwards.
 
 The criteria files also work as manual review checklists when changing
 the corresponding skills and agents.
@@ -63,9 +79,29 @@ allowed_tools: [Read, Glob, Grep, Skill, Bash, Write, Edit, Agent]
 ---
 type: llm
 weight: 1
+focus: trace   # default last_message: the judge sees only the final reply
 ---
 <PASS / FAIL criteria>
 ```
+
+With `focus: trace` the judge still sees only the first and last 12
+messages, so check behavior — commands run, files created, agents
+spawned — with deterministic graders beside it (`graders/<name>.md`,
+frontmatter only):
+
+```markdown
+---
+type: tool_used          # also: file_exists, regex, tool_order
+tool: Bash
+input_match: 'gh pr create'
+min: 0
+max: 0                   # never called
+---
+```
+
+Match `tool_used` on tool input rather than `regex` over the trace: the
+trace includes the loaded skill text, which names the very commands you
+are checking for.
 
 Add a row for each new case to the tables below.
 

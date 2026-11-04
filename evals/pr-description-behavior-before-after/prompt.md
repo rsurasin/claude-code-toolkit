@@ -1,11 +1,12 @@
 ---
 max_turns: 40
-allowed_tools: [Read, Glob, Grep, Skill, Bash, Write, Edit, Agent]
+timeout_seconds: 600
+allowed_tools: [Read, Glob, Grep, Skill, Agent, AskUserQuestion, TaskCreate, TaskUpdate, TaskList, Bash, Write, Edit]
 ---
 Set up a scratch project with one bug fix branch and one refactor
 branch, then request a PR description for each:
 
-1. Create a temporary directory with `git init` and an initial commit on
+1. In the current (empty) working directory, run `git init` and create an initial commit on
    `main` containing `cart.py`, whose `apply_discount(total, code)`
    applies the `SAVE10` code twice when it is entered in lowercase
    (`save10`), so a 100.00 cart is charged 81.00 instead of 90.00.
@@ -15,4 +16,4 @@ branch, then request a PR description for each:
    a change that only extracts the discount lookup into a
    `_lookup_rate(code)` helper. Inputs and outputs are unchanged.
 4. Then: **write a PR description for `fix/discount-case`, and another
-   one for `refactor/discount-helper`.**
+   one for `refactor/discount-helper`.** Reply with both full descriptions.
