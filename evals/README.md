@@ -36,6 +36,7 @@ substitute) and the agent's *contract* (its output holds its promises).
 | `commit-message-breaking-change` | commit-message | Breaking API changes get `!` and a `BREAKING CHANGE:` footer |
 | `pr-description-evidence-floors` | pr-description | Unverified dimensions are NOT RUN and floor the risk at HIGH (unverified) |
 | `dev-tasks-structure` | dev-tasks | Tasks land in `.claude/dev/<category>/<UTC-date>-<slug>/` with all three files, gitignored |
+| `issue-number-naming` | dev-tasks + commit-push-pr | Work from GitHub issue #N gets a `<date>-gh-<N>-<slug>` folder and a `<type>/gh-<N>-<slug>` branch |
 | `sharpen-consent-gate` | sharpen | Self-detected mistakes are proposed as harness rules, never applied without consent |
 | `review-plan-critical-rubric` | review-plan | Irreversible + flawed plans rate CRITICAL from a fresh-context subagent, verdict consistent with level |
 

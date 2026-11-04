@@ -19,7 +19,11 @@ understand what changed, why, how risky it is, and how to verify it.
 2. Read any related CLAUDE.md rules for context
 3. Identify the category and scope of changes
 4. Gather verification evidence from the session (see Risk Assessment Rubric)
-5. Generate the description
+5. Check the branch name for an issue number (`git rev-parse --abbrev-ref HEAD`):
+   if it carries `gh-<N>-` (e.g. `feat/gh-31-user-sex`) and the body has no
+   `Closes #N` / `Fixes #N` for it, suggest adding `Closes #N` — GitHub links
+   the issue through the PR body, not the branch name
+6. Generate the description
 
 ## Template
 

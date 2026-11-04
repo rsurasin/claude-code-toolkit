@@ -34,7 +34,9 @@ To create a task:
 1. Choose a category (see [Choosing a Category](#choosing-a-category)).
 2. Get today's UTC date with `date -u +%Y-%m-%d`.
 3. Build the path `.claude/dev/<category>/<YYYY-MM-DD>-<slug>/` where `<slug>`
-   is a kebab-case description of the work.
+   is a kebab-case description of the work. When the work has a GitHub issue,
+   use `<YYYY-MM-DD>-gh-<N>-<slug>/` instead (see
+   [Directory Structure](#directory-structure)).
 4. Create `plan.md`, `context.md`, and `tasks.md` in that folder.
 
 ## Directory Structure
@@ -52,8 +54,16 @@ Categories (default set): `features/`, `refactors/`, `fixes/`, `chores/`, `resea
   Do not rename folders as time passes — the date records when the task began.
   Get it with `date -u +%Y-%m-%d`.
 - `<slug>` is a kebab-case description of the work (e.g. `datetime-package`).
-- Worked example: a request to refactor the datetime package on 2026-06-28 →
-  `.claude/dev/refactors/2026-06-28-datetime-package/`.
+- When the work comes from a GitHub issue, insert `gh-<N>-` between the date
+  and the slug: `<YYYY-MM-DD>-gh-<N>-<slug>`. The `gh-` prefix matters —
+  without it, `2026-10-04-31-user-sex` reads as part of the date. Leave it out
+  when there is no issue (quick chores often have none). This matches the
+  `commit-push-pr` branch name `<type>/gh-<N>-<slug>`, so the folder, the
+  branch, and the issue all share one number.
+- Worked examples: a request to refactor the datetime package on 2026-06-28 →
+  `.claude/dev/refactors/2026-06-28-datetime-package/`; work on GitHub issue #31
+  started on 2026-10-04 →
+  `.claude/dev/features/2026-10-04-gh-31-user-sex/`.
 
 Ensure `.claude/dev/` is listed in the project's `.gitignore` (these are working
 notes, not project artifacts) — add it if it isn't already.
@@ -168,7 +178,10 @@ When beginning work on a task that has existing dev task files:
 1. Locate the task folder. Because folders are nested under a category and
    prefixed with a date, search across categories rather than guessing a path:
    glob `.claude/dev/*/*<slug>*/` (and the legacy flat `.claude/dev/<name>/` for
-   back-compat). If multiple match, prefer the most recent date or ask the user.
+   back-compat). The leading `*` also matches the `gh-<N>-` segment, so slug
+   lookups find issue-numbered folders. When the user names an issue, or the
+   current branch carries `gh-<N>-`, glob `.claude/dev/*/*-gh-<N>-*/`.
+   If multiple match, prefer the most recent date or ask the user.
 2. Read all three files in the task folder
 3. Summarize current status: what's done, what's in progress, what's next
 4. Check if the plan is still accurate given any code changes since last session
@@ -204,4 +217,6 @@ Before ending a session or switching tasks:
   task files and summarize
 - `.claude/dev/` is gitignored (working notes, not project artifacts). The relationship
   is one-way, like Jira: dev-task files may reference the codebase, but committed code,
-  comments, and docs must never reference `.claude/dev/` paths
+  comments, and docs must never reference `.claude/dev/` paths. The `gh-<N>` in a
+  folder name is an external tracker ID, not a dev-tasks ID, so commits and PRs
+  may cite the issue (`Closes #N`) — just never the folder path

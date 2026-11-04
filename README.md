@@ -292,13 +292,18 @@ The `dev-tasks` skill maintains its own working notes at runtime under a
 gitignored `.claude/dev/` tree, organized by category and date:
 
 ```
-.claude/dev/<category>/<YYYY-MM-DD>-<slug>/   # e.g. refactors/2026-06-28-datetime-package/
+.claude/dev/<category>/<YYYY-MM-DD>-[gh-<N>-]<slug>/   # e.g. refactors/2026-06-28-datetime-package/
 ├── plan.md      # accepted implementation plan
 ├── context.md   # append-only audit trail (decisions, constraints, gotchas)
 └── tasks.md     # work checklist with status & action log
 ```
 
 Categories: `features/`, `refactors/`, `fixes/`, `chores/`, `research/`.
+
+When the work comes from GitHub issue #N, the folder carries `gh-<N>-`
+(e.g. `features/2026-10-04-gh-31-user-sex/`) and `commit-push-pr` names the
+branch to match (`feat/gh-31-user-sex`). Without an issue, both drop the
+segment.
 
 ---
 
