@@ -143,6 +143,10 @@ gates, in parallel where possible:
    neither exists, record `NOT RUN`.
 2. **Runtime verification** — If the repo defines a verify skill or agent
    in its `.claude/` directory, run that. Otherwise record `NOT RUN`.
+   Besides the verdict, keep the output it produced: the requests or
+   commands it ran, their exit codes or status lines, and the response
+   or output bodies. Step 5 passes this to `pr-description` for its
+   Screenshots / Output section.
 3. **`code-reviewer` agent** — review the branch diff.
 4. **`security-auditor` agent** — security audit of the branch diff.
 5. **`perf-audit` agent** — performance audit of the branch diff.
@@ -204,6 +208,11 @@ Using the `pr-description` skill (including its Risk Assessment section):
      from the final Step 2/3 gate results
    - Changes grouped by area
    - Testing steps
+   - Screenshots / Output — pass the runtime-verification output kept in
+     Step 2 (from the final run, if the gate re-ran in Step 3) through to
+     `pr-description`, which trims and redacts it per its rules. A
+     PASS/NOT RUN verdict in the risk table is not enough on its own. If
+     the gate was `NOT RUN`, say so there rather than inventing output
    - Notes for reviewers
    - Checklist
 

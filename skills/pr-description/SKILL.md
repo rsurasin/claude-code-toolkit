@@ -18,7 +18,9 @@ understand what changed, why, how risky it is, and how to verify it.
 1. Read the diff: `git diff main...HEAD` (or the target branch)
 2. Read any related CLAUDE.md rules for context
 3. Identify the category and scope of changes
-4. Gather verification evidence from the session (see Risk Assessment Rubric)
+4. Gather verification evidence from the session (see Risk Assessment
+   Rubric), including any runtime-verification output for the
+   Screenshots / Output section
 5. Generate the description
 
 ## Template
@@ -70,10 +72,14 @@ the feature can test it.]
 2. [Step 2]
 3. [Expected result]
 
-## Screenshots / Recordings
+## Screenshots / Output
 
-[If UI changed, note that screenshots should be added. If no UI change,
-say "N/A — no UI changes".]
+[Evidence of the expected state — see "Screenshots / Output Guidance"
+below. UI change: screenshots or recordings. Non-UI change (API, CLI, library,
+job): the runtime-verification output — each request or command with
+its exit code or status line, and the output trimmed to the fields that
+show the expected state. No runnable behavior (docs or tests only):
+"N/A — <why>", e.g. "N/A — docs-only change, nothing to run".]
 
 ## Notes for Reviewers
 
@@ -89,6 +95,44 @@ intentional deviations from patterns, known limitations, follow-up work.]
 ```
 
 Extend this checklist with project-specific items in your `.github/PULL_REQUEST_TEMPLATE.md` or `.claude/rules/`.
+
+## Screenshots / Output Guidance
+
+This section shows the reviewer the change working, not just the code
+that changed. Pick the form by what the change does:
+
+- **UI change** — screenshots or recordings of the changed screens. If
+  you can't capture them, say they should be added before review.
+- **Non-UI change** (API endpoint, CLI, library, background job) — the
+  output of the runtime verification that actually ran:
+  - each request or command as run (method + path, or the command line),
+    with its exit code or HTTP status line;
+  - the output trimmed to the fields that show the expected state — cut
+    unrelated fields, headers, and long arrays, marking cuts with `…`.
+
+  ````markdown
+  ```console
+  $ curl -s -i -X POST localhost:8080/api/workouts/42/sync -d @sample.json
+  HTTP/1.1 200 OK
+  {"id": 42, "sets": [{"movement": "back-squat", "reps": 5}, …], "status": "synced"}
+  ```
+  ````
+
+  Use the output from ship mode's runtime-verification gate when it ran.
+  Standalone, use output from verification that already ran in this
+  session. If none ran, say so (`Runtime verification NOT RUN — no
+  output captured`) — never invent or reconstruct output.
+- **No runnable behavior** (docs only, tests only, comments, CI config
+  with nothing to run) — `N/A — <reason>`, e.g. `N/A — docs-only change,
+  no runnable behavior`. "N/A" without a reason, or "N/A" on a change
+  that has runnable behavior, is not allowed.
+
+**Redaction rule:** output pasted into a PR is public to everyone who
+can read the repo. Never include tokens, API keys, passwords, session
+cookies, `Authorization` headers, or `.env` values — replace them with
+`<redacted>`. Use only throwaway or local test data (local servers,
+seeded fixtures, fake users); never paste production records or real
+users' personal data.
 
 ## Risk Assessment Rubric
 
@@ -159,6 +203,9 @@ Verification sources report in different vocabularies. Map them as:
 - The risk assessment is evidence-based — report what ran, not what should have run
 - Group changes by logical area, not by file
 - Testing steps should be copy-pasteable
+- Screenshots / Output shows real evidence: screenshots for UI, trimmed
+  runtime-verification output for non-UI changes, and "N/A" only with a
+  reason when nothing is runnable. Redact secrets; use only test data
 - If the PR is large (>15 files), add a "How to Review" section suggesting
   an order to read the files
 - If the PR introduces a new pattern, call it out explicitly
