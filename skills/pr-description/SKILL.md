@@ -29,11 +29,9 @@ understand what changed, why, how risky it is, and how to verify it.
 ```markdown
 ## Summary
 
-[2-4 sentences, PM-readable. Open with the problem and the **current
-behavior**: what the user or caller sees today, and when. Then one
-sentence on the fix. A reviewer who doesn't know the bug should
-understand what's broken without reading the diff. Refactor or
-docs-only change: say "No behavior change." and why the PR exists.]
+[2-4 sentences, PM-readable: the problem and the **current behavior**
+(what the user or caller sees today, and when), then one sentence on
+the fix. See "Behavior Before / After" below.]
 
 ## Risk Assessment
 
@@ -58,8 +56,7 @@ findings exist, and what would lower the risk.]
 ## Changes
 
 **New behavior:** [What the user or caller sees after this PR, in the
-same terms as the Summary's current behavior, so the two read as a
-before/after pair. Refactor or docs-only change: "No behavior change."]
+same terms as the Summary's current behavior.]
 
 [Implementation detail follows, grouped by area, not by file. Each item
 explains the *what* and *why*, not just the file name.]
@@ -82,12 +79,9 @@ the feature can test it.]
 
 ## Screenshots / Output
 
-[Evidence of the expected state — see "Screenshots / Output Guidance"
-below. UI change: screenshots or recordings. Non-UI change (API, CLI, library,
-job): the runtime-verification output — each request or command with
-its exit code or status line, and the output trimmed to the fields that
-show the expected state. No runnable behavior (docs or tests only):
-"N/A — <why>", e.g. "N/A — docs-only change, nothing to run".]
+[UI change: screenshots. Non-UI change: trimmed runtime-verification
+output. Nothing runnable: "N/A — <why>". See "Screenshots / Output
+Guidance" below.]
 
 ## Notes for Reviewers
 
@@ -98,7 +92,7 @@ intentional deviations from patterns, known limitations, follow-up work.]
 
 - [ ] Tests added/updated for changed logic
 - [ ] Documentation updated (if public API changed)
-- [ ] No secrets or credentials in the diff
+- [ ] No secrets or credentials in the diff or this description
 - [ ] Breaking changes noted (if any)
 ```
 
@@ -138,38 +132,62 @@ Example pair:
 This section shows the reviewer the change working, not just the code
 that changed. Pick the form by what the change does:
 
-- **UI change** — screenshots or recordings of the changed screens. If
-  you can't capture them, say they should be added before review.
+- **UI change** — screenshots or recordings of the changed screens,
+  taken with test accounts and data. If you can't capture them, say they
+  should be added before review.
 - **Non-UI change** (API endpoint, CLI, library, background job) — the
-  output of the runtime verification that actually ran:
+  runtime output that actually ran:
   - each request or command as run (method + path, or the command line),
     with its exit code or HTTP status line;
   - the output trimmed to the fields that show the expected state — cut
-    unrelated fields, headers, and long arrays, marking cuts with `…`.
+    unrelated fields, headers, and long arrays, marking cuts with `…`;
+  - wrapped in a code fence longer than any run of backticks inside the
+    output, so a response body can't close the fence early.
 
   ````markdown
   ```console
   $ curl -s -i -X POST localhost:8080/api/workouts/42/sync -d @sample.json
   HTTP/1.1 200 OK
+  …
   {"id": 42, "sets": [{"movement": "back-squat", "reps": 5}, …], "status": "synced"}
   ```
   ````
 
-  Use the output from ship mode's runtime-verification gate when it ran.
-  Standalone, use output from verification that already ran in this
-  session. If none ran, say so (`Runtime verification NOT RUN — no
-  output captured`) — never invent or reconstruct output.
+  Sources, in order: ship mode's runtime-verification gate output; any
+  other commands or requests that ran against the change in this session
+  (ad-hoc runs count here even when the Runtime verification row is
+  `NOT RUN`, because that row tracks only the repo's own verify skill).
+  Only when no runtime output exists at all, write `Runtime verification
+  NOT RUN — no output captured`. Never invent or reconstruct output.
+- **Refactor** (runnable, but no behavior change) — the same output
+  showing the behavior is unchanged, or `Runtime verification NOT RUN —
+  no output captured`. Not "N/A": the code still runs.
 - **No runnable behavior** (docs only, tests only, comments, CI config
   with nothing to run) — `N/A — <reason>`, e.g. `N/A — docs-only change,
-  no runnable behavior`. "N/A" without a reason, or "N/A" on a change
-  that has runnable behavior, is not allowed.
+  nothing to run`. "N/A" without a reason, or "N/A" on a change that has
+  runnable behavior, is not allowed.
 
-**Redaction rule:** output pasted into a PR is public to everyone who
-can read the repo. Never include tokens, API keys, passwords, session
-cookies, `Authorization` headers, or `.env` values — replace them with
-`<redacted>`. Use only throwaway or local test data (local servers,
-seeded fixtures, fake users); never paste production records or real
-users' personal data.
+**Redaction rule (whole description, not just this section):** a PR
+description is public to everyone who can read the repo, and GitHub
+keeps its edit history, so a leaked secret must be rotated, not just
+edited out.
+
+- Anywhere in the description (output, Testing steps, examples, notes),
+  never include tokens (test tokens too), API keys, passwords, JWTs,
+  private keys, cookies (request or `Set-Cookie`), `Authorization` / `X-Api-Key` /
+  other auth headers, credentials inside URLs (`user:pass@host`), signed
+  URLs or query-string tokens, or values from `.env*` or other secret
+  files. Replace each with the literal text `<redacted>`, never with a
+  `$VAR` reference (a shell can expand it back to the real value).
+- Use only throwaway or local test data (local servers, seeded
+  fixtures, fake users). Never paste production records or real users'
+  personal data.
+- Before finishing, scan the whole description for each value in the
+  repo's `.env*` files and for common secret shapes (`sk-`, `ghp_`,
+  `AKIA`, `eyJ`, `-----BEGIN`, `://…:…@`). Fix every hit.
+- If the only output available can't be made safe, leave it out and
+  write `Output withheld — contains <kind of data>` with the
+  verification verdict. Withholding is fine; "N/A" is not.
 
 ## Risk Assessment Rubric
 
@@ -237,15 +255,17 @@ Verification sources report in different vocabularies. Map them as:
 ## Rules
 
 - The summary should be understandable by a PM, not just engineers
-- Summary states the problem and current behavior; Changes leads with the
-  new behavior in the same terms. A refactor or docs-only change says
-  "No behavior change." in both places
+- Summary states the problem and current behavior; Changes leads with
+  the new behavior in the same terms. A refactor, docs-only, or
+  tests-only change says "No behavior change." in both places
 - The risk assessment is evidence-based — report what ran, not what should have run
 - Group changes by logical area, not by file
 - Testing steps should be copy-pasteable
 - Screenshots / Output shows real evidence: screenshots for UI, trimmed
   runtime-verification output for non-UI changes, and "N/A" only with a
-  reason when nothing is runnable. Redact secrets; use only test data
+  reason when nothing is runnable
+- Follow the redaction rule across the whole description: no secrets,
+  only test data, scanned before finishing
 - If the PR is large (>15 files), add a "How to Review" section suggesting
   an order to read the files
 - If the PR introduces a new pattern, call it out explicitly

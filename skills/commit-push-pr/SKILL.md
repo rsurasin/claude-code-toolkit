@@ -145,8 +145,8 @@ gates, in parallel where possible:
    in its `.claude/` directory, run that. Otherwise record `NOT RUN`.
    Besides the verdict, keep the output it produced: the requests or
    commands it ran, their exit codes or status lines, and the response
-   or output bodies. Step 5 passes this to `pr-description` for its
-   Screenshots / Output section.
+   or output bodies. Step 5 (Open PR) passes this to `pr-description`
+   for its Screenshots / Output section.
 3. **`code-reviewer` agent** — review the branch diff.
 4. **`security-auditor` agent** — security audit of the branch diff.
 5. **`perf-audit` agent** — performance audit of the branch diff.
@@ -208,14 +208,15 @@ Using the `pr-description` skill (including its Risk Assessment section):
    - Risk assessment — level, reversibility, and the evidence table filled
      from the final Step 2/3 gate results
    - Changes — the new behavior first, then the detail grouped by area
-     ("No behavior change." in both places for a refactor or docs-only
-     change)
+     ("No behavior change." in both places for a refactor, docs-only, or
+     tests-only change)
    - Testing steps
    - Screenshots / Output — pass the runtime-verification output kept in
      Step 2 (from the final run, if the gate re-ran in Step 3) through to
-     `pr-description`, which trims and redacts it per its rules. A
-     PASS/NOT RUN verdict in the risk table is not enough on its own. If
-     the gate was `NOT RUN`, say so there rather than inventing output
+     `pr-description`, which picks the form (screenshots, trimmed output,
+     or `N/A — <reason>`) and trims and redacts per its Screenshots /
+     Output Guidance. A PASS verdict in the risk table is not enough on
+     its own for a non-UI runnable change. Never invent output
    - Notes for reviewers
    - Checklist
 
@@ -223,14 +224,20 @@ If the user provided a title/description override, use it instead of
 generating one.
 
 ```bash
-gh pr create --title "<title>" --body "<description>" --base <confirmed-base>
+# Write the description to a file first (e.g., with the Write tool), then
+# pass the file. Never put the body inside a double-quoted shell argument:
+# backticks in code fences and `$VAR` / `$(...)` in pasted commands or
+# output would be run or expanded, which can leak real secrets into the PR.
+gh pr create --title "<title>" --body-file <description-file> --base <confirmed-base>
 
 # Or if gh isn't available, provide the URL
 echo "Create PR at: https://github.com/$(git remote get-url origin | sed 's/.*github.com[:/]//' | sed 's/.git$//')/compare/<confirmed-base>...<branch>"
 ```
 
 If the branch already has an open PR, push without creating a new one and
-update the PR description's risk assessment with the latest gate results.
+update the PR description's risk assessment and Screenshots / Output
+with the latest gate results and runtime output
+(`gh pr edit <number> --body-file <description-file>`, same rule).
 
 ### Step 6: Report
 
@@ -263,3 +270,4 @@ update the PR description's risk assessment with the latest gate results.
   regression), never push without explicit user approval
 - Ask for the PR base branch unless the user stated it
 - If `gh` CLI isn't available, provide the manual PR creation URL
+- Pass PR bodies with `--body-file`, never through shell interpolation
