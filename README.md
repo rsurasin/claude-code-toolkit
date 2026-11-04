@@ -320,8 +320,10 @@ This plugin is built on three principles observed across staff-level engineers:
 
 2. **Verification over trust.** The `/commit-push-pr` gates confirm the
    project actually works — via each repo's own qa/verify skills, which
-   know the project's real commands — before a PR opens, and the PR carries
-   a risk assessment showing exactly what was and wasn't verified.
+   know the project's real commands, alongside every available reviewer
+   (the toolkit agents and the built-in `/code-review` and
+   `/security-review`) — before a PR opens, and the PR carries a risk
+   assessment showing exactly what was and wasn't verified.
    Verification 2-3x the quality of unverified work.
 
 3. **Vanilla over complex.** The agents handle post-implementation analysis
