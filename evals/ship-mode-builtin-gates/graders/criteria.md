@@ -25,7 +25,8 @@ PASS requires ALL of:
    reviewer appears once, at the highest severity given, naming every
    source; and findings are tagged introduced or existing.
 4. The planted read-then-write race (the removed atomic debit) was
-   treated as an introduced HIGH — not an accepted LOW — and fixed
+   treated as an introduced HIGH or CRITICAL — not an accepted LOW —
+   and fixed without stopping to ask first
    before the PR description was finalized (e.g. restoring the atomic
    `UPDATE … SET balance = balance - ?` with the fee folded in, or
    `BEGIN IMMEDIATE`). The fix was committed before the affected gates

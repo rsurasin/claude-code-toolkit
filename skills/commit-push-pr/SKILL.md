@@ -52,7 +52,7 @@ that uses them.
 ```bash
 git rev-parse --abbrev-ref HEAD                                  # current branch
 git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null \
-  | sed 's|^origin/||' || echo "main"                            # base branch (no network)
+  | sed 's|^origin/||' | grep . || echo "main"                  # base branch (no network)
 git status --porcelain                                           # staged/unstaged/untracked
 git diff; git diff --staged                                      # the actual changes
 ```
@@ -187,7 +187,9 @@ report instead) and must not edit files — fixes happen in Step 3.
    the changes; it proposes edits but applies none.
 7. **Built-in `/code-review`** — invoke the skill with an **explicit
    effort level and target**: `high` and the range `<base>...HEAD` (or
-   the base branch, if the skill only takes a branch). Never omit the
+   the current feature branch's name, if the skill only takes a branch —
+   never the base branch's name, which reviews the base itself). Never
+   omit the
    level: with none given, the skill reuses the last level the user
    typed, which may be `ultra`. Never omit the target either: on a
    pushed branch the skill may otherwise diff against the branch's own
@@ -230,7 +232,7 @@ wrote this branch, so guard against grading your own work leniently:
 **when unsure, choose `introduced` and the higher severity**, and never
 lower a reviewer's severity or re-tag its finding `existing` without
 recording the reason — in the PR's Notes for Reviewers, except for a
-security finding at MEDIUM or above, whose reason goes in the Step 6
+security finding re-tagged `existing`, whose reason goes in the Step 6
 report only (the PR may say "a security finding was re-triaged and
 reported privately", with no location or class).
 
@@ -255,10 +257,9 @@ reported privately", with no location or class).
 3. **Merge duplicates.** When reviewers report the same defect (same
    root cause, same location), keep one finding with the **highest**
    severity any source gave it and name **every** source, e.g.
-   `[HIGH] (code-reviewer, /code-review)`. Exception: when
-   `security-auditor` is the only source and capped the finding as
-   `unconfirmed`, it stays at most MEDIUM. A HIGH from any other
-   reviewer with a concrete failure scenario counts as confirmation.
+   `[HIGH] (code-reviewer, /code-review)`. Exception: a finding that
+   only `security-auditor` reported, and capped as `unconfirmed`, stays
+   at most MEDIUM.
 4. **Tag introduced vs existing.** **Introduced**: the defect lives in
    lines this branch adds or changes, or the branch causes it.
    **Existing**: already present at `git merge-base <base> HEAD` and not
@@ -280,13 +281,15 @@ reported privately", with no location or class).
 6. **Route.** Introduced findings go into Step 3. Existing findings
    don't enter the fix loop and are never fixed inside this PR
    unprompted:
-   - **Existing security findings at MEDIUM or above** are reported to
+   - **Existing security findings, at any severity,** are reported to
      the user only (in the Step 6 report) — never written into the PR
-     body or a public issue with their location or exploit path, since
-     that discloses an unpatched vulnerability. Recommend a private
-     channel (e.g. a GitHub security advisory). An **existing CRITICAL
-     security finding** is still a Step 3 hard stop.
-   - **Other existing findings** go in the PR's Notes for Reviewers with
+     body, a commit message, or a public issue with their location,
+     class, or exploit path, since that discloses an unpatched
+     vulnerability. Recommend a private channel (e.g. a GitHub security
+     advisory). An **existing CRITICAL security finding** is still a
+     Step 3 hard stop.
+   - **Existing non-security findings** go in the PR's Notes for
+     Reviewers with
      the matching issue link, or into a new issue (`gh issue create`)
      when the user asked for it or approves.
 
@@ -301,11 +304,18 @@ the `pr-description` rubric.
 **Hard stops — report and ask the user whether to fix first or proceed:**
 
 - Any test failures
-- A CRITICAL finding — introduced of any kind, or an existing security
-  one
+- An existing CRITICAL security finding
 - A serious performance regression
 
-If the user chooses to fix, follow fix-loop items 3–6 below.
+If the user chooses to fix, follow fix-loop items 3–6 below. To fix an
+existing security finding, recommend a separate private fix (security
+advisory or private fork) over this PR; if the user wants it here, keep
+the commit message and PR text neutral — no vulnerability class,
+location, or exploit path (e.g. `fix(<scope>): harden input handling`).
+
+An **introduced CRITICAL** finding of any kind isn't a question: it
+goes straight into the fix loop below, and you ask the user only if it
+can't be fixed.
 
 **Fix-before-PR loop — findings do not ship:**
 
@@ -319,10 +329,14 @@ finding, or two or more MEDIUM findings:
    `fix(<scope>): <subject>`) — the gates review `<base>...HEAD`, so an
    uncommitted fix is invisible to them and missing from the PR
 5. Re-run Tests and runtime verification, plus only the affected review
-   gates — the sources named on the findings you fixed — scoped to the
-   fix commits and the flagged locations (`security-auditor` skips DAST
-   and full-codebase tooling on a re-run unless the finding came from
-   that tooling). Then re-triage.
+   gates — the sources named on the findings you fixed. Each re-run
+   still passes `<base>...HEAD` as its range and reference point (so an
+   incomplete fix stays `introduced`, and `/code-review`'s range check
+   holds); the fix commits' files and the flagged locations are its
+   *focus*, not its range (`security-auditor` skips DAST and
+   full-codebase tooling on a re-run unless the finding came from that
+   tooling). Then re-triage, carrying forward every earlier finding the
+   re-run didn't cover, so each row reflects the whole branch.
 6. Repeat until the threshold is no longer met, or the user says to
    proceed anyway. After three fix rounds, stop and ask the user whether
    to continue, listing the remaining findings.
@@ -353,7 +367,7 @@ Using the `pr-description` skill (including its Risk Assessment section):
      from the final Step 2/2b/3 gate results
    - Under Notes for Reviewers: existing non-security findings from
      Step 2b with issue links, and any severity or tag a triage changed,
-     with the reason (security findings at MEDIUM or above excepted —
+     with the reason (security findings re-tagged `existing` excepted —
      their reasons stay in the Step 6 report, per Step 2b)
    - Changes grouped by area
    - Testing steps
@@ -383,7 +397,7 @@ update the PR description's risk assessment with the latest gate results.
 **Gates:** <n> ran clean, <n> fixed then clean, <n> not run, <n> N/A
 **Commits added by ship mode:** <simplify and fix commits, or none>
 **Existing issues:** <n> reported, <n> linked or filed
-**Reported privately:** <existing security findings at MEDIUM+ (file:line, class, severity) and security re-triage reasons; recommend a security advisory>
+**Reported privately:** <existing security findings (file:line, class, severity) and security re-triage reasons; recommend a security advisory>
 **Dropped candidates:** <unreproduced /code-review findings; security-auditor drops (see its report)>
 **PR:** <url or instructions>
 **Files:** <count> changed, <insertions> insertions, <deletions> deletions
@@ -407,14 +421,15 @@ update the PR description's risk assessment with the latest gate results.
   fixed before the PR opens — never shipped with a risk label as a
   substitute for fixing; existing findings are reported or filed, not
   blocking (except an existing CRITICAL security finding)
-- Never publish an existing security finding's exploit path in a PR body
-  or public issue
+- Never publish an existing security finding's location, class, or
+  exploit path in a PR body, commit message, or public issue
 - Never force push
 - Never commit `.env`, secrets, or large binary files
 - Never commit feature work directly to the default branch
 - If there are merge conflicts, stop and report
-- On a hard stop (failing tests, critical security finding, serious perf
-  regression), never push without explicit user approval
+- On a hard stop (failing tests, existing critical security finding,
+  serious perf regression), never push without explicit user approval;
+  an introduced CRITICAL is fixed, not shipped
 - Ask for the PR base branch unless the user stated it — before the
   gates run (Step 1a)
 - If `gh` CLI isn't available, provide the manual PR creation URL
