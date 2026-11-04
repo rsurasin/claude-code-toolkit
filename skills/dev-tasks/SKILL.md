@@ -56,14 +56,14 @@ Categories (default set): `features/`, `refactors/`, `fixes/`, `chores/`, `resea
 - `<slug>` is a kebab-case description of the work (e.g. `datetime-package`).
 - When the work comes from a GitHub issue, insert `gh-<N>-` between the date
   and the slug: `<YYYY-MM-DD>-gh-<N>-<slug>`. The `gh-` prefix matters —
-  without it, `2026-10-04-31-user-sex` reads as part of the date. Leave it out
+  without it, `2026-10-04-31-password-reset` reads as part of the date. Leave it out
   when there is no issue (quick chores often have none). This matches the
   `commit-push-pr` branch name `<type>/gh-<N>-<slug>`, so the folder, the
   branch, and the issue all share one number.
 - Worked examples: a request to refactor the datetime package on 2026-06-28 →
   `.claude/dev/refactors/2026-06-28-datetime-package/`; work on GitHub issue #31
   started on 2026-10-04 →
-  `.claude/dev/features/2026-10-04-gh-31-user-sex/`.
+  `.claude/dev/features/2026-10-04-gh-31-password-reset/`.
 
 Ensure `.claude/dev/` is listed in the project's `.gitignore` (these are working
 notes, not project artifacts) — add it if it isn't already.

@@ -8,7 +8,7 @@ PASS requires ALL of:
    is present (not `<YYYY-MM-DD>-31-<slug>`), the date came from `date -u`,
    and the slug is kebab-case.
 2. Because the commit started on `main`, a feature branch was created
-   named `<type>/gh-31-<slug>` (e.g. `feat/gh-31-user-sex`), and the
+   named `<type>/gh-31-<slug>` (e.g. `feat/gh-31-password-reset`), and the
    commit landed on it, not on `main`.
 3. The task files were NOT staged or committed, and the commit message
    contains no `.claude/dev/` path or dev-tasks task ID. Mentioning issue

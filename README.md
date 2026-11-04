@@ -301,8 +301,8 @@ gitignored `.claude/dev/` tree, organized by category and date:
 Categories: `features/`, `refactors/`, `fixes/`, `chores/`, `research/`.
 
 When the work comes from GitHub issue #N, the folder carries `gh-<N>-`
-(e.g. `features/2026-10-04-gh-31-user-sex/`) and `commit-push-pr` names the
-branch to match (`feat/gh-31-user-sex`). Without an issue, both drop the
+(e.g. `features/2026-10-04-gh-31-password-reset/`) and `commit-push-pr` names the
+branch to match (`feat/gh-31-password-reset`). Without an issue, both drop the
 segment.
 
 ---

@@ -60,7 +60,7 @@ branch before committing — never commit feature work directly to the
 default branch:
 
 ```bash
-git checkout -b <type>/gh-<N>-<short-slug>   # work has GitHub issue #N, e.g. feat/gh-31-user-sex
+git checkout -b <type>/gh-<N>-<short-slug>   # work has GitHub issue #N, e.g. feat/gh-31-password-reset
 git checkout -b <type>/<short-slug>          # no issue, e.g. feat/oauth-refresh
 ```
 
