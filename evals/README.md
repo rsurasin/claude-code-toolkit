@@ -9,21 +9,39 @@ Claude against a user-style prompt, so agent cases test both *dispatch*
 (the right agent gets spawned, not inline work or a native-skill
 substitute) and the agent's *contract* (its output holds its promises).
 
-> `claude plugin eval` is in early access. Once enabled, run against the
-> working tree from the repo root:
->
-> ```bash
-> claude plugin eval .
-> ```
->
-> Or against the installed plugin (adds a no-plugin ablation baseline):
->
-> ```bash
-> claude plugin eval claude-code-toolkit@rahul-claude-code-toolkit
-> ```
->
-> Until then, the criteria files double as manual review checklists when
-> changing the corresponding skills and agents.
+## Running
+
+Requires Claude Code 2.1.269 or later (`claude update` if the command
+reports early access). Run from the repo root:
+
+```bash
+# Whole suite against the working tree (no push or reinstall needed)
+claude plugin eval .
+
+# One case, one run per arm, no no-plugin baseline: a quick check
+claude plugin eval . --case pr-description-non-ui-output --runs 1 --ablation none
+
+# Against the installed plugin instead of the working tree
+claude plugin eval claude-code-toolkit@rahul-claude-code-toolkit
+```
+
+Both targets run a second, no-plugin baseline arm by default, so the
+report shows what the plugin adds; `--ablation none` skips it.
+
+Useful options:
+
+- `--allow-tools Bash Write Edit` — most cases build a scratch git
+  project, so they need these tools.
+- `--case <glob>` — run only matching cases.
+- `--runs <n>` — runs per arm (default 3). Single runs are noisy; confirm
+  a change at 3.
+- `-j <n>` — run cases in parallel (1–8).
+- `--json [file]`, `--output-dir <dir>`, `--report <path>` — save results.
+- `--max-cost-usd <usd>` — stop at a cost ceiling.
+- `--trust-plugin` — skip the first-run trust prompt (for CI).
+
+The criteria files also work as manual review checklists when changing
+the corresponding skills and agents.
 
 ## Skill Cases
 

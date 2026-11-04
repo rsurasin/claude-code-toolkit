@@ -73,14 +73,17 @@ new behavior.
 ## Testing Skills — Eval Suite
 
 Behavioral eval cases live under `evals/` (one dir per case: `prompt.md`
-+ `graders/criteria.md`), in the `claude plugin eval` layout. That
-command is currently **early access** (`claude plugin eval init` exits 1);
-until it's enabled, use the criteria files as manual review checklists
-when changing the corresponding skill. Once enabled:
++ `graders/criteria.md`), run by `claude plugin eval` (Claude Code
+2.1.269+). Run from the repo root:
 
 ```bash
-claude plugin eval .    # eval the working tree (no push/reinstall needed)
+claude plugin eval .                         # whole suite, working tree (no push/reinstall needed)
+claude plugin eval . --case <case> --runs 1  # one case, quick check
 ```
+
+Most cases build a scratch git project, so grant the tools they need
+with `--allow-tools Bash Write Edit`. Single runs are noisy; confirm a
+change at the default 3 runs. See `evals/README.md` for more options.
 
 When changing a skill's contract (modes, thresholds, separation rules),
 update or add the matching eval case in the same commit.
