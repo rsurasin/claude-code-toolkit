@@ -28,7 +28,8 @@ working state only: plan, context, and task list.
 
 ## Top Priority: Record Product Decisions in the Same Turn
 
-This rule outranks everything else in the skill. Whenever a product
+This rule outranks everything else in the skill on timing (it never
+overrides the gitignore or promotion-consent rules). Whenever a product
 decision or a statement of intended app behavior is reached in
 conversation (the user picks between options, settles how a feature
 should behave, or a review or follow-up discussion changes either),
