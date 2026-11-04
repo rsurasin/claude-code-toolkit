@@ -120,9 +120,10 @@ gaps.
   Qualify the label so reviewers can tell the cause apart:
   **HIGH (unverified)** when driven by `NOT RUN` / `N/A` gaps or a
   one-way door with clean checks; **HIGH (findings)** when driven by
-  unresolved findings.
-- **CRITICAL** — One-way door combined with gaps or findings, OR a critical
-  security vulnerability, OR a serious performance regression, OR
+  unresolved findings; **HIGH (findings, unverified)** when both apply.
+- **CRITICAL** — One-way door combined with gaps or findings, OR an
+  introduced CRITICAL finding of any kind (security, data loss, a core
+  path broken for every user), OR a serious performance regression, OR
   verification was largely skipped.
 
 ### Floors (a floor can only raise the level, never lower it)
@@ -133,10 +134,11 @@ gaps.
 - Code review and Code review (built-in) both `NOT RUN` or `N/A` ⇒ at
   best HIGH
 - One-way door ⇒ at best HIGH
-- Critical security finding (introduced, or any finding in a standalone
-  run) or serious performance regression ⇒ CRITICAL. An existing
-  critical security finding doesn't set the PR's level — ship mode
-  makes it a hard stop instead
+- An introduced CRITICAL finding of any kind — or any CRITICAL security
+  finding when the evidence has no introduced/existing tags — or a
+  serious performance regression ⇒ CRITICAL. An existing critical
+  security finding doesn't set the PR's level — ship mode makes it a
+  hard stop instead
 - Failing tests ⇒ CRITICAL
 
 ### Verdict normalization
@@ -159,8 +161,9 @@ Verification sources report in different vocabularies. Map them as:
 | `/code-review` / `/security-review` | skill unavailable in this Claude Code version | N/A |
 | any gate | errored, timed out, or skipped | NOT RUN |
 
-`/code-review` reports findings without a severity; ship mode's triage
-step assigns one using the Severity Scale below. When ship mode's
+`/code-review` reports findings without a severity, and `perf-audit` and
+`doc-sync` use their own labels; ship mode's triage step maps all of
+them onto the Severity Scale below before normalizing. When ship mode's
 triage has tagged findings **introduced** or **existing**, the verdict's
 severity comes from introduced findings only (LOW included) — a gate
 with only existing findings is PASS. Existing non-security findings are
@@ -187,7 +190,8 @@ by how small the fix is or how unlikely the trigger feels. The
 - **MEDIUM** — wrong behavior under specific but plausible conditions
   (an edge input, a time zone, a retry), a changed path with no test in
   a codebase that has tests, a hard project-rule violation, or
-  docs/comments that now contradict the code.
+  docs/comments that now contradict the code. In a codebase with no
+  tests, missing coverage is one LOW summary note, not a MEDIUM per path.
 - **LOW** — hardening, simplification, reuse, style, naming, or a
   performance improvement without evidence of user-visible impact.
 
@@ -226,4 +230,9 @@ likelihood only when the triggering state is shown to be unreachable.
 - Reference external tracker IDs (Jira keys, GitHub issues) if applicable —
   never dev-tasks task IDs or `.claude/dev/` paths; dev-tasks is internal
   tracking state and PR descriptions carry no trace of it
+- Never write the location, class, or exploit path of a security finding
+  the diff didn't introduce — or of any security finding from a
+  full-scope audit — into the description. Write "security finding(s)
+  reported privately", tell the user the details directly, and
+  recommend a private channel such as a GitHub security advisory
 - Keep it concise — a PR description longer than the diff is a red flag
