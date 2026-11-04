@@ -636,8 +636,8 @@ bundle-audit / trivy / snyk]
 introduced findings, LOW hardening included, and existing findings are
 reported for the backlog. In full scope, with no diff to compare
 against, every finding counts. The verdict is `PASS` only when no
-counted finding survives verification, so a full-codebase audit with a
-CRITICAL finding never reads PASS.
+counted finding is reported (unverified LOW hardening included), so a
+full-codebase audit with a CRITICAL finding never reads PASS.
 
 ## Rules
 
