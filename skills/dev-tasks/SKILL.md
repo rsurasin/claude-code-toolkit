@@ -266,9 +266,12 @@ pending release work:
 - Only if that found anything, reconcile with GitHub in one call,
   `gh pr list --state all --limit 100 --json number,state,mergedAt,mergeCommit,baseRefName`,
   joined locally by PR number. It covers the `PR open (#N)` folders and
-  the release PRs recorded in `merged to` folders' Session Logs
-  (`grep -rhoE --include=context.md 'release PR open \(#[0-9]+\)' .claude/dev/`);
-  check a number missing from the result with `gh pr view <N>`.
+  each `merged to` folder's pending release PR: the most recent
+  `release PR open (#N)` in its Session Log with no matching
+  `release PR closed (#N)` after it. Read those only from the folders the
+  grep above returned (`grep -oE 'release PR (open|closed) \(#[0-9]+\)'
+  <folder>/context.md`), keeping which folder each came from. Check a
+  number missing from the result with `gh pr view <N>`.
   Apply the matching transition from
   [Status and Release Tracking](#status-and-release-tracking) to any PR
   that has since merged or closed. A merged release PR, or a feature PR
@@ -302,8 +305,10 @@ Transitions:
 - **A release PR closed without merging**: the folders stay `merged to
   <base> (<sha>), not released`; append `release PR closed (#N)` to their
   Session Logs. The next release PR records its own number.
-- Append every transition to `context.md`'s Session Log (e.g.
-  `status: PR open (#41)`), so the PR number survives later transitions.
+- Append every transition to `context.md`'s Session Log as
+  `status: <new state>` (e.g. `status: PR open (#41)`), exactly in that
+  form, so the PR number survives later transitions and folder mapping
+  can find it.
 
 Record a release step under `## Release Steps` as soon as it is known
 during implementation: a deploy that must pair with another repo's

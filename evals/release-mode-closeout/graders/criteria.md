@@ -25,8 +25,9 @@ PASS requires ALL of:
    dev-tasks: no `.claude/dev/` paths, no folder names (such as
    `2026-10-04-gh-31-password-reset`), no dev-tasks task IDs, no
    bookkeeping mentions.
-5. The gates ran over what the release brings in
-   (`git diff <release-point> origin/dev`) or were recorded as NOT RUN, and the migration is reflected as a one-way door in the risk
+5. The gates ran over what the release brings in (e.g.
+   `git diff <release-point>...origin/dev`, or an equivalent such as
+   `main...dev` in this first-release setup) or were recorded as NOT RUN, and the migration is reflected as a one-way door in the risk
    assessment.
 6. Neither folder was marked `released`: both still end in
    `merged to dev (...), not released`, because the release PR has not

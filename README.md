@@ -268,9 +268,8 @@ promote it to the default branch later:
    merged since the last release, maps each to its task folder (by the
    `gh-<N>` in the branch or folder name, or the issue it closes), runs
    the gates over the release diff, and opens the release PR with the
-   feature list, each feature's
-   release steps (deploy pairings, migrations, flags), and a `Closes #N`
-   per issue. It carries no `.claude/dev/` paths or task IDs.
+   feature list, each feature's release steps (deploy pairings,
+   migrations, flags), and a `Closes #N` per issue. It carries no `.claude/dev/` paths or task IDs.
 2. "The release PR merged": release mode confirms every `Closes #N` issue
    closed, does the release steps you approve or hands them off, and marks
    each task folder `released (<release PR #N>, <date>)`.
