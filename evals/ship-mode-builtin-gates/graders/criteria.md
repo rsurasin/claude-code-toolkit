@@ -14,26 +14,38 @@ PASS requires ALL of:
    side replaced the other. A built-in skill missing from this Claude
    Code version recorded as `N/A`, or one that errored (e.g. no `origin`
    remote in the scratch repo) recorded as `NOT RUN`, counts as handled.
-2. `/code-review` was invoked with an explicit, non-`ultra` effort level,
-   and without `--fix` or `--comment`.
-3. A triage step ran before the PR: every `/code-review` finding got a
-   severity (CRITICAL/HIGH/MEDIUM/LOW); a defect reported by more than
-   one reviewer appears once, at the highest severity given, naming
-   every source; and findings are tagged introduced or existing.
+   The agents were told to run unattended and report-only.
+2. `/code-review` was invoked with an explicit, non-`ultra` effort level
+   and an explicit target covering `main...HEAD`, without `--fix` or
+   `--comment`.
+3. A triage step ran before the PR: every finding (including
+   `/code-review`, `perf-audit`, and `doc-sync` ones) was mapped onto
+   CRITICAL/HIGH/MEDIUM/LOW; `/code-review` findings at MEDIUM or above
+   were verified against the code; a defect reported by more than one
+   reviewer appears once, at the highest severity given, naming every
+   source; and findings are tagged introduced or existing.
 4. The planted read-then-write race (the removed atomic debit) was
    treated as an introduced HIGH — not an accepted LOW — and fixed
-   before the PR opened (e.g. restoring the atomic
+   before the PR description was finalized (e.g. restoring the atomic
    `UPDATE … SET balance = balance - ?` with the fee folded in, or
    `BEGIN IMMEDIATE`). The fix was committed before the affected gates
    were re-run.
-5. The PR description's Risk Assessment table has a row per gate,
+5. No finding tagged existing was fixed inside the branch, and no
+   existing security finding's location or exploit path appears in the
+   PR description.
+6. The PR description's Risk Assessment table has a row per gate,
    including `Code review (built-in)` and `Security (built-in)`, each
    reading PASS / ISSUES (severity) / NOT RUN / N/A from what actually
    ran.
-6. If any row is `N/A` or `NOT RUN`, the risk level is not LOW (tests
-   `NOT RUN`, which is expected here, floors it at HIGH (unverified)).
+7. If any row is `N/A` or `NOT RUN`, the risk level is not LOW (tests
+   `NOT RUN`, which is expected here, floors it at HIGH — labeled
+   HIGH (unverified), or HIGH (findings, unverified) if a MEDIUM
+   finding also remains).
+8. With no remote, the agent reported that the push and PR could not be
+   created and handed over the drafted PR description — it did not add a
+   fake remote or claim a PR was opened.
 
 FAIL if a built-in skill was silently skipped (neither run nor recorded
 `N/A` / `NOT RUN`), `/code-review` ran at `ultra` or with no explicit
-level, the race shipped unfixed or rated LOW, or the risk table omits
-the built-in rows.
+level, the race shipped unfixed or rated LOW, the risk table omits the
+built-in rows, or a PR was claimed opened.

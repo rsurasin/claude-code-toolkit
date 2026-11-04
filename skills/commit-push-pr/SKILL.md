@@ -166,7 +166,11 @@ the user sees what changed. The gates then review the simplified code.
 Gates review the **entire feature** — `<base>...HEAD` — not the last
 commit. Discover the repo's own verification capabilities, then run all
 gates, in parallel where possible — spawn the agents first, then invoke
-the built-in skills while the agents run:
+the built-in skills while the agents run.
+
+Tell every spawned agent that it runs **unattended and report-only**:
+it must not ask the user anything (record the question as a gap in its
+report instead) and must not edit files — fixes happen in Step 3.
 
 1. **Tests** — If the target repo defines a qa/test skill or agent in its
    `.claude/` directory, run that. Otherwise run the test suite using the
@@ -177,23 +181,29 @@ the built-in skills while the agents run:
 3. **`code-reviewer` agent** — review the branch diff (pass
    `<base>...HEAD`).
 4. **`security-auditor` agent** — security audit of the branch diff, in
-   gate mode (tell it it runs unattended, so it records questions under
-   Scanning Gaps instead of prompting).
+   gate mode (it records questions under Scanning Gaps).
 5. **`perf-audit` agent** — performance audit of the branch diff.
-6. **`doc-sync` agent** — check whether docs drifted from the changes.
-7. **Built-in `/code-review`** — invoke the skill on the branch with an
-   **explicit effort level** — `high` — so it reviews `<base>...HEAD`.
-   Never omit the level: with none given, the skill reuses the last
-   level the user typed, which may be `ultra`. **Never run
-   `/code-review ultra` automatically** — it runs in the cloud and is
-   billed to the user, so only the user triggers it. Don't pass `--fix`
-   (fixes go through Step 3) or `--comment` (no PR exists yet).
+6. **`doc-sync` agent** — report-only check of whether docs drifted from
+   the changes; it proposes edits but applies none.
+7. **Built-in `/code-review`** — invoke the skill with an **explicit
+   effort level and target**: `high` and the range `<base>...HEAD` (or
+   the base branch, if the skill only takes a branch). Never omit the
+   level: with none given, the skill reuses the last level the user
+   typed, which may be `ultra`. Never omit the target either: on a
+   pushed branch the skill may otherwise diff against the branch's own
+   upstream, which is an empty range. Check the range its report says it
+   reviewed — if it is empty or not `<base>...HEAD`, record `NOT RUN`,
+   never PASS. **Never run `/code-review ultra` automatically** — it
+   runs in the cloud and is billed to the user, so only the user
+   triggers it. Don't pass `--fix` (fixes go through Step 3) or
+   `--comment` (no PR exists yet).
 8. **Built-in `/security-review`** — invoke the skill; it reviews what
    the current branch introduces relative to `origin/HEAD`. If it errors
    because `origin/HEAD` is unset, run
    `git remote set-head origin --auto` and retry once. If the confirmed
-   `<base>` isn't the remote's default branch, `/security-review`
-   covers a different range — record its result with that caveat.
+   `<base>` isn't the remote's default branch, it covers a different
+   range: Step 2b re-tags its findings, and the risk justification
+   sentence states the mismatch.
 
 Agents and built-in skills run side by side, never one instead of the
 other: side-by-side runs showed each catches defects the other misses.
@@ -215,44 +225,67 @@ errored) is recorded as `NOT RUN`, which raises the risk level.
 ### Step 2b: Triage — merge every reviewer's findings
 
 Triage the findings from all gates, agents and skills alike, into one
-list before evaluating. You wrote this branch, so guard against grading
-your own work leniently: **when unsure, choose `introduced` and the
-higher severity**, and never lower a reviewer's severity or re-tag its
-finding `existing` without recording the reason in the PR's Notes for
-Reviewers.
+list before evaluating, using the `pr-description` Severity Scale. You
+wrote this branch, so guard against grading your own work leniently:
+**when unsure, choose `introduced` and the higher severity**, and never
+lower a reviewer's severity or re-tag its finding `existing` without
+recording the reason — in the PR's Notes for Reviewers, except for a
+security finding at MEDIUM or above, whose reason goes in the Step 6
+report only (the PR may say "a security finding was re-triaged and
+reported privately", with no location or class).
 
-1. **Assign severities.** `/code-review` findings carry no severity:
-   assign CRITICAL / HIGH / MEDIUM / LOW to each from its failure
-   scenario, using the severity scale in the `pr-description` skill
-   (a reachable race that leaves inconsistent state is HIGH, however
-   small the fix). `/security-review` already reports HIGH, MEDIUM, or
-   LOW — keep it.
-2. **Merge duplicates.** When reviewers report the same defect (same
+1. **Assign severities.** Map every finding onto the Severity Scale by
+   consequence:
+   - `/code-review` findings carry no severity: assign one from the
+     failure scenario (a reachable race that leaves inconsistent state
+     is HIGH, however small the fix).
+   - `perf-audit`: Critical → HIGH (CRITICAL for a serious regression),
+     Important → MEDIUM, Optimization → LOW.
+   - `doc-sync`: CRITICAL and STALE → MEDIUM (docs contradict code),
+     MISSING and MINOR → LOW.
+   - `/security-review` reports HIGH, MEDIUM, or LOW; keep it, or raise
+     it (e.g. an exploitable injection to CRITICAL) — never lower it.
+2. **Verify `/code-review` findings.** Unlike the agents' findings,
+   `/code-review` candidates haven't been through a verification pass.
+   For each one at MEDIUM or above, trace its failure scenario through
+   the actual code — or hand it to a fresh verifier subagent with the
+   finding and the code, not this session's reasoning. Drop findings
+   whose scenario can't be reproduced, and list the drops in the Step 6
+   report.
+3. **Merge duplicates.** When reviewers report the same defect (same
    root cause, same location), keep one finding with the **highest**
    severity any source gave it and name **every** source, e.g.
-   `[HIGH] (code-reviewer, /code-review)`. Exception: a security finding
-   that `security-auditor` capped as `unconfirmed` stays at most MEDIUM
-   unless another security reviewer confirmed it.
-3. **Tag introduced vs existing.** **Introduced**: the defect lives in
+   `[HIGH] (code-reviewer, /code-review)`. Exception: when
+   `security-auditor` is the only source and capped the finding as
+   `unconfirmed`, it stays at most MEDIUM. A HIGH from any other
+   reviewer with a concrete failure scenario counts as confirmation.
+4. **Tag introduced vs existing.** **Introduced**: the defect lives in
    lines this branch adds or changes, or the branch causes it.
    **Existing**: already present at `git merge-base <base> HEAD` and not
-   worsened. Keep the agents' tags after a sanity check; tag
-   `/code-review` findings yourself (check `git diff <base>...HEAD` and
-   `git blame`). `/security-review` findings are introduced by design.
-   When sources disagree, re-check with `git blame`; introduced wins if
-   any source shows the branch causes the defect.
-4. **Check open issues.** Fetch the open issues once
-   (`gh issue list --state open --limit 200 --json number,title`) and
-   match existing findings against them locally; link a match.
-5. **Route.** Introduced findings go into the Step 3 fix-before-PR loop.
-   Existing findings don't enter the fix loop and are never fixed inside
-   this PR unprompted:
+   worsened. Keep the tags of agents that emit them (`code-reviewer`,
+   `security-auditor`) after a sanity check; tag the rest yourself
+   (`/code-review`, `perf-audit`, `doc-sync`) with
+   `git diff <base>...HEAD` and `git blame`. `/security-review` findings
+   are introduced when `<base>` is the remote's default branch;
+   otherwise tag them like `/code-review` findings and drop any outside
+   `<base>...HEAD` from its row (route them per item 6). When sources
+   disagree, re-check with `git blame`; introduced wins if any source
+   shows the branch causes the defect.
+5. **Check open issues.** If `gh` works and the remote is on GitHub,
+   fetch the open issues once
+   (`gh issue list --state open --limit 500 --json number,title`) and
+   match existing findings against them locally; link a match. If `gh`
+   is unavailable, or the list hit the limit, say so in the Step 6
+   report and never file an issue that may duplicate an unchecked one.
+6. **Route.** Introduced findings go into Step 3. Existing findings
+   don't enter the fix loop and are never fixed inside this PR
+   unprompted:
    - **Existing security findings at MEDIUM or above** are reported to
-     the user only — never written into the PR body or a public issue
-     with their exploit path, since that discloses an unpatched
-     vulnerability. Recommend a private channel (e.g. a GitHub security
-     advisory). An **existing CRITICAL security finding** is still a
-     Step 3 hard stop.
+     the user only (in the Step 6 report) — never written into the PR
+     body or a public issue with their location or exploit path, since
+     that discloses an unpatched vulnerability. Recommend a private
+     channel (e.g. a GitHub security advisory). An **existing CRITICAL
+     security finding** is still a Step 3 hard stop.
    - **Other existing findings** go in the PR's Notes for Reviewers with
      the matching issue link, or into a new issue (`gh issue create`)
      when the user asked for it or approves.
@@ -268,13 +301,16 @@ the `pr-description` rubric.
 **Hard stops — report and ask the user whether to fix first or proceed:**
 
 - Any test failures
-- A critical security vulnerability — introduced or existing
+- A CRITICAL finding — introduced of any kind, or an existing security
+  one
 - A serious performance regression
+
+If the user chooses to fix, follow fix-loop items 3–6 below.
 
 **Fix-before-PR loop — findings do not ship:**
 
-If the triaged **introduced** findings include any HIGH-severity
-finding, or two or more MEDIUM-severity findings:
+If the triaged **introduced** findings include any CRITICAL or HIGH
+finding, or two or more MEDIUM findings:
 
 1. Report the findings to the user
 2. Append them to the active dev-tasks context file, if one exists
@@ -282,8 +318,11 @@ finding, or two or more MEDIUM-severity findings:
 4. Commit the fixes atomically (Commit Mode Steps 3–4, e.g.
    `fix(<scope>): <subject>`) — the gates review `<base>...HEAD`, so an
    uncommitted fix is invisible to them and missing from the PR
-5. Re-run only the affected gates — the sources named on the findings
-   you fixed — then re-triage
+5. Re-run Tests and runtime verification, plus only the affected review
+   gates — the sources named on the findings you fixed — scoped to the
+   fix commits and the flagged locations (`security-auditor` skips DAST
+   and full-codebase tooling on a re-run unless the finding came from
+   that tooling). Then re-triage.
 6. Repeat until the threshold is no longer met, or the user says to
    proceed anyway. After three fix rounds, stop and ask the user whether
    to continue, listing the remaining findings.
@@ -300,6 +339,8 @@ Step 2b already routed them.
 Push the branch, including any simplify and fix commits from Steps 1b
 and 3 (Commit Mode Step 5). The base branch was confirmed in Step 1a;
 if the user changed it since, re-run the gates against the new base.
+If the repo has no remote, report that the push and PR aren't possible
+and hand the user the drafted PR description from Step 5.
 
 ### Step 5: Open PR
 
@@ -312,7 +353,8 @@ Using the `pr-description` skill (including its Risk Assessment section):
      from the final Step 2/2b/3 gate results
    - Under Notes for Reviewers: existing non-security findings from
      Step 2b with issue links, and any severity or tag a triage changed,
-     with the reason
+     with the reason (security findings at MEDIUM or above excepted —
+     their reasons stay in the Step 6 report, per Step 2b)
    - Changes grouped by area
    - Testing steps
    - Notes for reviewers
@@ -339,7 +381,10 @@ update the PR description's risk assessment with the latest gate results.
 **Branch:** <branch> → <base>
 **Risk:** <LOW / MEDIUM / HIGH / CRITICAL> (<one-line justification>)
 **Gates:** <n> ran clean, <n> fixed then clean, <n> not run, <n> N/A
+**Commits added by ship mode:** <simplify and fix commits, or none>
 **Existing issues:** <n> reported, <n> linked or filed
+**Reported privately:** <existing security findings at MEDIUM+ (file:line, class, severity) and security re-triage reasons; recommend a security advisory>
+**Dropped candidates:** <unreproduced /code-review findings; security-auditor drops (see its report)>
 **PR:** <url or instructions>
 **Files:** <count> changed, <insertions> insertions, <deletions> deletions
 ```
@@ -357,7 +402,8 @@ update the PR description's risk assessment with the latest gate results.
   unavailable built-in skill is `N/A`, which keeps the PR above LOW
 - Never run `/code-review ultra` automatically — it is user-triggered
   and billed
-- Introduced findings above the threshold (any HIGH, or 2+ MEDIUM) are
+- Introduced findings above the threshold (any CRITICAL or HIGH, or 2+
+  MEDIUM) are
   fixed before the PR opens — never shipped with a risk label as a
   substitute for fixing; existing findings are reported or filed, not
   blocking (except an existing CRITICAL security finding)

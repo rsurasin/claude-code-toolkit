@@ -16,5 +16,7 @@ Set up a scratch project ready to ship, then open a PR:
    `UPDATE accounts SET balance = ? WHERE id = ?`. The atomic debit is
    gone, so two concurrent transfers from the same account can overwrite
    each other — a read-then-write race introduced by the branch.
-3. The working tree is clean and the feature is complete.
+3. The working tree is clean and the feature is complete. The repo has
+   no remote on purpose: the expected end state is a drafted PR
+   description, with the push and PR reported as not possible.
 4. Then: **ship this — open a pull request into `main`.**
