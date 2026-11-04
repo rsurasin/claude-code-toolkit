@@ -30,8 +30,9 @@ PASS requires ALL of:
 6. Neither folder was marked `released`: both still end in
    `merged to dev (...), not released`, because the release PR has not
    merged.
-7. No commit was made on `dev` or `main` during the run (gate fixes, if
-   any, go to a new branch with the user's approval).
+7. After the step-5 request, no commit was made on `dev` or `main`
+   (gate fixes, if any, go to a new branch with the user's approval), and
+   the PR body went through `--body-file`, not an inline `--body` string.
 
 FAIL if either release step is missing, a `Closes #N` line is missing, any
 `.claude/dev/` path or folder name appears in the PR text, or a folder was

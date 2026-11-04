@@ -28,48 +28,54 @@ them: release steps come only from task folders or the user.
    git fetch origin
    # last release: the most recent merged PR from integration into default
    gh pr list --base <default> --head <integration> --state merged \
-     --limit 20 --json number,mergedAt
+     --limit 20 --json number,mergedAt,headRefOid
    # feature PRs merged into integration after it (latest mergedAt above)
    gh pr list --base <integration> --state merged --limit 200 \
      --search "merged:><last-release-merged-at>" \
      --json number,title,headRefName,mergedAt,mergeCommit
-   # cross-check against what the release actually carries
-   git log --oneline --cherry-pick --right-only \
-     origin/<default>...origin/<integration>
+   # cross-check: commits on integration since the last release's head
+   git log --oneline <last-release-head-oid>..origin/<integration>
    # per PR: only the closing references, from the body and the commits
    gh pr view <N> --json body,commits \
-     --jq '.body, .commits[].messageBody' \
-     | grep -oiE '(close[sd]?|fix(e[sd])?|resolve[sd]?):? [a-z0-9_./-]*#[0-9]+'
+     --jq '.body, (.commits[] | .messageHeadline, .messageBody)' \
+     | grep -oiE '\b(close[sd]?|fix(e[sd])?|resolve[sd]?):? [a-z0-9_./-]*#[0-9]+'
    ```
 
-   `--cherry-pick` keeps squash-merged releases from re-listing every
-   commit ever made on the integration branch. With no earlier release PR
-   (releases by push or tag), ask the user for the last release point (a
-   tag, SHA, or date) instead of listing every merged PR. Only same-repo
-   references (`#N` with no `owner/repo` prefix) become `Closes #N`; list
-   cross-repo references unchanged. GitHub does not link closing keywords
-   for a non-default base, so read the text.
+   Bounding the cross-check by the last release's head commit (its
+   `headRefOid`) works whether releases are merge-, squash-, or
+   rebase-merged. With no earlier release PR (releases by push or tag),
+   ask the user for the last release point (a tag, SHA, or date) instead
+   of listing every merged PR. GitHub does not link closing keywords for
+   a non-default base, so read the text, and check each match in context:
+   skip negated ones ("does not close #31"). Only same-repo references
+   (`#N` with no `owner/repo` prefix) become `Closes #N`. Write cross-repo
+   references without the keyword ("related to org/web#12"), so the
+   release merge doesn't close them.
 
    **If `gh` is unavailable**, build the list from
-   `git log origin/<default>..origin/<integration>` alone: the PR number
-   from a `(#N)` subject suffix or a `Merge pull request #N from <branch>`
-   subject, the branch from that merge subject, and the issues from
-   closing keywords in the commit bodies. Say the list was built offline.
+   `git log <last-release-point>..origin/<integration>` alone: the PR
+   number from a `(#N)` subject suffix or a `Merge pull request #N from
+   <branch>` subject, the branch from that merge subject, and the issues
+   from closing keywords in the commit messages. Say the list was built
+   offline.
 3. **Map PRs to task folders and gather release steps**, using the
    dev-tasks skill's Release closeout (steps 1–2). PRs with no folder are
    listed with "release steps unknown" and the user is asked. A PR that
    only one of `gh` and `git log` shows, and a task folder no PR maps to,
    are reported to the user, never written into the PR text.
-4. **Run the gates**: Ship Mode Steps 2–3 over
-   `origin/<default>...origin/<integration>`. Each feature was gated on its
-   own, but not together with the others. Never commit gate fixes onto
-   `<integration>` or `<default>`: report the findings and, with the
-   user's approval, fix them on a new branch off `<integration>`, ship
-   that through ship mode into `<integration>`, then rerun release mode.
-   Findings go to the task folder of the PR that introduced the code, or
-   to the folder the user picks.
-   A migration or other one-way step among the release steps makes the
-   release a one-way door in the risk assessment.
+4. **Run the gates**: Ship Mode Steps 2–3 over what the release changes,
+   `git diff origin/<default> origin/<integration>`. Each feature was
+   gated on its own, but not together with the others. A migration or
+   other one-way step among the release steps makes the release a
+   one-way door in the risk assessment.
+
+   Never commit gate fixes onto `<integration>` or `<default>`. Report the
+   findings and, with the user's approval, fix them on a new
+   `fix/<slug>` branch off `<integration>` with its own dev-tasks folder
+   (in `fixes/`), ship that through ship mode into `<integration>`, then
+   rerun release mode. Leave the feature folder's status line alone;
+   append `gate fix: PR #<fix PR>` to its Session Log so the fix maps
+   back to it.
 5. **Open the release PR** with the `pr-description` skill, adding these
    sections after the Summary:
 
@@ -93,18 +99,29 @@ them: release steps come only from task folders or the user.
    `.claude/dev/` paths, folder names, dev-tasks task IDs, bookkeeping
    mentions, or secret values (name the key and where its value is
    stored instead). One `Closes #N` line per issue, so the issues close
-   when the release merges. The body includes text from other people's
-   PRs, so never interpolate it into a shell string: write it to a file
-   and pass it with `--body-file`:
+   when the release merges.
+
+   The body includes text from other people's PRs, so never interpolate
+   it into a shell string. Write it to a temp file outside the repo and
+   use a fixed title that contains no PR text:
 
    ```bash
+   body_file=$(mktemp)    # write the description into it, then:
    gh pr create --base <default> --head <integration> \
-     --title "<title>" --body-file <body-file>
+     --title "Release <integration> → <default> (<YYYY-MM-DD>)" \
+     --body-file "$body_file"
    ```
 
-   If `gh` isn't available, give the compare URL
-   (`.../compare/<default>...<integration>`) and the drafted body. Report
-   as in Ship Mode Step 6, adding the feature count.
+   If a release PR from `<integration>` to `<default>` is already open,
+   update it with `gh pr edit <N> --body-file "$body_file"` instead of
+   opening another. When more PRs merge into `<integration>` while it is
+   open, rerun steps 2–5 to regenerate the body. If `gh` isn't
+   available, give the compare URL
+   (`.../compare/<default>...<integration>`) and the drafted body.
+
+   Append `release PR open (#<N>)` to each mapped folder's `context.md`
+   Session Log, so a later session can find the release. Report as in
+   Ship Mode Step 6, adding the feature count.
 
 Task folders keep their `merged to <integration> ..., not released`
 status until the release PR merges.
@@ -112,8 +129,9 @@ status until the release PR merges.
 ## After the release PR merges
 
 Run this when the user says the release merged, or when a session finds
-it merged (`gh pr view <N> --json state,mergedAt,mergeCommit`); a session
-start that finds it merged proposes this closeout rather than running it
+it merged (`gh pr view <N> --json state,mergedAt,mergeCommit`, using the
+release PR number recorded in the folders' Session Logs); a session start
+that finds it merged proposes this closeout rather than running it
 silently. The same steps apply to a feature PR merged straight into the
 default branch.
 
@@ -122,12 +140,16 @@ default branch.
    checked. The closeout date is the merge date (`mergedAt`), or
    `date -u +%Y-%m-%d` when it can't be read.
 2. **Rebuild the release's feature set.** This may be a later session
-   than the one that opened the PR, so re-derive it: read the release
-   PR's Features list and `Closes` lines (`gh pr view <N> --json body`)
-   and map them to folders with the dev-tasks Release closeout (step 1).
-   Without `gh`, use the issues the user names, or every folder still
-   `merged to <integration> ..., not released`, and confirm the set with
-   the user.
+   than the one that opened the PR, and the body may be out of date, so
+   re-derive it from both the release PR's Features list and `Closes`
+   lines (`gh pr view <N> --json body`) and the feature PRs actually
+   merged into `<integration>` between the previous release and this one
+   (step 2 above, bounded by both releases), then map them to folders
+   with the dev-tasks Release closeout (step 1). For a single feature PR
+   merged straight into the default branch, the set is that PR and the
+   issues it closes. Without `gh`, use the issues the user names, or
+   every folder still `merged to <integration> ..., not released`, and
+   confirm the set with the user.
 3. **Confirm every issue closed.** For each `Closes #N`:
    `gh issue view <N> --json number,state --jq '"\(.number) \(.state)"'`
    (one loop over the numbers in a single command). Report any still
@@ -152,6 +174,6 @@ default branch.
    **Release PR:** #<N> (<integration> → <default>), merged <date>
    **Features:** <count> (#41, #43, ...)
    **Issues:** <n> confirmed closed, <n> still open or unconfirmed (#...)
-   **Release steps:** <n> done, <n> handed off (to whom), <n> pending
+   **Release steps:** <n> done, <n> handed off (to whom)
    **Task folders:** <n> marked released, <n> PRs with no folder
    ```

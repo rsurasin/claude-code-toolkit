@@ -257,19 +257,23 @@ At every session start, even when resuming a different task, also surface
 pending release work:
 
 - Find the open and unreleased folders in one local call:
-  `grep -E '^Status: (PR open|merged to)' .claude/dev/*/*/tasks.md .claude/dev/*/tasks.md`
-  (the second glob covers legacy flat folders)
+  `grep -rE --include=tasks.md '^Status: (PR open|merged to)' .claude/dev/`
+  (covers both the category layout and legacy flat folders)
 - List every folder whose status is still `merged to <base> (<sha>), not
   released`, with its base branch and open release steps, so work waiting
   on a release stays visible.
-- Reconcile the `PR open (#N)` folders with GitHub in one call,
+- Only if that found anything, reconcile with GitHub in one call,
   `gh pr list --state all --limit 100 --json number,state,mergedAt,mergeCommit,baseRefName`,
-  joined locally by PR number, and apply the matching transition from
+  joined locally by PR number. It covers the `PR open (#N)` folders and
+  any `release PR open (#N)` recorded in a `merged to` folder's Session
+  Log; check a number missing from the result with `gh pr view <N>`.
+  Apply the matching transition from
   [Status and Release Tracking](#status-and-release-tracking) to any PR
-  that has since merged or closed. A PR merged straight into the default
-  branch is a release: propose its closeout instead of marking it
-  `released` silently. If `gh` is unavailable, say the statuses could not
-  be checked rather than guessing.
+  that has since merged or closed. A merged release PR, or a feature PR
+  merged straight into the default branch, is a release: propose its
+  closeout instead of marking folders `released` silently. If `gh` is
+  unavailable, say the statuses could not be checked rather than
+  guessing.
 
 ## Status and Release Tracking
 
@@ -308,13 +312,14 @@ beyond the merge.
 ### Release closeout
 
 `commit-push-pr` release mode calls this when a PR from the integration
-branch to the default branch opens or merges. This section is the folder
+branch to the default branch opens or merges, or when a feature PR merges
+straight into the default branch. This section is the folder
 side of the release; the PR side lives in that skill.
 
 1. **Map each PR in the release to its folder**, in this order: the
    `gh-<N>-` in the PR's branch name (`<type>/gh-<N>-<slug>`) matches the
-   folder named `<YYYY-MM-DD>-gh-<N>-<slug>`; else an issue the PR closes
-   matches a folder's `gh-<N>-`; else a folder whose Session Log records
+   folder named `<YYYY-MM-DD>-gh-<N>-<slug>`; else a same-repo issue the
+   PR closes matches a folder's `gh-<N>-`; else a folder whose Session Log records
    that PR number. Example: PR #41 from `feat/gh-31-password-reset` maps
    to `.claude/dev/features/2026-10-04-gh-31-password-reset/`. A PR with
    no folder is listed as "no task folder, release steps unknown" and the

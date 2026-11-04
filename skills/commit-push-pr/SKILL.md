@@ -124,7 +124,8 @@ the dev-tasks skill's Status and Release Tracking section). Set
 `Status: in progress` when the line is missing or the folder's PR was
 closed without merging; leave `PR open (#N)` as is when this branch
 already has an open PR. If the folder says the work already merged or
-released, stop and ask: new commits belong on a new branch. Never create
+released, stop and ask: new commits belong on a new branch with its own
+folder (as for release-mode gate fixes, see `release-mode.md`). Never create
 a folder just to hold a status. The status update is gitignored working
 state and is never staged.
 
