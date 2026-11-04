@@ -64,9 +64,13 @@ git diff --function-context <merge-base>  # each hunk with its enclosing functio
 - Read the **enclosing function of every hunk**, not just the changed
   lines — `--function-context` gives a start; open the file when the
   function is long or the language isn't recognized.
-- If the current branch IS the base branch (or the merge base equals
-  `HEAD`), fall back to the last commit plus staged and unstaged changes
-  (`git diff --name-only HEAD~1`, `--staged`, and the working tree).
+- If the current branch IS the base branch, fall back to the last commit
+  plus staged and unstaged changes (`git diff --name-only HEAD~1`,
+  `--staged`, and the working tree). Guard it with
+  `git rev-parse --verify --quiet HEAD~1`; in a single-commit repo,
+  review the whole tree with `HEAD` as the reference point.
+- If the merge base equals `HEAD` on a feature branch (no commits yet),
+  review only the staged, unstaged, and untracked changes.
 - If there's no git history, ask the user which files to review.
 
 Record the reference point — the merge base, or `HEAD~1` in the
@@ -173,7 +177,9 @@ Read the project context first, then check:
 ## Severity and Tags
 
 Every finding carries one severity, defined by consequence — not by how
-small the fix is or how unlikely the trigger feels:
+small the fix is or how unlikely the trigger feels. This is the same
+scale as the `pr-description` skill's Severity Scale, which ship mode
+uses to triage every reviewer's findings — keep the two in sync:
 
 - **CRITICAL** — exploitable security vulnerability, data loss or
   corruption, or a change that breaks a core path for every user.
@@ -183,9 +189,10 @@ small the fix is or how unlikely the trigger feels:
   request, a removed invariant nothing re-establishes, or a caller the
   change breaks.
 - **MEDIUM** — wrong behavior under specific but plausible conditions
-  (an edge input, a time zone, a retry), a changed path with no test, a
-  hard project-rule violation, or docs/comments that now contradict the
-  code.
+  (an edge input, a time zone, a retry), a changed path with no test in
+  a codebase that has tests, a hard project-rule violation, or
+  docs/comments that now contradict the code. In a codebase with no
+  tests, missing coverage is one LOW summary note, not a MEDIUM per path.
 - **LOW** — hardening, simplification, reuse, style, naming, or a
   performance improvement without evidence of user-visible impact.
 
@@ -210,8 +217,11 @@ condition.
 
 ## Verification Pass
 
-Before synthesis, confirm or reject every candidate with independent
-sub-tasks, in parallel (batch related candidates when there are many):
+Before synthesis, confirm or reject every MEDIUM-or-higher candidate
+with independent sub-tasks, in parallel. Batch 3–5 related candidates
+(same file or same root cause) per verifier, so the verifier count
+stays small. LOW candidates (style, reuse, simplification) skip
+verification but must still cite file:line.
 
 - Give each verifier the candidate, its failure scenario, and the code —
   not the reviewing subagent's reasoning.
@@ -263,7 +273,7 @@ existing findings alone don't change it.
 - Every finding must include a concrete "how to fix" — never just "this is bad"
 - Every bug, change-impact, and security finding must include a concrete
   failure scenario
-- Every reported finding survived the verification pass
+- Every reported MEDIUM-or-higher finding survived the verification pass
 - If the codebase has no tests, note it once in the summary — don't flag every
   function individually
 - Read CLAUDE.md (root and nested) and rules files before the convention review
