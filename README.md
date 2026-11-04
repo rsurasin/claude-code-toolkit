@@ -29,7 +29,7 @@ project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 | Skill | What It Does |
 |-------|--------------|
 | `commit-message` | Generates conventional commit messages from diffs |
-| `pr-description` | Generates structured PR descriptions with a risk assessment (Low/Medium/High/Critical) computed from verification evidence and reversibility |
+| `pr-description` | Generates structured PR descriptions: current behavior in the Summary, new behavior in Changes, screenshots or runtime output as evidence, and a risk assessment (Low/Medium/High/Critical) computed from verification evidence and reversibility |
 | `commit-push-pr` | Two-mode inner loop: fast atomic task commits (no gates), then gated PR creation — quality gates (repo tests/verify + review, security, perf, docs agents) run once over the full branch diff, findings are fixed, and the PR opens with a risk assessment |
 | `dev-tasks` | Maintains category-organized task files (plan/context/tasks) under `.claude/dev/` for cross-session memory |
 | `sharpen` | Proactively encodes a mistake or inefficiency (agent- or user-detected) into a permanent harness improvement — test, lint rule, CLAUDE.md entry — always with user consent before touching the harness |

@@ -2,10 +2,11 @@
 name: pr-description
 description: >
   Generate structured pull request descriptions from diffs or branch changes.
-  Produces a clear summary, risk assessment (Low/Medium/High/Critical) based
-  on verification evidence and decision reversibility, change list, testing
-  notes, and review guidance. Use when creating a PR or when asked to write
-  a PR description.
+  Produces a summary stating the current behavior, risk assessment
+  (Low/Medium/High/Critical) based on verification evidence and decision
+  reversibility, a change list led by the new behavior, testing notes,
+  screenshots or runtime output, and review guidance. Use when creating a
+  PR or when asked to write a PR description.
 ---
 
 # PR Description Skill
@@ -18,7 +19,9 @@ understand what changed, why, how risky it is, and how to verify it.
 1. Read the diff: `git diff main...HEAD` (or the target branch)
 2. Read any related CLAUDE.md rules for context
 3. Identify the category and scope of changes
-4. Gather verification evidence from the session (see Risk Assessment Rubric)
+4. Gather verification evidence from the session (see Risk Assessment
+   Rubric), including any runtime-verification output for the
+   Screenshots / Output section
 5. Generate the description
 
 ## Template
@@ -26,8 +29,9 @@ understand what changed, why, how risky it is, and how to verify it.
 ```markdown
 ## Summary
 
-[1-3 sentences: what this PR does and why. Should answer "what problem does
-this solve?" without requiring the reviewer to read the diff.]
+[2-4 sentences, PM-readable: the problem and the **current behavior**
+(what the user or caller sees today, and when), then one sentence on
+the fix. See "Behavior Before / After" below.]
 
 ## Risk Assessment
 
@@ -51,8 +55,11 @@ findings exist, and what would lower the risk.]
 
 ## Changes
 
-[Grouped by area, not by file. Each item explains the *what* and *why*,
-not just the file name.]
+**New behavior:** [What the user or caller sees after this PR, in the
+same terms as the Summary's current behavior.]
+
+[Implementation detail follows, grouped by area, not by file. Each item
+explains the *what* and *why*, not just the file name.]
 
 ### [Area 1, e.g., "Authentication"]
 - [Change description with motivation]
@@ -70,10 +77,11 @@ the feature can test it.]
 2. [Step 2]
 3. [Expected result]
 
-## Screenshots / Recordings
+## Screenshots / Output
 
-[If UI changed, note that screenshots should be added. If no UI change,
-say "N/A — no UI changes".]
+[UI change: screenshots. Non-UI change or refactor: trimmed runtime
+output, or "Runtime verification NOT RUN — no output captured". Nothing
+runnable: "N/A — <reason>". See "Screenshots / Output Guidance" below.]
 
 ## Notes for Reviewers
 
@@ -84,11 +92,109 @@ intentional deviations from patterns, known limitations, follow-up work.]
 
 - [ ] Tests added/updated for changed logic
 - [ ] Documentation updated (if public API changed)
-- [ ] No secrets or credentials in the diff
+- [ ] No secrets or credentials in the diff or this description
 - [ ] Breaking changes noted (if any)
 ```
 
 Extend this checklist with project-specific items in your `.github/PULL_REQUEST_TEMPLATE.md` or `.claude/rules/`.
+
+## Behavior Before / After
+
+The Summary and Changes sections form a before/after pair, so a
+reviewer who doesn't already know the bug can see what was broken and
+what's different without piecing it together from the change list.
+
+- **Summary — current behavior.** State the problem as the user or
+  caller sees it today, and when it happens. Describe observable
+  behavior (what an API returns, what a screen shows, what a command
+  prints), not code. Then one sentence on the fix.
+- **Changes — new behavior.** Lead with what the user or caller sees
+  after this PR, using the same terms as the current behavior. The
+  area-grouped implementation detail follows under it.
+- **No behavior change.** For a pure refactor, a docs-only change, or a
+  tests-only change, write "No behavior change." in both places instead
+  of inventing a before/after. Say what the PR does instead (e.g.,
+  "extracts the retry loop into a helper so the next feature can reuse
+  it").
+
+Example pair:
+
+> **Summary:** When a workout is synced from the phone after its plan
+> changed, the server stores the sets under the swapped-in movement, so
+> the user's history shows exercises they never did. This PR records
+> the sets under the movement the user actually performed.
+>
+> **New behavior:** Synced sets keep the movement the user did, even
+> when the plan was changed while the workout was waiting on the phone.
+
+## Screenshots / Output Guidance
+
+This section shows the reviewer the change working, not just the code
+that changed. Pick the form by what the change does:
+
+- **UI change** — screenshots or recordings of the changed screens,
+  taken with test accounts and data. If you can't capture them, say they
+  should be added before review.
+- **Non-UI change** (API endpoint, CLI, library, background job) — the
+  runtime output that actually ran:
+  - each request or command as run (method + path, or the command line),
+    with its exit code or HTTP status line;
+  - the output trimmed to the fields that show the expected state — cut
+    unrelated fields, headers, and long arrays, marking cuts with `…`;
+  - wrapped in a code fence longer than any run of backticks inside the
+    output, so a response body can't close the fence early.
+
+  ````markdown
+  ```console
+  $ curl -s -i -X POST localhost:8080/api/workouts/42/sync -d @sample.json
+  HTTP/1.1 200 OK
+  …
+  {"id": 42, "sets": [{"movement": "back-squat", "reps": 5}, …], "status": "synced"}
+  ```
+  ````
+
+  Sources, in order: ship mode's runtime-verification gate output; any
+  other commands or requests that ran against the change in this session
+  (ad-hoc runs count here even when the Runtime verification row is
+  `NOT RUN`, because that row tracks only the repo's own verify skill).
+  Only when no runtime output exists at all, write `Runtime verification
+  NOT RUN — no output captured`. Never invent or reconstruct output.
+- **Refactor** (runnable, but no behavior change) — the same output
+  showing the behavior is unchanged, or `Runtime verification NOT RUN —
+  no output captured`. Not "N/A": the code still runs.
+- **No runnable behavior** (docs only, tests only, comments, CI config
+  with nothing to run) — `N/A — <reason>`, e.g. `N/A — docs-only change,
+  nothing to run`. "N/A" without a reason, or "N/A" on a change that has
+  runnable behavior, is not allowed.
+
+**Redaction rule (whole description, not just this section):** a PR
+description is public to everyone who can read the repo, and GitHub
+keeps its edit history, so a leaked secret must be rotated, not just
+edited out.
+
+- Anywhere in the description (output, Testing steps, examples, notes),
+  never include tokens (test tokens too), API keys, passwords, JWTs,
+  private keys, cookies (request or `Set-Cookie`), `Authorization` /
+  `X-Api-Key` / other auth headers, credentials inside URLs
+  (`user:pass@host`), signed URLs or query-string tokens, or values from
+  `.env*` or other secret files. In captured output, replace each with
+  the literal text `<redacted>`. In Testing steps, which a reader runs
+  in their own shell, a placeholder such as `$API_TOKEN` or
+  `<your-token>` is fine.
+- Use only throwaway or local test data (local servers, seeded
+  fixtures, fake users). Never paste production records or real users'
+  personal data.
+- Before finishing, scan the whole description for the values of
+  secret-like keys (`*TOKEN*`, `*KEY*`, `*SECRET*`, `*PASS*`, `*AUTH*`,
+  `*DSN*`) in the repo's `.env*` files (skip `.env.example` /
+  `.env.sample`), and for common secret shapes (`sk-`, `sk_live_`,
+  `ghp_`, `github_pat_`, `glpat-`, `xox`, `AIza`, `AKIA`, `eyJ`,
+  `Bearer `, `-----BEGIN`, `://…:…@`). Compare with `grep -F -f` against
+  the description file so secret values are never printed or put on a
+  command line. Fix every hit.
+- If the only output available can't be made safe, leave it out and
+  write `Output withheld — contains <kind of data>` with the
+  verification verdict. Withholding is fine; "N/A" is not.
 
 ## Risk Assessment Rubric
 
@@ -156,9 +262,20 @@ Verification sources report in different vocabularies. Map them as:
 ## Rules
 
 - The summary should be understandable by a PM, not just engineers
+- Summary states the problem and current behavior; Changes leads with
+  the new behavior in the same terms. A refactor, docs-only, or
+  tests-only change says "No behavior change." in both places
 - The risk assessment is evidence-based — report what ran, not what should have run
 - Group changes by logical area, not by file
 - Testing steps should be copy-pasteable
+- Screenshots / Output shows real evidence: screenshots for UI, trimmed
+  runtime-verification output for non-UI changes, and "N/A" only with a
+  reason when nothing is runnable
+- Follow the redaction rule across the whole description: no secrets,
+  only test data, scanned before finishing
+- If posting with `gh`, write the body to a temp file and pass
+  `--body-file`; never pass it as a quoted shell argument, where
+  backticks run and `$VAR` expands
 - If the PR is large (>15 files), add a "How to Review" section suggesting
   an order to read the files
 - If the PR introduces a new pattern, call it out explicitly
