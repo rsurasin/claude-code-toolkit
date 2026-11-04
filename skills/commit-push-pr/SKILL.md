@@ -135,19 +135,31 @@ for speed.
 If uncommitted changes exist, run Commit Mode Steps 1–5 first (atomic
 grouping included). Ship mode starts from a clean tree.
 
+### Step 1a: Confirm the PR base branch
+
+Every gate and the triage step compare against `<base>`, so confirm it
+before anything runs. If the user did not explicitly state which branch
+to merge into, ask now. Suggest the repo's default branch (from
+`git symbolic-ref refs/remotes/origin/HEAD`) as the recommended option,
+and list other long-lived branches if present (`develop`, `release/*`,
+`staging`). Never silently assume the default branch.
+
 ### Step 1b: Optional `/simplify` pre-pass
 
-Consider running the built-in `/simplify` over the branch diff before the
-gates, so cleanup (reuse, simplification, efficiency) lands before
-review rather than as review findings. Run it when the branch adds or
-restructures non-trivial code; skip it for docs-only or tiny diffs, or
-when the skill isn't available.
+Consider running the built-in `/simplify` before the gates, so cleanup
+(reuse, simplification, efficiency) lands before review rather than as
+review findings. Run it when the branch adds or restructures non-trivial
+code; skip it for docs-only or tiny diffs, or when the skill isn't
+available. The tree is clean after Step 1, so point it at the feature
+explicitly — name the range `<base>...HEAD` and the changed files
+(`git diff --name-only <base>...HEAD`) when invoking it.
 
-`/simplify` applies its fixes to the working tree, so commit them
-atomically before Step 2 starts — Commit Mode Steps 3–5, e.g.
-`refactor(<scope>): simplify <area>` — and review the changes before
-staging them. The gates then review the simplified code. `/simplify` is
-a pre-step, not a gate: it gets no row in the risk table.
+`/simplify` applies its fixes to the working tree. Review them, then
+commit them atomically before Step 2 starts — Commit Mode Steps 3–4,
+e.g. `refactor(<scope>): simplify <area>`; they are pushed with the rest
+of the branch in Step 4. List the simplify commit in the final report so
+the user sees what changed. The gates then review the simplified code.
+`/simplify` is a pre-step, not a gate: it gets no row in the risk table.
 
 ### Step 2: Run quality gates over the full branch diff
 
@@ -169,13 +181,19 @@ the built-in skills while the agents run:
    Scanning Gaps instead of prompting).
 5. **`perf-audit` agent** — performance audit of the branch diff.
 6. **`doc-sync` agent** — check whether docs drifted from the changes.
-7. **Built-in `/code-review`** — invoke the skill on the branch, so it
-   reviews `<base>...HEAD`, at its default effort level. Don't pass
-   `--fix` (fixes go through Step 3) or `--comment` (no PR exists yet).
-   **Never run `/code-review ultra` automatically** — it runs in the
-   cloud and is billed to the user, so only the user triggers it.
-8. **Built-in `/security-review`** — invoke the skill on the branch; it
-   reviews the changes the branch introduces.
+7. **Built-in `/code-review`** — invoke the skill on the branch with an
+   **explicit effort level** — `high` — so it reviews `<base>...HEAD`.
+   Never omit the level: with none given, the skill reuses the last
+   level the user typed, which may be `ultra`. **Never run
+   `/code-review ultra` automatically** — it runs in the cloud and is
+   billed to the user, so only the user triggers it. Don't pass `--fix`
+   (fixes go through Step 3) or `--comment` (no PR exists yet).
+8. **Built-in `/security-review`** — invoke the skill; it reviews what
+   the current branch introduces relative to `origin/HEAD`. If it errors
+   because `origin/HEAD` is unset, run
+   `git remote set-head origin --auto` and retry once. If the confirmed
+   `<base>` isn't the remote's default branch, `/security-review`
+   covers a different range — record its result with that caveat.
 
 Agents and built-in skills run side by side, never one instead of the
 other: side-by-side runs showed each catches defects the other misses.
@@ -185,9 +203,10 @@ and audits removed behavior; `/security-review` confirms every finding
 with a strict false-positive check. Step 2b merges them into one verdict.
 
 If a built-in skill isn't available in the running Claude Code version
-(not in the available skills list), record it as **`N/A`**. `N/A` is a
-verification gap and raises the risk level — a PR with an `N/A` gate is
-never LOW (see the `pr-description` floors).
+(not in the available skills list, or the Skill tool can't invoke it),
+record it as **`N/A`**. `N/A` is a verification gap and raises the risk
+level — a PR with an `N/A` gate is never LOW (see the `pr-description`
+floors).
 
 Capture each gate's outcome verbatim enough to normalize later. Do not
 skip gates in ship mode; a gate that is available but didn't run (or
@@ -196,32 +215,47 @@ errored) is recorded as `NOT RUN`, which raises the risk level.
 ### Step 2b: Triage — merge every reviewer's findings
 
 Triage the findings from all gates, agents and skills alike, into one
-list before evaluating:
+list before evaluating. You wrote this branch, so guard against grading
+your own work leniently: **when unsure, choose `introduced` and the
+higher severity**, and never lower a reviewer's severity or re-tag its
+finding `existing` without recording the reason in the PR's Notes for
+Reviewers.
 
 1. **Assign severities.** `/code-review` findings carry no severity:
    assign CRITICAL / HIGH / MEDIUM / LOW to each from its failure
-   scenario, using the `code-reviewer` agent's severity definitions
+   scenario, using the severity scale in the `pr-description` skill
    (a reachable race that leaves inconsistent state is HIGH, however
    small the fix). `/security-review` already reports HIGH, MEDIUM, or
    LOW — keep it.
 2. **Merge duplicates.** When reviewers report the same defect (same
    root cause, same location), keep one finding with the **highest**
    severity any source gave it and name **every** source, e.g.
-   `[HIGH] (code-reviewer, /code-review)`.
+   `[HIGH] (code-reviewer, /code-review)`. Exception: a security finding
+   that `security-auditor` capped as `unconfirmed` stays at most MEDIUM
+   unless another security reviewer confirmed it.
 3. **Tag introduced vs existing.** **Introduced**: the defect lives in
    lines this branch adds or changes, or the branch causes it.
    **Existing**: already present at `git merge-base <base> HEAD` and not
    worsened. Keep the agents' tags after a sanity check; tag
    `/code-review` findings yourself (check `git diff <base>...HEAD` and
    `git blame`). `/security-review` findings are introduced by design.
-4. **Check open issues.** For each existing finding, search the repo's
-   open issues (`gh issue list --state open --search "<keywords>"`) and
-   link a match.
+   When sources disagree, re-check with `git blame`; introduced wins if
+   any source shows the branch causes the defect.
+4. **Check open issues.** Fetch the open issues once
+   (`gh issue list --state open --limit 200 --json number,title`) and
+   match existing findings against them locally; link a match.
 5. **Route.** Introduced findings go into the Step 3 fix-before-PR loop.
-   Existing findings don't block the PR: report them in the PR's Notes
-   for Reviewers with the matching issue link, or file a new issue
-   (`gh issue create`) when the user asked for it or approves — never
-   fix them inside this PR unprompted.
+   Existing findings don't enter the fix loop and are never fixed inside
+   this PR unprompted:
+   - **Existing security findings at MEDIUM or above** are reported to
+     the user only — never written into the PR body or a public issue
+     with their exploit path, since that discloses an unpatched
+     vulnerability. Recommend a private channel (e.g. a GitHub security
+     advisory). An **existing CRITICAL security finding** is still a
+     Step 3 hard stop.
+   - **Other existing findings** go in the PR's Notes for Reviewers with
+     the matching issue link, or into a new issue (`gh issue create`)
+     when the user asked for it or approves.
 
 Then normalize each gate's verdict from its triaged findings using the
 `pr-description` verdict normalization table.
@@ -234,7 +268,7 @@ the `pr-description` rubric.
 **Hard stops — report and ask the user whether to fix first or proceed:**
 
 - Any test failures
-- A critical security vulnerability
+- A critical security vulnerability — introduced or existing
 - A serious performance regression
 
 **Fix-before-PR loop — findings do not ship:**
@@ -245,23 +279,27 @@ finding, or two or more MEDIUM-severity findings:
 1. Report the findings to the user
 2. Append them to the active dev-tasks context file, if one exists
 3. Fix the issues
-4. Re-run the affected gates (only the ones whose findings you fixed —
-   every source named on a merged finding), then re-triage
-5. Repeat until the threshold is no longer met, or the user says to
-   proceed anyway
+4. Commit the fixes atomically (Commit Mode Steps 3–4, e.g.
+   `fix(<scope>): <subject>`) — the gates review `<base>...HEAD`, so an
+   uncommitted fix is invisible to them and missing from the PR
+5. Re-run only the affected gates — the sources named on the findings
+   you fixed — then re-triage
+6. Repeat until the threshold is no longer met, or the user says to
+   proceed anyway. After three fix rounds, stop and ask the user whether
+   to continue, listing the remaining findings.
 
-Only LOW-severity findings (acknowledged in the PR description) or clean
+LOW-severity findings, or a single MEDIUM (which makes the PR HIGH
+(findings)), are acknowledged in the PR description and proceed; clean
 gates proceed directly. `NOT RUN` and `N/A` gaps don't block — they are
 reflected honestly in the risk level instead. Existing findings never
-block; Step 2b already routed them.
+block, except an existing CRITICAL security finding (hard stop above);
+Step 2b already routed them.
 
-### Step 4: Confirm the PR base branch
+### Step 4: Push the final branch
 
-If the user did not explicitly state which branch to merge into, ask
-before creating the PR. Suggest the repo's default branch (from
-`git symbolic-ref refs/remotes/origin/HEAD`) as the recommended option,
-and list other long-lived branches if present (`develop`, `release/*`,
-`staging`). Never silently assume the default branch.
+Push the branch, including any simplify and fix commits from Steps 1b
+and 3 (Commit Mode Step 5). The base branch was confirmed in Step 1a;
+if the user changed it since, re-run the gates against the new base.
 
 ### Step 5: Open PR
 
@@ -272,8 +310,9 @@ Using the `pr-description` skill (including its Risk Assessment section):
    - Summary (1-3 sentences, PM-readable)
    - Risk assessment — level, reversibility, and the evidence table filled
      from the final Step 2/2b/3 gate results
-   - Existing findings from Step 2b under Notes for Reviewers, with
-     issue links
+   - Under Notes for Reviewers: existing non-security findings from
+     Step 2b with issue links, and any severity or tag a triage changed,
+     with the reason
    - Changes grouped by area
    - Testing steps
    - Notes for reviewers
@@ -321,12 +360,15 @@ update the PR description's risk assessment with the latest gate results.
 - Introduced findings above the threshold (any HIGH, or 2+ MEDIUM) are
   fixed before the PR opens — never shipped with a risk label as a
   substitute for fixing; existing findings are reported or filed, not
-  blocking
+  blocking (except an existing CRITICAL security finding)
+- Never publish an existing security finding's exploit path in a PR body
+  or public issue
 - Never force push
 - Never commit `.env`, secrets, or large binary files
 - Never commit feature work directly to the default branch
 - If there are merge conflicts, stop and report
 - On a hard stop (failing tests, critical security finding, serious perf
   regression), never push without explicit user approval
-- Ask for the PR base branch unless the user stated it
+- Ask for the PR base branch unless the user stated it — before the
+  gates run (Step 1a)
 - If `gh` CLI isn't available, provide the manual PR creation URL
