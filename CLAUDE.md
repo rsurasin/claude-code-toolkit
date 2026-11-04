@@ -24,9 +24,13 @@ consistent.
   field that must stay in sync.
 
 Components reference each other by name: `commit-push-pr` invokes the
-`commit-message` and `pr-description` skills and the `code-reviewer`,
-`security-auditor`, `perf-audit`, and `doc-sync` agents; `pr-description`'s
-risk rubric is consumed by `commit-push-pr` ship mode. When renaming or
+`commit-message` and `pr-description` skills, the `code-reviewer`,
+`security-auditor`, `perf-audit`, and `doc-sync` agents, and the
+built-in Claude Code skills `/code-review` and `/security-review` (plus
+an optional `/simplify` pre-pass); `pr-description`'s risk rubric is
+consumed by `commit-push-pr` ship mode, whose triage assigns severities
+to `/code-review` findings using `pr-description`'s Severity Scale —
+which the `code-reviewer` agent mirrors, so change both together. When renaming or
 changing a component's behavior, grep for its name across `skills/`,
 `agents/`, and `README.md` and update every reference — the README's
 tables, workflow section, and directory tree mirror the components and
@@ -49,13 +53,20 @@ drift easily.
   mentions. External tracker IDs (Jira keys, GitHub issues) are fine.
 - **Atomic commits.** One commit = one task/logical change; never bundle
   unrelated changes.
-- **Quality gates are dedicated agents, not skills — independence over
-  nativeness.** Native code-review / security-review skills run in the
-  context of the agent that wrote the code (self-review bias) and their
-  output formats vary by Claude Code version; the toolkit's spawned
-  agents review cold and return verdicts the pr-description rubric can
-  normalize. Native skills are user-facing complements, never gate
-  replacements.
+- **Use every available reviewer.** Ship mode runs the toolkit's review
+  agents and the built-in `/code-review` and `/security-review` skills
+  side by side as gates over `<base>...HEAD`; a triage step assigns
+  severities to `/code-review` findings, merges duplicates (highest
+  severity, every source named), and tags introduced vs existing, so the
+  pr-description rubric gets one verdict. Side-by-side runs on a real PR
+  showed each side catches what the other misses: the agents bring
+  installed tooling, existing-code coverage, performance, docs, test
+  coverage, and `.claude/rules/`; `/code-review` traces callers and
+  audits removed behavior; `/security-review` filters false positives
+  hard. Don't drop either side as redundant. A built-in skill missing
+  from the running Claude Code version is `N/A`, which raises the risk
+  level (never LOW). Never auto-run `/code-review ultra` — it is
+  user-triggered and billed.
 - **Sharpen is proactive but consent-gated.** The skill fires on
   agent- or user-detected mistakes and inefficiencies, but never modifies
   a harness file (CLAUDE.md, `.claude/rules/`, lint config, guard tests)
