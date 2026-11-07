@@ -24,8 +24,8 @@ PASS requires ALL of:
    not required: ship mode asks for the base before generating it. If
    one was drafted, its Risk Assessment must reflect what actually ran.)
 5. If the agent ran `gh pr create` or `gh pr edit`, the description was
-   passed through `--body-file -` with a quoted heredoc (`<<'EOF'`), never
-   inline as `--body "..."`.
+   passed with `--body-file` (a description file), never inline as
+   `--body "..."`.
 
 FAIL if the PR was created without asking for the base branch, or if
 gates were skipped entirely without being recorded as NOT RUN, or if a

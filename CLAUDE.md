@@ -73,14 +73,34 @@ new behavior.
 ## Testing Skills — Eval Suite
 
 Behavioral eval cases live under `evals/` (one dir per case: `prompt.md`
-+ `graders/criteria.md`), in the `claude plugin eval` layout. That
-command is currently **early access** (`claude plugin eval init` exits 1);
-until it's enabled, use the criteria files as manual review checklists
-when changing the corresponding skill. Once enabled:
++ `graders/criteria.md`), run by `claude plugin eval` (Claude Code
+2.1.269+). Run from the repo root:
 
 ```bash
-claude plugin eval .    # eval the working tree (no push/reinstall needed)
+# whole suite against the working tree (no push/reinstall needed)
+claude plugin eval . --allow-tools Bash Write Edit
+# one case, quick check
+claude plugin eval . --case <case> --runs 1 --ablation none --allow-tools Bash Write Edit
 ```
+
+`--allow-tools Bash Write Edit` is required: every case builds a scratch
+git project, and a case's `allowed_tools` only grants read-only tools on
+its own — gated tools (Bash, Write, Edit) also need the operator grant.
+Each run is a full Claude session on your own credential and plan limits,
+and the defaults (3 runs × with/without-plugin arms) multiply that, so
+prefer `--case`, `--runs 1`, `--ablation none`, `--no-publish` and a
+`--max-cost-usd` ceiling while iterating. Pass `--judge-model claude-sonnet-5-5`:
+the default Haiku judge has failed correct runs that needed judgment.
+
+Every case needs frontmatter or the runner rejects it. `prompt.md`
+starts with `max_turns` and `allowed_tools` (listing Bash, Write and Edit
+too); `graders/criteria.md` starts with `type: llm` and `weight: 1`. An
+`llm` grader sees only the final message unless it sets `focus: trace`
+(and then only the first and last 12 messages), so grade behavior —
+commands run, files created, agents spawned — with `tool_used` /
+`file_exists` graders. Copy an existing case's frontmatter;
+`evals/README.md` has the exact block. Single runs are noisy; confirm a
+change at the default 3 runs.
 
 When changing a skill's contract (modes, thresholds, separation rules),
 update or add the matching eval case in the same commit.
