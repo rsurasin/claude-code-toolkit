@@ -124,9 +124,17 @@ what's different without piecing it together from the change list.
 - **Changes — new behavior.** Lead with what the user or caller sees
   after this PR, using the same terms as the current behavior. The
   area-grouped implementation detail follows under it.
-- **No behavior change.** For a pure refactor, a docs-only change, or a
-  tests-only change, write "No behavior change." in both places instead
-  of inventing a before/after. Say what the PR does instead (e.g.,
+- **No behavior change.** For a docs-only or tests-only change, write
+  "No behavior change." in both places instead of inventing a
+  before/after. For a pure refactor, write "No intended behavior
+  change" in both places, followed by how that was checked:
+  "(verified: <what ran>)", e.g. "(verified: test suite passes and the
+  CLI prints the same output before and after)", or "(unverified)" when
+  nothing compared before and after. A refactor can change behavior
+  nobody considered, so the description states the intent, and states
+  it as fact only when something checked it. If the refactor turns out
+  to change behavior, it is not pure: describe the change with the
+  current/new behavior pair. Either way, say what the PR does (e.g.,
   "extracts the retry loop into a helper so the next feature can reuse
   it").
 
@@ -172,7 +180,7 @@ that changed. Pick the form by what the change does:
   `NOT RUN`, because that row tracks only the repo's own verify skill).
   Only when no runtime output exists at all, write `Runtime verification
   NOT RUN — no output captured`. Never invent or reconstruct output.
-- **Refactor** (runnable, but no behavior change) — the same output
+- **Refactor** (runnable, but no intended behavior change) — the same output
   showing the behavior is unchanged, or `Runtime verification NOT RUN —
   no output captured`. Not "N/A": the code still runs.
 - **No runnable behavior** (docs only, tests only, comments, CI config
@@ -276,8 +284,10 @@ Verification sources report in different vocabularies. Map them as:
 
 - The summary should be understandable by a PM, not just engineers
 - Summary states the problem and current behavior; Changes leads with
-  the new behavior in the same terms. A refactor, docs-only, or
-  tests-only change says "No behavior change." in both places
+  the new behavior in the same terms. A docs-only or tests-only change
+  says "No behavior change." in both places; a refactor says "No
+  intended behavior change" plus "(verified: <what ran>)" or
+  "(unverified)"
 - The risk assessment is evidence-based — report what ran, not what should have run
 - Group changes by logical area, not by file
 - Testing steps should be copy-pasteable

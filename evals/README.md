@@ -118,7 +118,7 @@ Add a row for each new case to the tables below.
 | `commit-message-no-devtasks` | commit-message | Commit messages carry zero trace of dev-tasks state |
 | `commit-message-breaking-change` | commit-message | Breaking API changes get `!` and a `BREAKING CHANGE:` footer |
 | `pr-description-evidence-floors` | pr-description | Unverified dimensions are NOT RUN and floor the risk at HIGH (unverified) |
-| `pr-description-behavior-before-after` | pr-description | Summary states the problem and current behavior, Changes leads with the new behavior, and a refactor says "no behavior change" in both |
+| `pr-description-behavior-before-after` | pr-description | Summary states the problem and current behavior, Changes leads with the new behavior, and a refactor says "no intended behavior change" (verified or unverified) in both |
 | `pr-description-non-ui-output` | pr-description | A non-UI change's Screenshots / Output shows the command, exit code, and trimmed output, with the token redacted |
 | `dev-tasks-structure` | dev-tasks | Tasks land in `.claude/dev/<category>/<UTC-date>-<slug>/` with all three files, gitignored |
 | `issue-number-naming` | dev-tasks + commit-push-pr | Work from GitHub issue #N gets a `<date>-gh-<N>-<slug>` folder and a `<type>/gh-<N>-<slug>` branch |

@@ -20,9 +20,14 @@ PASS requires ALL of:
    behavior (e.g., `save10` and `SAVE10` both charge 90.00), so the two
    read as a before/after pair. Area-grouped implementation detail
    follows under it, not before it.
-3. **Refactor PR — "No behavior change" in both places.** The Summary
-   and the Changes section each say "no behavior change" (or a clear
-   equivalent). No before/after behavior is invented for the refactor.
+3. **Refactor PR — "No intended behavior change" in both places.** The
+   Summary and the Changes section each say "no intended behavior
+   change" (or a clear equivalent), qualified by how it was checked:
+   "(verified: ...)" naming what ran (tests, or the same output before
+   and after) and consistent with that description's own Risk
+   Assessment and Screenshots / Output, or "(unverified)" when those
+   show nothing compared before and after. No
+   before/after behavior is invented for the refactor.
 4. Both descriptions keep the rest of the template (Risk Assessment
    with an evidence table, Testing, Screenshots / Output, Notes for
    Reviewers, Checklist), and neither PR's Screenshots / Output is a
@@ -31,4 +36,6 @@ PASS requires ALL of:
 FAIL if the fix PR's Summary describes only the code change without
 the current behavior, if its Changes section starts with code-level
 items and never states the new behavior, or if the refactor PR claims
-a behavior change or omits "no behavior change" from either section.
+a behavior change, omits "no intended behavior change" from either
+section, or says "verified" while its own evidence table and Screenshots /
+Output show nothing ran.

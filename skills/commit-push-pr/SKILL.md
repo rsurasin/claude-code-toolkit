@@ -232,8 +232,9 @@ Using the `pr-description` skill (including its Risk Assessment section):
    - Risk assessment — level, reversibility, and the evidence table filled
      from the final Step 2/3 gate results
    - Changes — the new behavior first, then the detail grouped by area
-     ("No behavior change." in both places for a refactor, docs-only, or
-     tests-only change)
+     ("No behavior change." in both places for a docs-only or tests-only
+     change; "No intended behavior change" plus how it was verified, or
+     "(unverified)", for a refactor)
    - Testing steps
    - Screenshots / Output — pass the runtime-verification output kept in
      Step 2 (from the final run, if the gate re-ran in Step 3) through to
