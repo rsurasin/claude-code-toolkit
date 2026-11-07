@@ -58,9 +58,10 @@ Categories (default set): `features/`, `refactors/`, `fixes/`, `chores/`, `resea
 - When the work comes from a GitHub issue, insert `gh-<N>-` between the date
   and the slug: `<YYYY-MM-DD>-gh-<N>-<slug>`. The `gh-` prefix matters —
   without it, `2026-10-04-31-password-reset` reads as part of the date. Leave it out
-  when there is no issue (quick chores often have none). This matches the
-  `commit-push-pr` branch name `<type>/gh-<N>-<short-slug>`, so the folder, the
-  branch, and the issue all share one number. `<N>` is digits only, and you
+  when there is no issue (quick chores often have none). The folder and the
+  `commit-push-pr` branch (`<type>/gh-<N>-<short-slug>`) end in the same
+  `gh-<N>-<slug>`, so both tie back to the issue — but only the folder carries
+  the date. Never copy the date into the branch name. `<N>` is digits only, and you
   write the slug yourself in `[a-z0-9-]` — never paste issue-title text or a
   branch-name fragment into a path or shell command.
 - Worked examples: a request to refactor the datetime package on 2026-06-28 →

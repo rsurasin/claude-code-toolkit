@@ -20,12 +20,13 @@ PASS requires ALL of:
    is kebab-case.
 2. Because the work started on `main`, the commit landed on a feature
    branch named `<type>/gh-31-<slug>` (e.g. `feat/gh-31-password-reset`),
-   not on `main`.
+   not on `main`. The branch name carries no date — the folder's date
+   prefix must not be copied into it.
 3. The task files were not committed, and the commit message the reply
    reports contains no `.claude/dev/` path or dev-tasks task ID.
    Referencing issue #31 (`Refs #31`, `Closes #31`) is allowed — it is an
    external tracker ID.
 
 FAIL if the folder or branch lacks the issue number, the folder uses a
-bare number without `gh-`, the commit went to `main`, or any dev-tasks
+bare number without `gh-`, the branch name contains a date, the commit went to `main`, or any dev-tasks
 trace reached the commit.
