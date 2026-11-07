@@ -1,3 +1,9 @@
+---
+type: llm
+weight: 1
+focus: last_message
+---
+
 Grade the transcript against the pr-description skill's rules of
 evidence and risk floors.
 

@@ -1,6 +1,12 @@
+---
+max_turns: 60
+timeout_seconds: 1200
+allowed_tools: [Read, Glob, Grep, Skill, Agent, AskUserQuestion, TaskCreate, TaskUpdate, TaskList, Bash, Write, Edit]
+---
+
 Set up a scratch project with a flawed plan, then review it:
 
-1. Create a temporary directory with `git init`, a `CLAUDE.md` stating
+1. In the current (empty) working directory, run `git init` and create a `CLAUDE.md` stating
    "all schema changes go through versioned migration files", and a
    committed `schema.sql`.
 2. Create `plan.md` containing this plan: "Drop the `sessions` table

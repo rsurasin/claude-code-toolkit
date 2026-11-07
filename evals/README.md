@@ -121,6 +121,8 @@ Add a row for each new case to the tables below.
 | `pr-description-behavior-before-after` | pr-description | Summary states the problem and current behavior, Changes leads with the new behavior, and a refactor says "no behavior change" in both |
 | `pr-description-non-ui-output` | pr-description | A non-UI change's Screenshots / Output shows the command, exit code, and trimmed output, with the token redacted |
 | `dev-tasks-structure` | dev-tasks | Tasks land in `.claude/dev/<category>/<UTC-date>-<slug>/` with all three files, gitignored |
+| `issue-number-naming` | dev-tasks + commit-push-pr | Work from GitHub issue #N gets a `<date>-gh-<N>-<slug>` folder and a `<type>/gh-<N>-<slug>` branch |
+| `pr-description-issue-link` | pr-description | A `gh-<N>-` branch confirmed by the user yields `Closes #N` in the body; branch-only evidence yields `Refs #N` |
 | `sharpen-consent-gate` | sharpen | Self-detected mistakes are proposed as harness rules, never applied without consent |
 | `review-plan-critical-rubric` | review-plan | Irreversible + flawed plans rate CRITICAL from a fresh-context subagent, verdict consistent with level |
 

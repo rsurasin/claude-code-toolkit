@@ -60,8 +60,26 @@ branch before committing — never commit feature work directly to the
 default branch:
 
 ```bash
-git checkout -b <type>/<short-slug>   # e.g., feat/oauth-refresh
+git checkout -b <type>/gh-<N>-<short-slug>   # work has GitHub issue #N, e.g. feat/gh-31-password-reset
+git checkout -b <type>/<short-slug>          # no issue, e.g. feat/oauth-refresh
 ```
+
+When the work comes from a GitHub issue (the user names it, or the active
+dev-tasks folder carries `gh-<N>-`), put its number in the branch name so
+`git branch` and the PR list tie the branch back to the issue. This follows
+the same idea as GitHub's own `gh issue develop` naming (`<N>-<title>`), but
+GitHub does not link branches to issues by name — the PR body's
+`Closes #N` still does the linking. Quick chores with no issue keep
+`<type>/<short-slug>`. Branch names never carry a date, even when the
+dev-tasks folder for the same work does (`2026-10-04-gh-31-password-reset/`
+pairs with `feat/gh-31-password-reset`, not
+`feat/2026-10-04-gh-31-password-reset`): the folder date records when the
+task began; the branch's commits already carry their dates.
+`<N>` is digits only, and you write the slug yourself
+in `[a-z0-9-]` — never paste issue-title text into the branch name. An issue number is an external tracker ID, so it is
+fine in branch names, commits, and PR text; dev-tasks task IDs and
+`.claude/dev/` paths are not. Repos that enforce branch names with a hook or
+CI pattern should confirm `gh-<N>-` passes.
 
 ### Step 3: Group changes into atomic commits
 
@@ -87,7 +105,9 @@ For each group, in sequence:
    generated files that should be in `.gitignore`
 3. Write the message using the `commit-message` skill conventions — type,
    scope, imperative subject <72 chars, body with what/why for non-trivial
-   changes. Scope the subject to that one group's task.
+   changes. Scope the subject to that one group's task. Pass the message
+   with `git commit -F - <<'EOF'` … `EOF` rather than `-m "<message>"`, so
+   backticks and `$(...)` in it stay literal.
 
 **Dev-tasks separation:** `.claude/dev/` task files are internal tracking
 state — gitignored working notes, never staged or committed. If they
@@ -165,7 +185,9 @@ which raises the risk level.
 ### Step 3: Evaluate — fix findings before the PR opens
 
 Normalize every gate result using the verdict normalization table in the
-`pr-description` skill, then compute the risk level from its rubric.
+`pr-description` skill, then compute the risk level from its rubric —
+apply its floors exactly (e.g. Tests or Security `NOT RUN` ⇒ at best
+**HIGH (unverified)**), never an estimate like "probably MEDIUM".
 
 **Hard stops — report and ask the user whether to fix first or proceed:**
 
@@ -193,9 +215,11 @@ honestly in the risk level instead.
 
 If the user did not explicitly state which branch to merge into, ask
 before creating the PR. Suggest the repo's default branch (from
-`git symbolic-ref refs/remotes/origin/HEAD`) as the recommended option,
-and list other long-lived branches if present (`develop`, `release/*`,
-`staging`). Never silently assume the default branch.
+`git symbolic-ref refs/remotes/origin/HEAD`) as the recommended option;
+with no remote, recommend the local `main` (or `master`). List other
+long-lived branches if present (`develop`, `release/*`, `staging`) as
+alternatives. Never silently assume the default branch. When you stop to
+ask, report the gate results and the rubric risk level with it.
 
 ### Step 5: Open PR
 
@@ -236,6 +260,13 @@ gh pr create --title '<title>' --body-file <description-file> --base <confirmed-
 # Or if gh isn't available, provide the URL
 echo "Create PR at: https://github.com/$(git remote get-url origin | sed 's/.*github.com[:/]//' | sed 's/.git$//')/compare/<confirmed-base>...<branch>"
 ```
+
+Pass the description with `--body-file`, never inline as
+`--body "<description>"`: descriptions are markdown full of backticks, and
+diffs, gate findings, or runtime output can put `$(...)` or `$VAR` in them,
+which a double-quoted argument would execute or expand. A file (rather than
+a heredoc piped to `gh`) also lets the `pr-description` secret scan run
+against exactly what gets sent.
 
 If the branch already has an open PR, push without creating a new one and
 update the PR description's risk assessment and Screenshots / Output
