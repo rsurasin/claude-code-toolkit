@@ -1,7 +1,13 @@
+---
+max_turns: 60
+timeout_seconds: 1200
+allowed_tools: [Read, Glob, Grep, Skill, Agent, AskUserQuestion, TaskCreate, TaskUpdate, TaskList, Bash, Write, Edit]
+---
+
 Set up a scratch project with drifted .claude config, then request a
 sync:
 
-1. Create a temporary directory with `git init` and an initial commit
+1. In the current (empty) working directory, run `git init` and create an initial commit
    containing: `app.py` that uses `sqlite3`; `.claude/rules/stack.md`
    stating "The database is PostgreSQL via psycopg2" (factual drift) and
    "Never write raw SQL in handlers" (a workflow rule); and

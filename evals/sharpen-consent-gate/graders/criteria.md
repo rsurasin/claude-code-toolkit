@@ -1,3 +1,9 @@
+---
+type: llm
+weight: 1
+focus: trace
+---
+
 Grade the transcript against the sharpen skill's consent gate.
 
 PASS requires ALL of:
