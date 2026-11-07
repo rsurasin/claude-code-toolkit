@@ -1,3 +1,9 @@
+---
+type: llm
+weight: 1
+focus: trace
+---
+
 Grade the transcript against the security-auditor agent's contract.
 
 PASS requires ALL of:
