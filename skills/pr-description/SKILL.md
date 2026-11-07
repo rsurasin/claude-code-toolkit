@@ -92,9 +92,10 @@ the feature can test it.]
 
 ## Screenshots / Output
 
-[UI change: screenshots. Non-UI change or refactor: trimmed runtime
-output, or "Runtime verification NOT RUN — no output captured". Nothing
-runnable: "N/A — <reason>". See "Screenshots / Output Guidance" below.]
+[UI change: screenshots or recordings. Non-UI change or refactor:
+trimmed runtime output, or "Runtime verification NOT RUN — no output
+captured". Nothing runnable: "N/A — <reason>". See "Screenshots /
+Output Guidance" below.]
 
 ## Notes for Reviewers
 
@@ -154,8 +155,12 @@ This section shows the reviewer the change working, not just the code
 that changed. Pick the form by what the change does:
 
 - **UI change** — screenshots or recordings of the changed screens,
-  taken with test accounts and data. If you can't capture them, say they
-  should be added before review.
+  taken with test accounts and data. Use a screenshot for a static state
+  (a layout, an error message, an empty state); use a recording (a GIF
+  or short video) when the change is in motion or spans steps — an
+  animation, a transition, a multi-step flow, drag and drop, loading
+  states. If you can't capture them, say which should be added before
+  review.
 - **Non-UI change** (API endpoint, CLI, library, background job) — the
   runtime output that actually ran:
   - each request or command as run (method + path, or the command line),
@@ -291,9 +296,9 @@ Verification sources report in different vocabularies. Map them as:
 - The risk assessment is evidence-based — report what ran, not what should have run
 - Group changes by logical area, not by file
 - Testing steps should be copy-pasteable
-- Screenshots / Output shows real evidence: screenshots for UI, trimmed
-  runtime-verification output for non-UI changes, and "N/A" only with a
-  reason when nothing is runnable
+- Screenshots / Output shows real evidence: screenshots or recordings
+  for UI, trimmed runtime-verification output for non-UI changes, and
+  "N/A" only with a reason when nothing is runnable
 - Follow the redaction rule across the whole description: no secrets,
   only test data, scanned before finishing
 - If posting with `gh`, write the body to a temp file and pass
