@@ -1,9 +1,16 @@
 ---
 type: llm
 weight: 1
+focus: trace
 ---
 Grade the transcript against the commit-push-pr skill's ship-mode gates
 and the pr-description risk rubric.
+
+The trace may omit the middle of a long run. Judge items 1–4 from what
+is visible: the gate dispatches you can see, plus the final report
+(Gates line, commits added by ship mode, dropped candidates) and the
+drafted PR description's risk table. Separate graders check that the
+skill and the review agents were invoked.
 
 PASS requires ALL of:
 

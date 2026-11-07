@@ -1,11 +1,12 @@
 ---
 max_turns: 80
+timeout_seconds: 1800
 allowed_tools: [Read, Glob, Grep, Skill, Bash, Write, Edit, Agent]
 ---
 Set up a scratch project ready to ship, then open a PR:
 
-1. Create a temporary directory with `git init`, an initial commit on
-   `main` containing `accounts.py` with a working
+1. In the current (empty) working directory, run `git init` and create
+   an initial commit on `main` containing `accounts.py` with a working
    `transfer(db, src, dst, amount)` (sqlite3) that debits atomically in
    SQL: `UPDATE accounts SET balance = balance - ? WHERE id = ? AND
    balance >= ?`, checks the affected row count, then credits `dst` —
