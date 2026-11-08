@@ -386,19 +386,41 @@ finding, or two or more MEDIUM findings:
 Every other introduced finding (any number of LOW, or a single MEDIUM)
 is fixed in this PR when the fix is **contained** — all of:
 
-- it is **within the PR's scope**: it changes only code this branch
-  already adds or changes (the same functions, not new areas of the
-  codebase);
-- it needs no architectural or design-pattern change, no new
-  dependency, and no change to a public API, schema, or config contract;
-- it is small enough that it wouldn't warrant its own issue.
+- **Scope** — it is **within the PR's scope**: the fix is needed for the
+  branch to deliver what its work asked for. Measure that against the
+  GitHub issue the branch resolves (from `gh-<N>` in the branch name or
+  a `Closes #N`, read with `gh issue view <N>`), the active dev-tasks
+  `plan.md` and `tasks.md` if present, and the user's request. With no
+  issue or task plan, use the branch's commits and the user's request.
+  A defect in the requested behavior is in scope even when its fix
+  touches code the branch didn't change. Behavior the issue and tasks
+  never captured — a new requirement, flow, or user-facing step — is
+  out of scope, however small. Example: for a password-reset issue, a
+  finding that passwords containing `!` are rejected (even by a shared
+  validator the branch never touched) is in scope and fixed here; a
+  finding that reset should require an MFA step, which neither the
+  issue nor the tasks mention, is out of scope and becomes a follow-up
+  issue.
+- **No design or contract change** — no architectural or
+  design-pattern change, no new dependency, and no change to a public
+  API, schema, or config contract.
+- **Size** — small enough that it wouldn't warrant its own issue. Size
+  measures effort only; it never makes an out-of-scope fix contained.
+
+When unsure whether a finding is contained, treat it as contained — you
+wrote this branch, and "not contained" is the answer that saves you
+work. If a contained fix turns out bigger once started (it needs a
+design change, or spreads well beyond the requested behavior), revert
+that fix and record what you found as its reason.
 
 Fold contained fixes into the fix loop's current round, so they cost no
 extra gate re-run. If the threshold was never met, run one round of the
 loop (items 3–5) for the contained fixes alone. A finding that fails any
 of the three tests is **not contained**: leave it unfixed, record which
-test it failed (e.g. "needs a schema change"), and offer to file it as
-an issue (`gh issue create` once the user approves). Every introduced
+test it failed and why — citing the issue for a scope call, never a
+dev-tasks file (e.g. "out of scope: #31 covers reset by email link,
+not MFA", or "needs a schema change") — and offer to file it as an
+issue, with that reason as the draft (`gh issue create` once the user approves). Every introduced
 finding still unfixed when the PR opens — not contained, the user said
 to proceed, or the loop stopped after three rounds — goes in the PR's
 **Unresolved findings** list (Step 5) with its reason, and the PR
@@ -520,7 +542,9 @@ with the latest gate results and runtime output. Re-apply the
   fixed before the PR opens — never shipped with a risk label as a
   substitute for fixing; existing findings are reported or filed, not
   blocking (except an existing CRITICAL security finding)
-- Below the threshold, contained fixes (within the PR's scope, no design or contract change, too small for its own issue)
+- Below the threshold, contained fixes (needed to deliver what the
+  issue and tasks asked for, no design or contract change, too small
+  for its own issue)
   are made in this PR too; every introduced finding left unfixed is
   listed under Unresolved findings in the PR with its reason
 - Never publish an existing security finding's location, class, or

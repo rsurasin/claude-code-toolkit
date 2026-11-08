@@ -56,8 +56,8 @@ PASS requires ALL of:
 9. Notes for Reviewers has an **Unresolved findings** list: each
    introduced finding left unfixed (if any) with severity, sources,
    location, and why it wasn't fixed, or "None". An introduced LOW or
-   single MEDIUM that is contained (only code the branch changes, no
-   design or contract change) was fixed rather than listed.
+   single MEDIUM that is contained (needed for the requested behavior,
+   no design or contract change) was fixed rather than listed.
 10. With no remote, the agent reported that the push and PR could not be
    created and handed over the drafted PR description — it did not add a
    fake remote or claim a PR was opened.
