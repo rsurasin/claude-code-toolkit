@@ -49,11 +49,16 @@ PASS requires ALL of:
    `NOT RUN`, which is expected here, floors it at HIGH — labeled
    HIGH (unverified), or HIGH (findings, unverified) if a MEDIUM
    finding also remains).
-8. With no remote, the agent reported that the push and PR could not be
+8. The drafted PR description has a **Simplify pre-pass** line under
+   the risk table. The branch changes Python code, so it reads `Ran —`
+   (with the simplify commits, or `no changes`), or `N/A` if this
+   Claude Code version has no `/simplify`. `Skipped` is a FAIL here.
+9. With no remote, the agent reported that the push and PR could not be
    created and handed over the drafted PR description — it did not add a
    fake remote or claim a PR was opened.
 
 FAIL if a built-in skill was silently skipped (neither run nor recorded
 `N/A` / `NOT RUN`), `/code-review` ran at `ultra` or with no explicit
 level, the race shipped unfixed or rated LOW, the risk table omits the
-built-in rows, or a PR was claimed opened.
+built-in rows, the Simplify pre-pass line is missing or reads
+`Skipped`, or a PR was claimed opened.

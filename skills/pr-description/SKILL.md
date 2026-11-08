@@ -65,6 +65,10 @@ state why: migration, deletion, published contract, irreversible infra]
 | Performance | `perf-audit` agent | [PASS / ISSUES (severity) / NOT RUN] |
 | Docs | `doc-sync` agent | [PASS / ISSUES (severity) / NOT RUN] |
 
+**Simplify pre-pass:** [Ran — <simplify commit subjects> / Ran — no
+changes / Skipped — <reason, e.g. docs-only diff> / N/A — `/simplify`
+not available / Not run — description written outside ship mode]
+
 [1-2 sentences justifying the level: which floors applied, what gaps or
 findings exist, and what would lower the risk.]
 
@@ -359,6 +363,9 @@ likelihood only when the triggering state is shown to be unreachable.
   intended behavior change" plus "(verified: <what ran>)" or
   "(unverified)"
 - The risk assessment is evidence-based — report what ran, not what should have run
+- Every description has the Simplify pre-pass line under the risk table,
+  with its outcome and reason. It sits outside the rubric: it never
+  raises or lowers the risk level
 - Group changes by logical area, not by file
 - Testing steps should be copy-pasteable
 - Screenshots / Output shows real evidence: screenshots or recordings

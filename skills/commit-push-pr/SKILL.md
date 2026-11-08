@@ -4,7 +4,7 @@ description: >
   Two-mode inner development loop. Commit mode (default): fast, gate-free
   atomic commits — stage, write a conventional commit message per task,
   push. Ship mode: when the feature is complete and a pull request should
-  open, optionally run the built-in /simplify first, then run the quality
+  open, run the built-in /simplify first on code changes, then the quality
   gates (the repo's own test and verification skills, the code-reviewer,
   security-auditor, perf-audit, and doc-sync agents, and the built-in
   /code-review and /security-review skills side by side) over the full
@@ -165,14 +165,24 @@ with no remote, recommend the local `main` (or `master`). List other
 long-lived branches if present (`develop`, `release/*`, `staging`) as
 alternatives. Never silently assume the default branch.
 
-### Step 1b: Optional `/simplify` pre-pass
+### Step 1b: `/simplify` pre-pass
 
-Consider running the built-in `/simplify` before the gates, so cleanup
-(reuse, simplification, efficiency) lands before review rather than as
-review findings. Run it when the branch adds or restructures non-trivial
-code; skip it for docs-only or tiny diffs, or when the skill isn't
-available. The tree is clean after Step 1, so point it at the feature
-explicitly — name the range `<base>...HEAD` and the changed files
+Run the built-in `/simplify` before the gates, so cleanup (reuse,
+simplification, efficiency) lands before review rather than as review
+findings. Whether it runs is a rule, not a judgment call:
+
+- **Run it** whenever `git diff --name-only <base>...HEAD` lists any code
+  file: source or test code in any language, scripts, or build and CI
+  logic. Size doesn't matter — a one-line code change still runs it.
+- **Skip it** only when the diff changes no code: docs, markdown, images,
+  or other non-code files. Record `Skipped — <reason>`, e.g.
+  `Skipped — docs-only diff`.
+- **`N/A`** when the running Claude Code version has no `/simplify`.
+  Record `N/A — /simplify not available`.
+
+Keep the outcome for Step 5: the PR description's required **Simplify
+pre-pass** line reports it. The tree is clean after Step 1, so point it
+at the feature explicitly — name the range `<base>...HEAD` and the changed files
 (`git diff --name-only <base>...HEAD`) when invoking it.
 
 `/simplify` applies its fixes to the working tree. Review them, then
@@ -180,7 +190,9 @@ commit them atomically before Step 2 starts — Commit Mode Steps 3–4,
 e.g. `refactor(<scope>): simplify <area>`; they are pushed with the rest
 of the branch in Step 4. List the simplify commit in the final report so
 the user sees what changed. The gates then review the simplified code.
-`/simplify` is a pre-step, not a gate: it gets no row in the risk table.
+If it ran and suggested nothing, the outcome is `Ran — no changes`.
+`/simplify` is a pre-step, not a gate: it gets no row in the risk table,
+and its outcome never changes the risk level.
 
 ### Step 2: Run quality gates over the full branch diff
 
@@ -392,7 +404,9 @@ Using the `pr-description` skill (including its Risk Assessment section):
    - Summary (PM-readable) — the problem and current behavior, then one
      sentence on the fix
    - Risk assessment — level, reversibility, and the evidence table filled
-     from the final Step 2/2b/3 gate results
+     from the final Step 2/2b/3 gate results, plus the Simplify pre-pass
+     line from Step 1b (`Ran — <commit subjects>`, `Ran — no changes`,
+     `Skipped — <reason>`, or `N/A — /simplify not available`)
    - Under Notes for Reviewers: existing non-security findings from
      Step 2b with issue links, and any severity or tag a triage changed,
      with the reason (security findings re-tagged `existing` excepted —
@@ -449,6 +463,7 @@ with the latest gate results and runtime output. Re-apply the
 **Branch:** <branch> → <base>
 **Risk:** <LOW / MEDIUM / HIGH / CRITICAL> (<one-line justification>)
 **Gates:** <n> ran clean, <n> fixed then clean, <n> not run, <n> N/A
+**Simplify:** <Ran — <n> commits / Ran — no changes / Skipped — <reason> / N/A>
 **Commits added by ship mode:** <simplify and fix commits, or none>
 **Existing issues:** <n> reported, <n> linked or filed
 **Reported privately:** <existing security findings (file:line, class, severity) and security re-triage reasons; recommend a security advisory>

@@ -27,7 +27,7 @@ Components reference each other by name: `commit-push-pr` invokes the
 `commit-message` and `pr-description` skills, the `code-reviewer`,
 `security-auditor`, `perf-audit`, and `doc-sync` agents, and the
 built-in Claude Code skills `/code-review` and `/security-review` (plus
-an optional `/simplify` pre-pass); `pr-description`'s risk rubric is
+a `/simplify` pre-pass on code changes); `pr-description`'s risk rubric is
 consumed by `commit-push-pr` ship mode, whose triage assigns severities
 to `/code-review` findings using `pr-description`'s Severity Scale —
 which the `code-reviewer` agent mirrors, so change both together. When renaming or

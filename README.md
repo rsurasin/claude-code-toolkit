@@ -39,7 +39,7 @@ project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 
 | Command | When to Use |
 |---------|-------------|
-| `/simplify` | After implementing a feature — reviews for code reuse, quality, efficiency; ship mode can run it as an optional pre-pass and commits its changes before the gates |
+| `/simplify` | After implementing a feature — reviews for code reuse, quality, efficiency; ship mode runs it as a pre-pass on any branch that changes code, commits its changes before the gates, and reports the outcome in the PR |
 | `/batch` | Large-scale refactors across many files — parallelizes into 5-30 units |
 | `/btw` | While Claude is working, provide it additional input |
 | `/code-review` | Correctness review of the diff or branch with caller tracing and a removed-behavior audit — ship mode runs it as a gate alongside `code-reviewer`; `/code-review ultra` runs a multi-agent cloud review (user-triggered, billed — never run automatically) |
@@ -236,8 +236,8 @@ each repo's `.claude/` directory — see [Migrating from v2](#migrating-from-v2)
    fresh-context subagent before executing (LOW/MEDIUM/HIGH/CRITICAL —
    CRITICAL means reconsider the approach)
 3. Implement: Let Claude work in auto-accept mode
-4. Polish: `/simplify` after completing a feature (ship mode can also run
-   it as a pre-pass)
+4. Polish: `/simplify` after completing a feature (ship mode also runs
+   it as a pre-pass on code changes)
 5. Commit per task: `/commit-push-pr` — commit mode makes a fast, atomic
    commit (one task = one commit) and pushes; no gates, no PR
 6. Ship: when the feature is complete, "open a PR" — ship mode runs the
