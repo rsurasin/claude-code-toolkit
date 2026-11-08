@@ -337,7 +337,7 @@ Then normalize each gate's verdict from its triaged findings using the
 
 Using the normalized verdicts from Step 2b, compute the risk level from
 the `pr-description` rubric — apply its floors exactly (e.g. Tests
-`NOT RUN`, or both security rows `NOT RUN` or `N/A`, ⇒ at best
+`NOT RUN`, or Security (`security-auditor`) `NOT RUN`, ⇒ at best
 **HIGH (unverified)**), never an estimate like "probably MEDIUM".
 
 **Hard stops — report and ask the user whether to fix first or proceed:**

@@ -247,12 +247,12 @@ gaps.
   `NOT RUN` and no `N/A` rows.
 - **MEDIUM** — Two-way door with minor gaps: a non-critical dimension
   (docs, performance, runtime verification, one of the two code-review
-  rows while the other ran, or one of the two security rows while the
-  other ran) was `NOT RUN` or `N/A`, or only LOW-severity findings exist
+  rows while the other ran, or Security (built-in) while Security ran)
+  was `NOT RUN` or `N/A`, or only LOW-severity findings exist
   and all are acknowledged in the description.
 - **HIGH** — One-way door with clean checks, OR significant verification
-  gaps (tests `NOT RUN`, or neither security gate ran, or neither
-  code-review gate ran), OR unresolved MEDIUM/HIGH-severity findings.
+  gaps (tests `NOT RUN`, or Security `NOT RUN` whatever Security
+  (built-in) shows, or neither code-review gate ran), OR unresolved MEDIUM/HIGH-severity findings.
   Qualify the label so reviewers can tell the cause apart:
   **HIGH (unverified)** when driven by `NOT RUN` / `N/A` gaps or a
   one-way door with clean checks; **HIGH (findings)** when driven by
@@ -266,7 +266,12 @@ gaps.
 
 - Any dimension `NOT RUN` or `N/A` ⇒ at best MEDIUM (a gap is never LOW)
 - Tests `NOT RUN` ⇒ at best HIGH
-- Security and Security (built-in) both `NOT RUN` or `N/A` ⇒ at best HIGH
+- Security (`security-auditor`) `NOT RUN` ⇒ at best HIGH, even when
+  Security (built-in) ran. The two aren't interchangeable:
+  `/security-review` runs no tools and checks only what the diff
+  introduces, so it never covers dependency audits, denial of service,
+  rate limiting, or existing issues. Security (built-in) `NOT RUN` or
+  `N/A` while Security ran is a minor gap (at best MEDIUM).
 - Code review and Code review (built-in) both `NOT RUN` or `N/A` ⇒ at
   best HIGH
 - One-way door ⇒ at best HIGH
