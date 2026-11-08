@@ -363,7 +363,8 @@ finding, or two or more MEDIUM findings:
 
 1. Report the findings to the user
 2. Append them to the active dev-tasks context file, if one exists
-3. Fix the issues
+3. Fix the issues — plus, in the same round, every contained
+   below-threshold finding (see below)
 4. Commit the fixes atomically (Commit Mode Steps 3–4, e.g.
    `fix(<scope>): <subject>`) — the gates review `<base>...HEAD`, so an
    uncommitted fix is invisible to them and missing from the PR
@@ -380,10 +381,29 @@ finding, or two or more MEDIUM findings:
    proceed anyway. After three fix rounds, stop and ask the user whether
    to continue, listing the remaining findings.
 
-LOW-severity findings, or a single MEDIUM (which makes the PR HIGH
-(findings)), are acknowledged in the PR description and proceed; clean
-gates proceed directly. `NOT RUN` and `N/A` gaps don't block — they are
-reflected honestly in the risk level instead. Existing findings never
+**Below-threshold findings — fix the contained ones too:**
+
+Every other introduced finding (any number of LOW, or a single MEDIUM)
+is fixed in this PR when the fix is **contained** — all of:
+
+- it is **within the PR's scope**: it changes only code this branch
+  already adds or changes (the same functions, not new areas of the
+  codebase);
+- it needs no architectural or design-pattern change, no new
+  dependency, and no change to a public API, schema, or config contract;
+- it is small enough that it wouldn't warrant its own issue.
+
+Fold contained fixes into the fix loop's current round, so they cost no
+extra gate re-run. If the threshold was never met, run one round of the
+loop (items 3–5) for the contained fixes alone. A finding that fails any
+of the three tests is **not contained**: leave it unfixed, record which
+test it failed (e.g. "needs a schema change"), and offer to file it as
+an issue (`gh issue create` once the user approves). Every introduced
+finding still unfixed when the PR opens — not contained, the user said
+to proceed, or the loop stopped after three rounds — goes in the PR's
+**Unresolved findings** list (Step 5) with its reason, and the PR
+proceeds. Clean gates proceed directly. `NOT RUN` and `N/A` gaps
+don't block — they are reflected honestly in the risk level instead. Existing findings never
 block, except an existing CRITICAL security finding (hard stop above);
 Step 2b already routed them.
 
@@ -407,7 +427,15 @@ Using the `pr-description` skill (including its Risk Assessment section):
      from the final Step 2/2b/3 gate results, plus the Simplify pre-pass
      line from Step 1b (`Ran — <commit subjects>`, `Ran — no changes`,
      `Skipped — <reason>`, or `N/A — /simplify not available`)
-   - Under Notes for Reviewers: existing non-security findings from
+   - Under Notes for Reviewers: the **Unresolved findings** list — every
+     introduced finding left unfixed, with severity, every source,
+     `file:line`, and the reason (`not contained: <failed test>`, with
+     the issue link once filed; `author chose to proceed`; or `stopped
+     after 3 fix rounds`), or "None". An unfixed introduced security
+     finding is listed neutrally — severity, sources, and "security
+     finding, details shared privately" — with its location, class, and
+     exploit path in the Step 6 report only
+   - Also under Notes for Reviewers: existing non-security findings from
      Step 2b with issue links, and any severity or tag a triage changed,
      with the reason (security findings re-tagged `existing` excepted —
      their reasons stay in the Step 6 report, per Step 2b)
@@ -465,8 +493,10 @@ with the latest gate results and runtime output. Re-apply the
 **Gates:** <n> ran clean, <n> fixed then clean, <n> not run, <n> N/A
 **Simplify:** <Ran — <n> commits / Ran — no changes / Skipped — <reason> / N/A>
 **Commits added by ship mode:** <simplify and fix commits, or none>
+**Fixed below threshold:** <n contained LOW/MEDIUM findings fixed in this PR>
+**Unfixed introduced:** <n> (listed under Unresolved findings in the PR; offer an issue for each not-contained one)
 **Existing issues:** <n> reported, <n> linked or filed
-**Reported privately:** <existing security findings (file:line, class, severity) and security re-triage reasons; recommend a security advisory>
+**Reported privately:** <existing security findings and unfixed introduced security findings (file:line, class, severity), and security re-triage reasons; recommend a security advisory>
 **Dropped candidates:** <unreproduced /code-review findings; security-auditor drops (see its report)>
 **PR:** <url or instructions>
 **Files:** <count> changed, <insertions> insertions, <deletions> deletions
@@ -490,8 +520,12 @@ with the latest gate results and runtime output. Re-apply the
   fixed before the PR opens — never shipped with a risk label as a
   substitute for fixing; existing findings are reported or filed, not
   blocking (except an existing CRITICAL security finding)
+- Below the threshold, contained fixes (within the PR's scope, no design or contract change, too small for its own issue)
+  are made in this PR too; every introduced finding left unfixed is
+  listed under Unresolved findings in the PR with its reason
 - Never publish an existing security finding's location, class, or
-  exploit path in a PR body, commit message, or public issue
+  exploit path in a PR body, commit message, or public issue — nor an
+  unfixed introduced one's
 - Never force push
 - Never commit `.env`, secrets, or large binary files
 - Never commit feature work directly to the default branch

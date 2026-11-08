@@ -105,8 +105,19 @@ Output Guidance" below.]
 
 ## Notes for Reviewers
 
-[Anything the reviewer should pay special attention to: tricky logic,
-intentional deviations from patterns, known limitations, follow-up work.]
+### Unresolved findings
+
+[Every finding this PR introduces that is not fixed, one per line, or
+"None":
+- [SEVERITY] (sources) `file:line` — what is wrong — why it is unfixed
+  (not contained: <reason>, #<issue> | author chose to proceed | stopped
+  after 3 fix rounds)
+An unfixed security finding gets severity and sources only: "security
+finding, details shared privately".]
+
+[Anything else the reviewer should pay special attention to: tricky
+logic, intentional deviations from patterns, known limitations,
+follow-up work.]
 
 ## Checklist
 
@@ -249,7 +260,7 @@ gaps.
   (docs, performance, runtime verification, one of the two code-review
   rows while the other ran, or Security (built-in) while Security ran)
   was `NOT RUN` or `N/A`, or only LOW-severity findings exist
-  and all are acknowledged in the description.
+  and all are listed under Unresolved findings.
 - **HIGH** — One-way door with clean checks, OR significant verification
   gaps (tests `NOT RUN`, or Security `NOT RUN` whatever Security
   (built-in) shows, or neither code-review gate ran), OR unresolved MEDIUM/HIGH-severity findings.
@@ -347,9 +358,10 @@ likelihood only when the triggering state is shown to be unreachable.
   ship generic test/verify agents.
 - When this skill is invoked from `commit-push-pr` ship mode, the evidence
   table comes from that single whole-branch gate run (`<base>...HEAD`)
-  after its triage step. Introduced findings above the fix threshold were
-  already fixed and their gates re-run, so surviving ISSUES entries
-  should be LOW, or at most one MEDIUM, and acknowledged.
+  after its triage step. Introduced findings above the fix threshold,
+  and contained ones below it, were already fixed and their gates
+  re-run. Any surviving ISSUES entry has a matching line under
+  Unresolved findings saying why it wasn't fixed.
 - When this skill is invoked standalone (outside `/commit-push-pr`), use
   whatever evidence already exists in the session. Mark everything else
   `NOT RUN` (or `N/A` for a built-in skill this Claude Code version
@@ -368,6 +380,9 @@ likelihood only when the triggering state is shown to be unreachable.
   intended behavior change" plus "(verified: <what ran>)" or
   "(unverified)"
 - The risk assessment is evidence-based — report what ran, not what should have run
+- Every introduced finding left unfixed is listed under Unresolved
+  findings with its reason, or the list says "None" — a risk-table
+  ISSUES entry alone doesn't tell a reviewer what is wrong or where
 - Every description has the Simplify pre-pass line under the risk table,
   with its outcome and reason. It sits outside the rubric: it never
   raises or lowers the risk level
