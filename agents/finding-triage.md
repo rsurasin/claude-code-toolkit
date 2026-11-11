@@ -52,7 +52,8 @@ The dispatching session gives you:
   active dev-tasks `plan.md` and `tasks.md` if any, and the PR title or
   the user's request.
 - **On a re-triage** (after a fix round): your previous list, the fix
-  commits, and the reports of the gates that re-ran.
+  commits, the reports of the gates that re-ran, and any contained fix
+  the author reverted, with the revert commit and what the fix needed.
 
 You get no conversation from the session that wrote the code. Work from
 the repository, the findings, and the scope only.
@@ -200,8 +201,10 @@ Carry forward every earlier finding the re-run gates didn't cover. A
 finding a re-run no longer reports is **resolved** only if the fix
 commits touched its location and you confirm the defect is gone in the
 code; otherwise it stays. Grade findings the fix commits introduced like
-any other. A finding the author reports as reverted because its fix
-turned out bigger than expected keeps its reason; confirm it.
+any other. For a contained fix the author reverted, read the revert
+commit and the code and re-run the three tests yourself; the author's
+account is evidence, not a verdict. Return `contained` or
+`not contained: <test> — <reason>` like any other call.
 
 ## Output
 

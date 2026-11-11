@@ -131,7 +131,13 @@ required, makes the contained / not-contained call for every
 below-threshold introduced finding, and returns each gate's verdict.
 
 If every gate came back clean (no findings from any source), skip the
-agent: there is nothing to triage, and every reviewing gate is PASS.
+agent: there is nothing to triage. Every reviewing gate that ran is
+PASS; a gate recorded `NOT RUN` or `N/A` stays as recorded.
+
+If the agent errors, times out, or returns a report with no
+`Fix loop:` line, dispatch it once more. If that fails too, record
+every reviewing gate `NOT RUN` (triage failed) and ask the user how to
+proceed. Never triage the findings yourself instead.
 
 1. **Dispatch it** with:
    - the range `<base>...HEAD` and the base ref;
@@ -146,12 +152,19 @@ agent: there is nothing to triage, and every reviewing gate is PASS.
    Pass no reasoning of your own about the findings — no severities,
    no "this one is minor", no summary of the conversation. It runs
    unattended and read-only, like the gates.
-2. **Apply its list as written.** You may raise a severity, or re-tag a
-   finding introduced when you have evidence it missed; record why under
-   triage changes. Never lower a severity, re-tag a finding existing,
-   drop a finding, or turn a contained call into not contained. If you
-   disagree with a call in that direction, put both positions to the
-   user and let them decide; never override it silently.
+2. **Check it, then apply it as written.** First compare its list with
+   the raw reports you hold: every finding from a source other than
+   `/code-review` must appear, at no lower severity than its source
+   gave, and every finding with a security source must carry
+   `[security]`. On a mismatch, dispatch it again with the mismatch
+   named; never repair the list yourself. If you have evidence it
+   missed that a finding is more severe or introduced, dispatch it again
+   with that evidence, so its fix-loop decision and calls cover the
+   change; don't edit its list. Never lower a severity, re-tag a
+   finding existing, drop a finding, or turn a contained call into not
+   contained. If you disagree with a call in that direction, put both
+   positions to the user and let them decide; never override it
+   silently.
 3. **Record its changes.** The reasons for its triage changes go in the
    PR's Notes for Reviewers, except any change it marks `[security]` —
    a security finding raised, merged, re-tagged either way, or judged
@@ -228,8 +241,10 @@ CRITICAL or HIGH finding, or two or more introduced MEDIUM findings):
    holds); the fix commits' files and the flagged locations are its
    *focus*, not its range (`security-auditor` skips DAST and
    full-codebase tooling on a re-run unless the finding came from that
-   tooling). Then re-triage: dispatch `finding-triage` again with its
-   previous list, the fix commits, and the re-run gates' reports. It
+   tooling). Then re-triage: dispatch `finding-triage` again with
+   everything Step 2b item 1 gave it (range, base ref, scope), plus its
+   previous list, the fix commits, the re-run gates' reports, and any
+   contained fix you reverted (below). It
    carries forward every earlier finding the re-run didn't cover, so
    each row reflects the whole branch, and grades your fixes as cold as
    the original code.
@@ -247,9 +262,14 @@ not to warrant its own issue. Its agent definition has the full tests.
 The call is the agent's, not yours: fix every contained finding, and
 never mark one not contained yourself (Step 2b item 2). If a contained
 fix turns out bigger once started (it needs a design or contract change,
-or spreads well beyond the requested behavior), revert that fix and
-give the agent what you found as the reason at the next re-triage; it
-confirms the call.
+or spreads well beyond the requested behavior), revert that fix and pass
+the agent the revert commit and what you found at the next re-triage.
+This is the one place you give it facts of your own: what the fix
+needed, not a call. It re-runs the three tests against the code and
+returns `contained` or `not contained`. If it says contained again
+and you still can't make the fix here, put both positions to the user
+(Step 2b item 2); the finding never ships without a call or a user
+decision.
 
 Fold contained fixes into the fix loop's current round, so they cost no
 extra gate re-run. If the threshold was never met, run one round of the
