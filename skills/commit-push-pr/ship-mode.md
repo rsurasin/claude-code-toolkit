@@ -371,6 +371,10 @@ status line to `Status: PR open (#N)` and append the transition to its
 
 ## Step 6: Report
 
+Keep the report's labels as written — **Branch**, **Risk**, **Gates**,
+**Simplify**, and the rest — so every ship reads the same way; put
+explanation under them, not in place of them.
+
 ```
 ## Shipped
 
