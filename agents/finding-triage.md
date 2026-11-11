@@ -165,16 +165,20 @@ whether the fix is **contained**. All three tests must pass:
   tasks mention is out of scope.
 - **No design or contract change** — no architectural or design-pattern
   change, no new dependency, and no change to a public API, schema, or
-  config contract. Public behavior counts: a new exception type, a new
-  error for a call that used to succeed, a changed signature or return
-  value.
+  config contract. Public behavior counts when callers would have to
+  adapt to it: a new exception type, a new error for a documented-valid
+  call that used to succeed, or a changed signature or return type.
+  Restoring documented or requested behavior is a bug fix, not a
+  contract change, even though some call now returns something else
+  (a validator that starts accepting the characters its rule allows).
 - **Size** — small enough that it wouldn't warrant its own issue. Size
   measures effort only; it never makes an out-of-scope fix contained.
 
 When unsure about scope or size, choose **contained**: it is the answer
-that means more work for the author. When unsure whether a fix changes
-a contract, it does: choose **not contained**, because that change is
-the author's and reviewers' decision, not a triage default.
+that means more work for the author. When unsure whether callers would
+have to adapt to a fix, they would: choose **not contained**, because
+that change is the author's and reviewers' decision, not a triage
+default.
 
 A not-contained finding names the test it failed and why, citing the
 issue or the request, e.g. `not contained: out of scope — #31 covers
