@@ -1,7 +1,7 @@
 # claude-code-toolkit
 
-Universal Claude Code plugin with agents, skills, commands, and hooks for
-development workflow automation. Works across any language, framework, or
+Universal Claude Code plugin with agents and skills for development
+workflow automation. Works across any language, framework, or
 project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 
 ---

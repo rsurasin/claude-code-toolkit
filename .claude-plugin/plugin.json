@@ -1,6 +1,6 @@
 {
   "name": "claude-code-toolkit",
-  "description": "Universal development agents, skills, commands, and hooks: code review, security audits, documentation sync, cross-repo consistency, debugging, performance analysis, conventional commits, two-mode commit-to-PR workflow (fast atomic commits, gated PR creation with risk assessment), PR descriptions, harness sharpening, and auto-formatting.",
+  "description": "Universal development agents and skills: code review, security audits, documentation sync, cross-repo consistency, debugging, performance analysis, conventional commits, two-mode commit-to-PR workflow (fast atomic commits, gated PR creation with risk assessment), PR descriptions, plan review, cross-session task tracking, and harness sharpening.",
   "version": "3.0.0",
   "author": {
     "name": "Rahul Surasinghe"
