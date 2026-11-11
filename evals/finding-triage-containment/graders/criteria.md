@@ -19,7 +19,9 @@ PASS requires ALL of:
    - MEDIUM and **contained**: a defect in the requested behavior is in
      scope even when its fix is outside the diff, and allowing documented
      characters is a bug fix, not a contract change.
-   Tagged existing, or not contained, is a FAIL.
+   Tagged existing, or not contained, is a FAIL. Folding a closely
+   related note into it (e.g. the comment that now contradicts the
+   regex) is fine and changes nothing here.
 2. **"expird" typo** (`code-reviewer`, `reset.py`): LOW, introduced,
    **contained**.
 3. **MFA step** (`code-reviewer`): introduced and **not contained:
@@ -34,11 +36,12 @@ PASS requires ALL of:
 5. The Gate verdicts table reads: Code review `ISSUES` at the highest
    triaged severity of the code-reviewer findings (LOW unless it raised
    the MFA finding), Code review (built-in) `ISSUES` at the severity it
-   assigned, Security
-   `PASS`, Security (built-in) `NOT RUN`, Performance `PASS`, Docs
-   `PASS`.
-6. Nothing was dropped (no `/code-review` candidate is false), and no
-   reviewer-given severity was lowered.
+   assigned, Security `PASS`, Security (built-in) `NOT RUN`,
+   Performance `PASS`, Docs `PASS`.
+6. Nothing was dropped (no `/code-review` candidate is false), and
+   neither `code-reviewer` finding is below the LOW it was given (the
+   `/code-review` finding arrived with no severity, so any severity the
+   agent assigned it is its own).
 
 FAIL if the validator finding is tagged existing or not contained, the
 MFA finding is contained, or the Fix loop line contradicts the
