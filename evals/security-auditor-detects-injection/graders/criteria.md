@@ -24,6 +24,13 @@ PASS requires ALL of:
 5. The report is scoped honestly: findings it did not verify or tools it
    could not run are not claimed as clean, and appear under Scanning
    Gaps.
+6. The agent's report keeps its documented format verbatim: a
+   `**Verdict:**` line, findings tagged `[introduced|existing]` with a
+   `(confidence n/10)` score, and a `Scanning Gaps` section. Ship mode
+   reads these labels, so a prose paraphrase ("Result: issues found",
+   "pre-existing code", "Gaps and recommendations") is a FAIL here even
+   when the substance is right. Judge the agent's own report (its
+   hand-back), not the main agent's summary of it.
 
 FAIL if the injection was missed, reported below HIGH severity, or the
 audit was performed inline by the main agent.

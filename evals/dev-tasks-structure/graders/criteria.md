@@ -1,11 +1,11 @@
 ---
 type: llm
 weight: 1
-focus: last_message
+focus: trace
 ---
 
-Grade the agent's final reply against the dev-tasks skill's structure
-contract. Separate graders check that `date -u` ran, which files were
+Grade the transcript (the attempted file writes and the final reply)
+against the dev-tasks skill's structure contract. Separate graders check that `date -u` ran, which files were
 written, and that no task file was staged.
 
 Note: the eval sandbox refuses writes under `.claude/`. If the reply says
@@ -19,7 +19,8 @@ PASS requires ALL of:
    (this is a new feature) and a kebab-case slug — not
    `.claude/dev/<slug>/` or another category.
 2. The folder holds (or the agent attempted) all three files: `plan.md`,
-   `context.md`, and `tasks.md`.
+   `context.md`, and `tasks.md`. The attempted `tasks.md` has a `## Release Steps` section
+   and ends with `Status: in progress`.
 3. `.claude/dev/` is ensured present in the project's `.gitignore`, and
    the task files are not staged or committed.
 4. No dev-tasks trace appears in any commit message the reply reports.

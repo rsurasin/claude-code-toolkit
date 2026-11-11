@@ -39,6 +39,12 @@ understand what changed, why, how risky it is, and how to verify it.
 
 ## Template
 
+Copy the Risk Assessment block exactly: the `**Risk Level:**` line, the
+`Dimension | Verified By | Result` columns, and all eight dimension rows
+by these names (`Code review (built-in)`, not `/code-review`), even
+when a row is `NOT RUN`. `commit-push-pr` ship mode and reviewers read
+them by name.
+
 ```markdown
 ## Summary
 
@@ -110,8 +116,9 @@ Output Guidance" below.]
 [Every finding this PR introduces that is not fixed, one per line, or
 "None":
 - [SEVERITY] (sources) `file:line` — what is wrong — why it is unfixed
-  (not contained: <reason>, #<issue> | author chose to proceed | stopped
-  after 3 fix rounds)
+  (not contained: <reason>, #<issue> | author chose to proceed — only
+  when they said so | awaiting author decision | stopped after 3 fix
+  rounds)
 An unfixed security finding gets severity and sources only: "security
 finding, details shared privately".]
 
@@ -268,10 +275,16 @@ gaps.
   **HIGH (unverified)** when driven by `NOT RUN` / `N/A` gaps or a
   one-way door with clean checks; **HIGH (findings)** when driven by
   unresolved findings; **HIGH (findings, unverified)** when both apply.
+  Check both causes before picking: an introduced MEDIUM or HIGH under
+  Unresolved findings adds `findings` even when a gap is what reached
+  HIGH first.
 - **CRITICAL** — One-way door combined with gaps or findings, OR an
   introduced CRITICAL finding of any kind (security, data loss, a core
   path broken for every user), OR a serious performance regression, OR
-  verification was largely skipped.
+  the user chose to skip the gates in ship mode. A description with no
+  verification evidence at all (every dimension `NOT RUN`) is
+  **HIGH (unverified)**, not CRITICAL: CRITICAL means a known danger,
+  and "nothing ran" is what the unverified label is for.
 
 ### Floors (a floor can only raise the level, never lower it)
 

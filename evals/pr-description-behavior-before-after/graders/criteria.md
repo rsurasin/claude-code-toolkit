@@ -31,7 +31,10 @@ PASS requires ALL of:
 4. Both descriptions keep the rest of the template (Risk Assessment
    with an evidence table, Testing, Screenshots / Output, Notes for
    Reviewers, Checklist), and neither PR's Screenshots / Output is a
-   bare or reasonless "N/A" (both branches change runnable code).
+   bare or reasonless "N/A" (both branches change runnable code). The
+   template's own wording, "Runtime verification NOT RUN — no output
+   captured", is a PASS when the Risk Assessment shows runtime
+   verification `NOT RUN`.
 
 FAIL if the fix PR's Summary describes only the code change without
 the current behavior, if its Changes section starts with code-level

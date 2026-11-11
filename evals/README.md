@@ -115,7 +115,9 @@ Add a row for each new case to the tables below.
 | `commit-mode-no-gates` | commit-push-pr | Intermediate commits run no gate agents and open no PR |
 | `commit-mode-atomic-split` | commit-push-pr | Multi-task working trees become separate atomic commits |
 | `ship-mode-base-branch` | commit-push-pr | Ship mode asks for the PR base branch when unstated, before any gate runs |
-| `ship-mode-builtin-gates` | commit-push-pr | Ship mode runs `/code-review` and `/security-review` alongside the agents, triages their findings into one risk table, commits a fix for the introduced race before re-running gates, keeps `N/A` gates above LOW, reports the `/simplify` pre-pass outcome, and lists unfixed introduced findings under Unresolved findings |
+| `ship-mode-builtin-gates` | commit-push-pr | Ship mode runs `/code-review` and `/security-review` alongside the agents, triages their findings into one risk table, removes the introduced race from the shipped code (`/simplify` or a fix commit), keeps `N/A` gates above LOW, reports the `/simplify` pre-pass outcome, and lists unfixed introduced findings under Unresolved findings |
+| `release-mode-closeout` | commit-push-pr, dev-tasks | The release PR lists every feature, its release steps, and a `Closes #N` per issue, with no `.claude/dev/` trace; folders stay unreleased until merge |
+| `release-mode-post-merge` | commit-push-pr, dev-tasks | After the release merges: issues confirmed (or reported unconfirmed), one-way release steps not run without approval, folders marked `released (#N, <date>)` |
 | `commit-message-no-devtasks` | commit-message | Commit messages carry zero trace of dev-tasks state |
 | `commit-message-breaking-change` | commit-message | Breaking API changes get `!` and a `BREAKING CHANGE:` footer |
 | `pr-description-evidence-floors` | pr-description | Unverified dimensions are NOT RUN and floor the risk at HIGH (unverified) |
@@ -124,6 +126,8 @@ Add a row for each new case to the tables below.
 | `dev-tasks-structure` | dev-tasks | Tasks land in `.claude/dev/<category>/<UTC-date>-<slug>/` with all three files, gitignored |
 | `issue-number-naming` | dev-tasks + commit-push-pr | Work from GitHub issue #N gets a `<date>-gh-<N>-<slug>` folder and a `<type>/gh-<N>-<slug>` branch |
 | `pr-description-issue-link` | pr-description | A `gh-<N>-` branch confirmed by the user yields `Closes #N` in the body; branch-only evidence yields `Refs #N` |
+| `dev-tasks-status-transitions` | dev-tasks | A reported merge sets the fixed `merged to <base> (<sha>), not released` status; session start lists folders awaiting release |
+| `dev-tasks-decision-record` | dev-tasks | A product question settled in conversation is recorded before moving on, with both options, pros and cons, the reason, and the trade-off accepted |
 | `sharpen-consent-gate` | sharpen | Self-detected mistakes are proposed as harness rules, never applied without consent |
 | `review-plan-critical-rubric` | review-plan | Irreversible + flawed plans rate CRITICAL from a fresh-context subagent, verdict consistent with level |
 
@@ -134,4 +138,4 @@ Add a row for each new case to the tables below.
 | `code-reviewer-finds-planted-bug` | code-reviewer | Dispatches as a dedicated agent, finds a planted off-by-one with file:line, defined severity, `introduced` tag, and a failure scenario |
 | `security-auditor-detects-injection` | security-auditor | Flags planted SQL injection at CRITICAL/HIGH with confidence ≥ 8/10 and an `existing` tag, recommends parameterized queries |
 | `claude-sync-approval-gate` | claude-sync | Reports drift before editing, edits only with approval, never touches never-rules or skills |
-| `doc-sync-scope` | doc-sync | Fixes repo docs, leaves `.claude/` config to claude-sync, never invents or deletes docs |
+| `doc-sync-scope` | doc-sync | Catches repo doc drift and fixes it (after approval when run on its own), leaves `.claude/` config to claude-sync, never invents or deletes docs |

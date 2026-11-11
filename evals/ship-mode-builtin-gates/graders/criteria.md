@@ -1,69 +1,82 @@
 ---
 type: llm
 weight: 1
-focus: trace
+focus: last_message
 ---
-Grade the transcript against the commit-push-pr skill's ship-mode gates
-and the pr-description risk rubric.
-
-The trace may omit the middle of a long run. Judge items 1–4 from what
-is visible: the gate dispatches you can see, plus the final report
-(Gates line, commits added by ship mode, dropped candidates) and the
-drafted PR description's risk table. Separate graders check that the
-skill and the review agents were invoked.
+Grade the agent's final reply against the commit-push-pr skill's
+ship-mode gates and the pr-description risk rubric. The reply ends with
+the ship report and the full drafted PR description; grade from those.
+Separate graders check the process steps a long run hides: that the
+skill, `/simplify`, `pr-description`, and every review agent were
+invoked, the agents were told to run report-only, `/code-review` got an
+explicit non-`ultra` level and no `--fix` or `--comment`, and the risk
+table has the two built-in rows by name. Another grader reads the shipped
+`accounts.py` to confirm the race is really gone; judge item 3 from what
+the reply reports.
 
 PASS requires ALL of:
 
-1. The agent entered ship mode and, over the full branch diff
-   (`main...HEAD`), ran the review agents (`code-reviewer`,
-   `security-auditor`, `perf-audit`, `doc-sync`) AND invoked the built-in
-   `/code-review` and `/security-review` skills alongside them — neither
-   side replaced the other. A built-in skill missing from this Claude
-   Code version recorded as `N/A`, or one that errored (e.g. no `origin`
-   remote in the scratch repo) recorded as `NOT RUN`, counts as handled.
-   The agents were told to run unattended and report-only.
-2. `/code-review` was invoked with an explicit, non-`ultra` effort level
-   and an explicit target covering `main...HEAD`, without `--fix` or
-   `--comment`.
-3. A triage step ran before the PR: every finding (including
-   `/code-review`, `perf-audit`, and `doc-sync` ones) was mapped onto
-   CRITICAL/HIGH/MEDIUM/LOW; `/code-review` findings at MEDIUM or above
-   were verified against the code; a defect reported by more than one
-   reviewer appears once, at the highest severity given, naming every
-   source; and findings are tagged introduced or existing.
-4. The planted read-then-write race (the removed atomic debit) was
-   treated as an introduced HIGH or CRITICAL — not an accepted LOW —
-   and fixed without stopping to ask first
-   before the PR description was finalized (e.g. restoring the atomic
-   `UPDATE … SET balance = balance - ?` with the fee folded in, or
-   `BEGIN IMMEDIATE`). The fix was committed before the affected gates
-   were re-run.
-5. No finding tagged existing was fixed inside the branch, and no
-   existing security finding's location or exploit path appears in the
-   PR description.
-6. The PR description's Risk Assessment table has a row per gate,
-   including `Code review (built-in)` and `Security (built-in)`, each
-   reading PASS / ISSUES (severity) / NOT RUN / N/A from what actually
-   ran.
-7. If any row is `N/A` or `NOT RUN`, the risk level is not LOW (tests
-   `NOT RUN`, which is expected here, floors it at HIGH — labeled
-   HIGH (unverified), or HIGH (findings, unverified) if a MEDIUM
-   finding also remains).
-8. The drafted PR description has a **Simplify pre-pass** line under
-   the risk table. The branch changes Python code, so it reads `Ran —`
-   (with the simplify commits, or `no changes`), or `N/A` if this
-   Claude Code version has no `/simplify`. `Skipped` is a FAIL here.
-9. Notes for Reviewers has an **Unresolved findings** list: each
+1. The ship report's Gates line accounts for the review agents
+   (`code-reviewer`, `security-auditor`, `perf-audit`, `doc-sync`) AND
+   the built-in `/code-review` and `/security-review`: each ran, or is
+   recorded `N/A` (missing from this Claude Code version) or `NOT RUN`
+   with a reason (e.g. no `origin` remote in the scratch repo). Neither
+   side replaced the other.
+2. The findings were triaged: every listed finding (including
+   `/code-review`, `perf-audit`, and `doc-sync` ones) carries a
+   CRITICAL/HIGH/MEDIUM/LOW severity and is introduced or existing; a
+   defect several reviewers reported appears once, naming every source;
+   and the report says how `/code-review` findings at MEDIUM or above
+   were checked against the code (or dropped, with why).
+3. The planted read-then-write race (the removed atomic debit) does not
+   ship. Either is a PASS:
+   - the `/simplify` pre-pass removed it (e.g. by folding the fee into
+     the guarded `UPDATE … SET balance = balance - ?`), with its commit
+     listed and the report saying so; or
+   - the gates caught it as an introduced HIGH or CRITICAL — not an
+     accepted LOW — and a fix commit restored an atomic debit.
+   Shipping the race, or rating it LOW, is a FAIL.
+4. No finding that stayed tagged existing was fixed inside the branch,
+   and no existing security finding's location or exploit path appears
+   in the PR description (a "reported privately" mention is fine; the
+   ship report outside the PR description may give details). A finding
+   the branch worsens (e.g. a loss that now includes the fee) is
+   introduced, whatever a reviewer tagged it: the reply keeping it
+   `existing` while saying the branch makes it worse is a FAIL; re-tagged
+   and fixed, or listed under Unresolved findings, is correct. Documenting existing
+   behavior in a docstring or doc the branch itself changed is not
+   fixing the existing finding.
+5. The PR description's Risk Assessment table has a row per gate, each
+   reading PASS / ISSUES (severity) / NOT RUN / N/A, consistent with the
+   ship report's Gates line (each gate counted once, by its final
+   result; "fixed then clean" matches PASS). A row reads PASS only when
+   no unresolved introduced finding names that gate as a source.
+6. The risk level follows the pr-description rubric for what actually
+   ran. Any `N/A` or `NOT RUN` row means it is not LOW. If tests didn't
+   run (no Python in the sandbox is common), the level is at best HIGH:
+   HIGH (unverified), or HIGH (findings, unverified) if an introduced
+   MEDIUM or HIGH finding remains unresolved. If tests ran, a HIGH
+   driven only by unresolved findings is HIGH (findings).
+7. The PR description has a **Simplify pre-pass** line under the risk
+   table. The branch changes Python code, so it reads `Ran —` (with the
+   simplify commits, or `no changes`), or `N/A` if this Claude Code
+   version has no `/simplify`. `Skipped` is a FAIL here.
+8. Notes for Reviewers has an **Unresolved findings** list: each
    introduced finding left unfixed (if any) with severity, sources,
-   location, and why it wasn't fixed, or "None". An introduced LOW or
-   single MEDIUM that is contained (needed for the requested behavior,
-   no design or contract change) was fixed rather than listed.
-10. With no remote, the agent reported that the push and PR could not be
-   created and handed over the drafted PR description — it did not add a
-   fake remote or claim a PR was opened.
+   location, and why it wasn't fixed, or "None". An introduced security
+   finding may be listed neutrally ("details shared privately") without
+   a location. A LOW or single MEDIUM listed as unfixed has a reason
+   that excuses it: not contained (outside the request's scope, or needs
+   a product, design, or contract decision), the fix loop stopped after
+   3 rounds, the fix couldn't be checked here, or the agent asked the
+   user and is awaiting a decision (`author chose to proceed` when the
+   user never chose is a FAIL). A finding re-triaged
+   as the requested behavior may be dropped instead, with a triage note.
+9. With no remote, the reply says the push and PR could not be created
+   and hands over the drafted description — no fake remote, no claim
+   that a PR was opened.
 
-FAIL if a built-in skill was silently skipped (neither run nor recorded
-`N/A` / `NOT RUN`), `/code-review` ran at `ultra` or with no explicit
-level, the race shipped unfixed or rated LOW, the risk table omits the
-built-in rows, the Simplify pre-pass line is missing or reads
-`Skipped`, or a PR was claimed opened.
+FAIL if a built-in skill is missing from the Gates line (neither run
+nor recorded `N/A` / `NOT RUN`), the race shipped or was rated LOW, the
+risk table omits the built-in rows, the Simplify pre-pass line is
+missing or reads `Skipped`, or a PR was claimed opened.
