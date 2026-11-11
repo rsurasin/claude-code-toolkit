@@ -168,11 +168,13 @@ proceed. Never triage the findings yourself instead.
    - every introduced finding ends in a → call, and the `Fix loop:`
      line matches the threshold applied to the Introduced list;
    - every Gate verdicts row is at least the highest severity of the
-     introduced findings that name its gate.
+     introduced findings that name its gate (a `(finding-triage)`
+     finding names the Security gate).
 
-   On a mismatch, dispatch it once more with the mismatch named. If you
-   have evidence it missed that a finding is more severe or introduced,
-   dispatch it once more with that evidence, so its fix-loop decision
+   On a mismatch, dispatch it once more with everything item 1 gave it,
+   its list, and the mismatch named. If you have evidence it missed that
+   a finding is more severe or introduced, dispatch it the same way with
+   that evidence, so its fix-loop decision
    and calls cover the change. Never repair or edit its list yourself.
    If the mismatch persists, or the call doesn't change, put both
    positions to the user. Never lower a severity, re-tag a finding
@@ -324,7 +326,8 @@ the Risk Assessment block copied exactly:
      sentence on the fix
    - Risk assessment — level, reversibility, and the evidence table filled
      from the final Step 2/2b/3 gate results (a row reads PASS only when
-     no unresolved introduced finding names that gate as a source;
+     no unresolved introduced finding names that gate as a source, a
+     `(finding-triage)` finding naming Security;
      otherwise ISSUES with the highest such severity), plus the Simplify
      pre-pass line from Step 1b (`Ran — <commit subjects>`, `Ran — no changes`,
      `Skipped — <reason>`, or `N/A — /simplify not available`)
@@ -341,8 +344,9 @@ the Risk Assessment block copied exactly:
      exploit path in the Step 6 report only
    - Also under Notes for Reviewers: existing non-security findings from
      Step 2b with issue links, and any severity or tag a triage changed,
-     with the reason (changes marked `[security]` excepted — their
-     reasons stay in the Step 6 report, per Step 2b)
+     with the reason, except changes that touch a security finding
+     (marked or not) — their reasons stay in the Step 6 report, per
+     Step 2b item 3
    - Changes — the new behavior first, then the detail grouped by area
      ("No behavior change." in both places for a docs-only or tests-only
      change; "No intended behavior change" plus how it was verified, or

@@ -8,13 +8,13 @@ project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 
 ## What's Inside
 
-### Agents (8) — auto-dispatched by Claude based on your request, except `finding-triage` (dispatched by ship mode)
+### Agents (8) — auto-dispatched by Claude based on your request, except `finding-triage` (dispatched by ship and release mode, or on explicit request)
 
 | Agent | What It Does |
 |-------|--------------|
 | `code-reviewer` | Parallel multi-axis review of the branch diff — bugs, change impact (removed behavior, callers), security, performance, design and conventions — with a verification pass, defined severities, and introduced/existing tags |
 | `security-auditor` | Deep OWASP-aligned security audit with language-aware vulnerability detection, installed-tool scanning, and confidence-scored false-positive filtering |
-| `finding-triage` | Dispatched by ship mode (or by an explicit request). Grades every gate's findings cold, so the author never grades its own work — severities on one scale, `/code-review` candidates verified, duplicates merged, introduced/existing tags, the fix-loop decision, the contained / not-contained call measured against the issue, not the diff, and each gate's verdict |
+| `finding-triage` | Dispatched by ship and release mode (or on explicit request). Grades every gate's findings cold, so the author never grades its own work — severities on one scale, `/code-review` candidates verified, duplicates merged, introduced/existing tags, the fix-loop decision, the contained / not-contained call measured against the issue, not the diff, and each gate's verdict |
 | `debugger` | Systematic hypothesis-driven bug investigation |
 | `perf-audit` | Runtime perf: startup time, re-renders, N+1 queries, bundle size, memory, concurrency |
 | `doc-sync` | Audits docs against code, fixes documentation drift |

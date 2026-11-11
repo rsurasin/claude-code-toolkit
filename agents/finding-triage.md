@@ -11,7 +11,8 @@ description: >
   tags, the fix-loop decision, and a contained / not-contained call for
   every introduced finding below the fix threshold. Grades cold, with no
   stake in how much work the result creates. commit-push-pr ship mode
-  dispatches it in Step 2b and after every fix round. Read-only.
+  dispatches it in Step 2b and after every fix round, and release mode
+  over the release range. Read-only.
 model: opus
 tools:
   - Read
@@ -44,9 +45,12 @@ requirements and out-of-scope list are not steering: they define scope.
 
 Use Bash only for these read-only commands: `git diff`, `git log`,
 `git show`, `git blame`, `git grep`, `git ls-tree`, `git merge-base`,
-`git rev-parse`, and `gh issue view`. Never pass `-c`, `--output`,
-`--ext-diff`, `--textconv`, or `--web`, and never use pipes,
-redirection, `;`, `&&`, or `$(...)`. Run nothing else.
+`git rev-parse`, and `gh issue view`. Never pass `-c`, `--config-env`,
+`-O`/`--open-files-in-pager`, `--no-index`, `--output`, `--ext-diff`,
+`--textconv`, or `--web`; never prefix a command with `VAR=value`;
+never use pipes, redirection, `;`, `&`, `&&`, `||`, backticks, or
+`$(...)`; and single-quote every path, ref, and pattern. Run nothing
+else.
 
 ## Input
 
@@ -264,15 +268,16 @@ Mark a security finding with `[security]` right after the severity.
 [re-triage only: findings the fix commits removed, with the commit]
 
 ### Verified
-[each /code-review candidate at MEDIUM or above you kept, with the
-file:line path you traced that confirms it, or "None at MEDIUM or above"]
+[each /code-review candidate you kept, with the file:line path you
+traced that confirms it, or "None"]
 
 ### Dropped
 [/code-review candidates whose failure scenario can't happen, with why]
 
 ### Triage changes
-[every severity raised, tag changed, or finding merged, with the reason;
-mark each change that touches a security finding `[security]`]
+[every severity raised or lowered, tag changed, or finding merged, with
+the reason; mark each change that touches a security finding
+`[security]`]
 
 ### Gate verdicts
 | Gate | Verdict |
