@@ -58,9 +58,13 @@ drift easily.
   gate's raw findings to the `finding-triage` agent, which assigns
   severities, tags introduced vs existing, decides the fix loop, and
   makes the contained / not-contained call with no context from the
-  session that wrote the code. Ship mode applies its list and may only
-  make it stricter; a disagreement in the other direction goes to the
-  user. Don't move triage back into the authoring session.
+  session that wrote the code. Ship mode applies its list as written:
+  with evidence that a finding is more severe or introduced, or a list
+  that fails its checks, it re-dispatches the agent and never edits the
+  list, and a disagreement in the other direction goes to the user. If
+  triage fails twice, the reviewing gates are `NOT RUN` and the user
+  decides; ship mode never triages inline. Don't move triage back into
+  the authoring session.
 - **Atomic commits.** One commit = one task/logical change; never bundle
   unrelated changes.
 - **Use every available reviewer.** Ship mode runs the toolkit's review
