@@ -44,7 +44,9 @@ and `gh issue view`. Run nothing else.
 
 The dispatching session gives you:
 
-- **Range** — `<base>...HEAD` and the base ref.
+- **Range** — `<base>...<head>` and the base ref. `<head>` is `HEAD` in
+  ship mode and `origin/<integration>` in release mode; use the `<head>`
+  you were given everywhere below, never whatever is checked out.
 - **Raw findings** — every gate's report, verbatim, labeled by source.
   A gate that errored or didn't run is listed as such.
 - **Scope** — what the work was asked to do: the GitHub issue the branch
@@ -87,7 +89,9 @@ also uses; keep all three in sync:
   performance improvement without evidence of user-visible impact.
 
 A one-line fix for a real race is still HIGH. Lower a severity for
-likelihood only when you show the triggering state is unreachable.
+likelihood only when you show the triggering state is unreachable, and
+only a severity you assign (`/code-review`, or a mapped `perf-audit`
+or `doc-sync` label) — never one a reviewer gave.
 
 ## Process
 
@@ -112,7 +116,9 @@ When unsure between two severities, choose the higher.
 `/code-review` candidates haven't been through a verification pass. For
 each one at MEDIUM or above, trace its failure scenario through the
 actual code. Drop it if the scenario can't happen, and list the drop
-with the reason under Dropped. Never drop a finding from another source.
+with the reason under Dropped. A candidate below MEDIUM that you traced
+and found impossible is dropped the same way. Never drop a finding from
+another source.
 List every candidate you kept under Verified, with the code you traced
 (file:line of the path that confirms the failure), so the author and
 reviewers can see each one was checked, not just the drops.
@@ -131,10 +137,10 @@ issue.
 - **Introduced** — the defect lives in lines this branch adds or
   changes, or the branch causes or **worsens** it (a bigger loss, a
   wider reach, a new path to it).
-- **Existing** — present at `git merge-base <base> HEAD` and not
+- **Existing** — present at `git merge-base <base> <head>` and not
   worsened.
 
-Check with `git diff <base>...HEAD` and `git blame`. Re-check the tags
+Check with `git diff <base>...<head>` and `git blame <head> -- <file>`. Re-check the tags
 that `code-reviewer` and `security-auditor` gave: an `existing` defect
 that the branch makes worse is introduced, whatever the reviewer said.
 `/security-review` findings are introduced when `<base>` is the remote's
@@ -220,8 +226,8 @@ Mark a security finding with `[security]` right after the severity.
 
 ```
 ## Finding Triage — <n> findings from <n> gates
-**Range:** <base>...HEAD (merge base: <short sha>)
-**Scope:** <issue #N: title | the request | branch commits only>
+**Range:** <base>...<head> (merge base: <short sha>)
+**Scope:** <issue #N: title (or every issue a release closes) | the request | branch commits only>
 **Fix loop:** REQUIRED (<which findings>) | NOT REQUIRED
 
 ### Introduced
