@@ -163,7 +163,11 @@ reported privately", with no location or class).
    lines this branch adds or changes, or the branch causes it.
    **Existing**: already present at `git merge-base <base> HEAD` and not
    worsened. Keep the tags of agents that emit them (`code-reviewer`,
-   `security-auditor`) after a sanity check; tag the rest yourself
+   `security-auditor`) after a sanity check that includes worsening: an
+   `existing` defect the branch makes worse (a bigger loss, a wider
+   reach, a new path to it) is introduced, whatever the agent said;
+   record the re-tag and its reason for the PR's triage notes (Step 5)
+   — for a security finding, the Step 6 report only. Tag the rest yourself
    (`/code-review`, `perf-audit`, `doc-sync`) with
    `git diff <base>...HEAD` and `git blame`. `/security-review` findings
    are introduced when `<base>` is the remote's default branch;
@@ -301,7 +305,8 @@ and hand the user the drafted PR description from Step 5.
 
 ## Step 5: Open PR
 
-Using the `pr-description` skill (including its Risk Assessment section):
+Invoke the `pr-description` skill and follow its template, including
+the Risk Assessment block copied exactly:
 
 1. Analyze all commits on this branch vs the confirmed base
 2. Generate the PR description with:
@@ -384,7 +389,7 @@ explanation under them, not in place of them.
 
 **Branch:** <branch> → <base>
 **Risk:** <LOW / MEDIUM / HIGH / CRITICAL> (<one-line justification>)
-**Gates:** <n> ran clean, <n> fixed then clean, <n> not run, <n> N/A
+**Gates:** <n> ran clean, <n> fixed then clean, <n> not run, <n> N/A (each gate counted once, by its final result, matching its row in the PR risk table)
 **Simplify:** <Ran — <n> commits / Ran — no changes / Skipped — <reason> / N/A>
 **Commits added by ship mode:** <simplify and fix commits, or none>
 **Fixed below threshold:** <n contained LOW/MEDIUM findings fixed in this PR>
