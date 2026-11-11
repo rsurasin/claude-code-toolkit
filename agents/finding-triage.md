@@ -234,7 +234,8 @@ file:line path you traced that confirms it, or "None at MEDIUM or above"]
 [/code-review candidates whose failure scenario can't happen, with why]
 
 ### Triage changes
-[every severity raised, tag changed, or finding merged, with the reason]
+[every severity raised, tag changed, or finding merged, with the reason;
+mark each change that touches a security finding `[security]`]
 
 ### Gate verdicts
 | Gate | Verdict |

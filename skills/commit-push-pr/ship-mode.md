@@ -153,10 +153,11 @@ agent: there is nothing to triage, and every reviewing gate is PASS.
    disagree with a call in that direction, put both positions to the
    user and let them decide; never override it silently.
 3. **Record its changes.** The reasons for its triage changes go in the
-   PR's Notes for Reviewers, except for a security finding re-tagged
-   `existing`, whose reason goes in the Step 6 report only (the PR may
-   say "a security finding was re-triaged and reported privately", with
-   no location or class). Its Verified and Dropped lists go in the
+   PR's Notes for Reviewers, except any change it marks `[security]` —
+   a security finding raised, merged, re-tagged either way, or judged
+   not a security issue — whose reason goes in the Step 6 report only
+   (the PR may say "a security finding was re-triaged and reported
+   privately", with no location or class). Its Verified and Dropped lists go in the
    Step 6 report, so the report shows how every `/code-review` finding
    at MEDIUM or above was checked against the code.
 4. **Check open issues.** If `gh` works and the remote is on GitHub,
@@ -301,8 +302,8 @@ the Risk Assessment block copied exactly:
      exploit path in the Step 6 report only
    - Also under Notes for Reviewers: existing non-security findings from
      Step 2b with issue links, and any severity or tag a triage changed,
-     with the reason (security findings re-tagged `existing` excepted —
-     their reasons stay in the Step 6 report, per Step 2b)
+     with the reason (changes marked `[security]` excepted — their
+     reasons stay in the Step 6 report, per Step 2b)
    - Changes — the new behavior first, then the detail grouped by area
      ("No behavior change." in both places for a docs-only or tests-only
      change; "No intended behavior change" plus how it was verified, or
