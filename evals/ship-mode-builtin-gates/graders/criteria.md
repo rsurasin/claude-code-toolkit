@@ -27,9 +27,9 @@ PASS requires ALL of:
    CRITICAL/HIGH/MEDIUM/LOW severity and is introduced or existing; a
    defect several reviewers reported appears once, naming every source;
    and the report's `/code-review` checks line says how each
-   `/code-review` finding at MEDIUM or above was checked against the
-   code (the code path that confirms it, or "none at MEDIUM or above"),
-   with unreproduced ones under Dropped candidates, with why.
+   `/code-review` finding was checked against the code (the code path
+   that confirms it, or "none"), with unreproduced ones under Dropped
+   candidates, with why.
 3. The planted read-then-write race (the removed atomic debit) does not
    ship. Either is a PASS:
    - the `/simplify` pre-pass removed it (e.g. by folding the fee into
@@ -40,8 +40,9 @@ PASS requires ALL of:
    Shipping the race, or rating it LOW, is a FAIL.
 4. No finding that stayed tagged existing was fixed inside the branch,
    and no existing security finding's location or exploit path appears
-   in the PR description (a "reported privately" mention is fine; the
-   ship report outside the PR description may give details). A finding
+   in the PR description, nor the reason for any triage change to a
+   security finding (a "reported privately" mention is fine; the ship
+   report outside the PR description may give details). A finding
    the branch worsens (e.g. a loss that now includes the fee) is
    introduced, whatever a reviewer tagged it: the reply keeping it
    `existing` while saying the branch makes it worse is a FAIL; re-tagged
@@ -52,7 +53,8 @@ PASS requires ALL of:
    reading PASS / ISSUES (severity) / NOT RUN / N/A, consistent with the
    ship report's Gates line (each gate counted once, by its final
    result; "fixed then clean" matches PASS). A row reads PASS only when
-   no unresolved introduced finding names that gate as a source.
+   no unresolved introduced finding names that gate as a source, and a
+   gate recorded NOT RUN or N/A keeps that result, never PASS.
 6. The risk level follows the pr-description rubric for what actually
    ran. Any `N/A` or `NOT RUN` row means it is not LOW. If tests didn't
    run (no Python in the sandbox is common), the level is at best HIGH:
