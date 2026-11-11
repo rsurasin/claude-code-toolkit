@@ -1,6 +1,8 @@
 # Release Mode
 
 Part of the `commit-push-pr` skill; read this file only in release mode.
+Release mode runs Ship Mode steps (Steps 2–3, 5, and 6), which live in
+[`ship-mode.md`](ship-mode.md); read that file too.
 
 A release PR promotes an integration branch (`<integration>`, e.g. `dev`)
 to the default branch (`<default>`, e.g. `main`). The feature PRs merged
