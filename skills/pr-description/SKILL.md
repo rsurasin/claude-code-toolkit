@@ -271,7 +271,10 @@ gaps.
 - **CRITICAL** — One-way door combined with gaps or findings, OR an
   introduced CRITICAL finding of any kind (security, data loss, a core
   path broken for every user), OR a serious performance regression, OR
-  verification was largely skipped.
+  the user chose to skip the gates in ship mode. A description with no
+  verification evidence at all (every dimension `NOT RUN`) is
+  **HIGH (unverified)**, not CRITICAL: CRITICAL means a known danger,
+  and "nothing ran" is what the unverified label is for.
 
 ### Floors (a floor can only raise the level, never lower it)
 

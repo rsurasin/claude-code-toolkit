@@ -238,7 +238,16 @@ verification but must still cite file:line.
 
 Merge duplicates across subagents, keeping the highest severity. Then
 synthesize the confirmed MEDIUM-or-higher findings and the unverified
-LOW findings into a single report. Format each finding as:
+LOW findings into a single report.
+
+Copy this format exactly, even when you write the rest in your own
+words: the section headings, the `**Verdict:**` line, the
+`[introduced|existing]` tags, and the severity labels are read by
+`commit-push-pr` ship mode's triage and the `pr-description` rubric.
+Paraphrasing them (e.g. "Result: issues found" for
+`**Verdict:** ISSUES (CRITICAL)`) breaks that.
+
+Format each finding as:
 
 `- **[SEVERITY]** [introduced|existing] path/to/file.ext:LINE — what is wrong. Failure: <inputs/state → wrong result>. Fix: <concrete change>.`
 
