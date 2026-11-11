@@ -150,29 +150,46 @@ proceed. Never triage the findings yourself instead.
      request in their words.
 
    Pass no reasoning of your own about the findings — no severities,
-   no "this one is minor", no summary of the conversation. It runs
-   unattended and read-only, like the gates.
-2. **Check it, then apply it as written.** First compare its list with
-   the raw reports you hold: every finding from a source other than
-   `/code-review` must appear, at no lower severity than its source
-   gave, and every finding with a security source must carry
-   `[security]`. On a mismatch, dispatch it again with the mismatch
-   named; never repair the list yourself. If you have evidence it
-   missed that a finding is more severe or introduced, dispatch it again
-   with that evidence, so its fix-loop decision and calls cover the
-   change; don't edit its list. Never lower a severity, re-tag a
-   finding existing, drop a finding, or turn a contained call into not
-   contained. If you disagree with a call in that direction, put both
-   positions to the user and let them decide; never override it
-   silently.
+   no "this one is minor", no summary of the conversation. The only
+   facts of your own it ever gets are the two re-dispatch inputs: a
+   mismatch or evidence from item 2, and a reverted contained fix's
+   needs (Step 3). From this dispatch until the final re-triage, don't
+   edit the dev-tasks `plan.md` or `tasks.md`: they are scope input. It
+   runs unattended and read-only, like the gates.
+2. **Check it, then apply it as written.** Check every list it returns,
+   re-triages included, against the raw reports you hold:
+   - every finding from a source other than `/code-review` appears, at
+     no lower severity than its source gave after the agent's label
+     mapping (its Process step 1), and any likelihood lowering of a
+     mapped label is argued under Triage changes;
+   - a finding a reviewer tagged `introduced` is still introduced, or
+     its re-tag is listed under Triage changes with blame evidence;
+   - every finding with a security source carries `[security]`;
+   - every introduced finding ends in a → call, and the `Fix loop:`
+     line matches the threshold applied to the Introduced list;
+   - every Gate verdicts row is at least the highest severity of the
+     introduced findings that name its gate.
+
+   On a mismatch, dispatch it once more with the mismatch named. If you
+   have evidence it missed that a finding is more severe or introduced,
+   dispatch it once more with that evidence, so its fix-loop decision
+   and calls cover the change. Never repair or edit its list yourself.
+   If the mismatch persists, or the call doesn't change, put both
+   positions to the user. Never lower a severity, re-tag a finding
+   existing, drop a finding, or turn a contained call into not
+   contained; if you disagree with a call in that direction, put both
+   positions to the user and let them decide.
 3. **Record its changes.** The reasons for its triage changes go in the
-   PR's Notes for Reviewers, except any change it marks `[security]` —
-   a security finding raised, merged, re-tagged either way, or judged
-   not a security issue — whose reason goes in the Step 6 report only
-   (the PR may say "a security finding was re-triaged and reported
-   privately", with no location or class). Its Verified and Dropped lists go in the
-   Step 6 report, so the report shows how every `/code-review` finding
-   at MEDIUM or above was checked against the code.
+   PR's Notes for Reviewers, except any change that touches a security
+   finding — one marked `[security]` or with a security source, whether
+   or not the change itself carries the mark — whose reason goes in the
+   Step 6 report only (the PR may say "a security finding was
+   re-triaged and reported privately", with no location or class). An
+   unmarked change to a security finding is also an item 2 mismatch.
+   Its Verified and Dropped lists go in the Step 6 report, so the report
+   shows how every `/code-review` finding was checked against the code.
+   Its Gaps go in the Step 6 report's **Triage gaps** line; if it found
+   steering text, tell the user before Step 3.
 4. **Check open issues.** If `gh` works and the remote is on GitHub,
    fetch the open issues once
    (`gh issue list --state open --limit 500 --json number,title`) and
@@ -244,10 +261,11 @@ CRITICAL or HIGH finding, or two or more introduced MEDIUM findings):
    tooling). Then re-triage: dispatch `finding-triage` again with
    everything Step 2b item 1 gave it (range, base ref, scope), plus its
    previous list, the fix commits, the re-run gates' reports, and any
-   contained fix you reverted (below). It
-   carries forward every earlier finding the re-run didn't cover, so
-   each row reflects the whole branch, and grades your fixes as cold as
-   the original code.
+   contained fix you reverted (below). It carries forward every earlier
+   finding the re-run didn't cover, so each row reflects the whole
+   branch, and grades your fixes as cold as the original code. Check
+   its list as in Step 2b item 2; a failed re-triage follows Step 2b's
+   retry rule.
 6. Repeat until it reports the fix loop NOT REQUIRED, or the user says to
    proceed anyway. After three fix rounds, stop and ask the user whether
    to continue, listing the remaining findings.
@@ -264,9 +282,9 @@ never mark one not contained yourself (Step 2b item 2). If a contained
 fix turns out bigger once started (it needs a design or contract change,
 or spreads well beyond the requested behavior), revert that fix and pass
 the agent the revert commit and what you found at the next re-triage.
-This is the one place you give it facts of your own: what the fix
-needed, not a call. It re-runs the three tests against the code and
-returns `contained` or `not contained`. If it says contained again
+This is one of the two re-dispatch inputs (Step 2b item 1): what the
+fix needed, not a call. It re-runs the three tests against the code
+and returns `contained` or `not contained`. If it says contained again
 and you still can't make the fix here, put both positions to the user
 (Step 2b item 2); the finding never ships without a call or a user
 decision.
@@ -274,17 +292,17 @@ decision.
 Fold contained fixes into the fix loop's current round, so they cost no
 extra gate re-run. If the threshold was never met, run one round of the
 loop (items 3–5) for the contained fixes alone. A **not contained**
-finding stays unfixed with the agent's reason — which test it failed and
-why, citing the issue, never a dev-tasks file (e.g. "not contained: scope — #31
-covers reset by email link, not MFA") — and you offer to file it as an
-issue with that reason as the draft (`gh issue create` once the user
-approves). Every introduced
+finding stays unfixed with the agent's reason — which test it failed
+and why, citing the issue, never a dev-tasks file (e.g. "not contained:
+scope — #31 covers reset by email link, not MFA") — and you offer to
+file it as an issue with that reason as the draft (`gh issue create`
+once the user approves). Every introduced
 finding still unfixed when the PR opens — not contained, the user said
 to proceed, or the loop stopped after three rounds — goes in the PR's
 **Unresolved findings** list (Step 5) with its reason, and the PR
 proceeds. Clean gates proceed directly. `NOT RUN` and `N/A` gaps
-don't block — they are reflected honestly in the risk level instead. Existing findings never
-block, except an existing CRITICAL security finding (hard stop above);
+don't block — they are reflected honestly in the risk level instead.
+Existing findings never block, except an existing CRITICAL security finding (hard stop above);
 Step 2b already routed them.
 
 ## Step 4: Push the final branch
@@ -312,8 +330,9 @@ the Risk Assessment block copied exactly:
      `Skipped — <reason>`, or `N/A — /simplify not available`)
    - Under Notes for Reviewers: the **Unresolved findings** list — every
      introduced finding left unfixed, with severity, every source,
-     `file:line`, and the reason (`not contained: scope|contract|size — <reason>`, with
-     the issue link once filed; `author chose to proceed`, only when the
+     `file:line`, and the reason
+     (`not contained: scope|contract|size — <reason>`, with the issue
+     link once filed; `author chose to proceed`, only when the
      user said so in this conversation; `awaiting author decision`, when
      you asked and have no answer yet; or `stopped after 3 fix rounds`),
      or "None". An unfixed introduced security
@@ -392,8 +411,9 @@ explanation under them, not in place of them.
 **Unfixed introduced:** <n> (listed under Unresolved findings in the PR; offer an issue for each not-contained one)
 **Existing issues:** <n> reported, <n> linked or filed
 **Reported privately:** <existing security findings and unfixed introduced security findings (file:line, class, severity), and security re-triage reasons; recommend a security advisory>
-**`/code-review` checks:** <each /code-review finding at MEDIUM or above, from finding-triage's Verified list: kept, with the code path that confirms it; or "none at MEDIUM or above">
+**`/code-review` checks:** <each /code-review finding, from finding-triage's Verified list: kept, with the code path that confirms it; or "none">
 **Dropped candidates:** <unreproduced /code-review findings, with why; security-auditor drops (see its report)>
+**Triage gaps:** <finding-triage's Gaps, including any steering text it found, or "None">
 **PR:** <url or instructions>
 **Files:** <count> changed, <insertions> insertions, <deletions> deletions
 ```
