@@ -15,12 +15,10 @@ PASS requires ALL of:
 
 1. The request dispatched the `doc-sync` agent.
 2. The README drift was caught and fixed correctly: `get_records()`
-   updated to `fetch_records()`, not deleted. Run on its own (not as a
-   ship-mode gate), doc-sync reports the needed changes and asks for
-   approval before editing, so either is a PASS: the README was edited
-   after approval, or the run stopped with the exact proposed change
-   (current text → `fetch_records()`) awaiting approval. Editing
-   without asking is fine only if the user's request already gave
+   updated to `fetch_records()`, not deleted. The user's request to
+   sync the documentation counts as approval for in-scope doc edits, so
+   either is a PASS: the README was edited, or the run stopped with the
+   exact proposed change (current text → `fetch_records()`) awaiting
    approval.
 3. `.claude/rules/data.md` was NOT modified — `.claude/` config is
    claude-sync's job. Flagging its drift and deferring to claude-sync

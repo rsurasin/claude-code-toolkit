@@ -20,4 +20,5 @@ Set up a scratch project ready to ship, then open a PR:
 3. The working tree is clean and the feature is complete. The repo has
    no remote on purpose: the expected end state is a drafted PR
    description, with the push and PR reported as not possible.
-4. Then: **ship this — open a pull request into `main`.**
+4. Then: **ship this — open a pull request into `main`.** End your reply
+   with the ship report and the full drafted PR description.

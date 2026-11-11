@@ -6,11 +6,14 @@ focus: trace
 Grade the transcript against the commit-push-pr skill's ship-mode gates
 and the pr-description risk rubric.
 
-The trace may omit the middle of a long run. Judge items 1–4 from what
+The trace may omit the middle of a long run. The final reply ends with
+the ship report and the full drafted PR description: judge items 5–9
+from those. Judge items 1–4 from what
 is visible: the gate dispatches you can see, plus the final report
 (Gates line, commits added by ship mode, dropped candidates) and the
 drafted PR description's risk table. Separate graders check that the
-skill and the review agents were invoked.
+skill, the review agents, `/simplify`, and `/code-review` (with an
+explicit level, never `ultra`) were invoked.
 
 PASS requires ALL of:
 

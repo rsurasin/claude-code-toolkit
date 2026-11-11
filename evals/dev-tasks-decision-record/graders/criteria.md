@@ -4,42 +4,30 @@ weight: 1
 focus: trace
 ---
 
-Grade the transcript against the dev-tasks skill's decision-record rule.
+Grade the transcript against the dev-tasks skill's decision-record rule:
+when the decision was recorded, and what happened to the code. Separate
+graders read the written `context.md` and `plan.md` to check the record
+itself.
 
 Note: the eval sandbox may refuse writes under `.claude/`, in the setup or
 later. If it did, that is the environment, not a failure — grade the
 writes the agent attempted (the commands in the trace). Writing the files
 with a shell heredoc instead of the Write tool is fine.
 
+Note: the trace keeps only the first and last messages and elides the
+middle (marked "[…N messages elided…]"). If the decision-record write
+falls inside the elided part, don't fail item 1 for not seeing it: judge
+it from what is visible — a visible write of the record after the
+`logs.py` edit is a FAIL; a code edit with the record write hidden before
+it is not.
+
 PASS requires ALL of:
 
-1. A decision record was appended to the task folder's `context.md`
-   under `## Decisions` BEFORE the agent edited `logs.py`, in the same
-   turn. Recording it only at the end, only in chat, or not at all is a
-   FAIL.
-2. The record follows the documented format, with every field:
-   - **Decision:** accept logs for retired exercises, keeping the retired
-     name (in product terms);
-   - **Context:** the app can send logs for exercises retired from the
-     plan;
-   - **Options considered:** BOTH options (reject after a 7-day grace
-     period; accept and keep the name), each with its own pros AND cons;
-   - **Chosen and why:** accept, because losing a user's workout is worse
-     than a messy report;
-   - **Trade-offs accepted:** reports can show exercises no longer in
-     the plan;
-   - **Revisit when:** present. The user gave no condition, so it reads
-     "not discussed" or gives a condition labelled as the agent's
-     proposal; an unlabelled invented condition is a FAIL;
-   - **Where it lives:** filled in (e.g. the branch's issue #31, or "not
-     promoted").
-3. The heading carries a UTC ISO 8601 timestamp obtained via `date -u`.
-4. Existing `context.md` content is unchanged (append-only).
-5. `plan.md` → Key Decisions links to the record by title/timestamp
-   rather than holding a one-line rationale.
-6. `accept_log(log)` was added to `logs.py`. No `.claude/dev/` file was
+1. The decision record was written to the task folder's `context.md`
+   before the agent edited `logs.py`, in the same turn. Recording it only
+   at the end, only in chat, or not at all is a FAIL.
+2. `accept_log(log)` was added to `logs.py`. No `.claude/dev/` file was
    staged or committed, and no commit message references the record.
 
-FAIL if either option or its pros and cons are missing, the trade-off is
-missing, the record was written after the code change, or existing
-`context.md` entries were rewritten.
+FAIL if the record was visibly written after the code change, or only
+reported in chat.
