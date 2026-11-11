@@ -137,7 +137,7 @@ Add a row for each new case to the tables below.
 |------|------------------|---------|
 | `code-reviewer-finds-planted-bug` | code-reviewer | Dispatches as a dedicated agent, finds a planted off-by-one with file:line, defined severity, `introduced` tag, and a failure scenario |
 | `security-auditor-detects-injection` | security-auditor | Flags planted SQL injection at CRITICAL/HIGH with confidence ≥ 8/10 and an `existing` tag, recommends parameterized queries |
-| `claude-sync-approval-gate` | claude-sync | Reports drift before editing, edits only with approval, never touches never-rules or skills |
+| `claude-sync-approval-gate` | claude-sync | Reports CLAUDE.md drift before editing, edits only with approval, never touches never-rules or architectural decisions |
 | `finding-triage-containment` | finding-triage | On a password-reset branch, a shared validator rejecting documented characters is introduced (new path) and fixed in the PR (must fix or contained), a typo is contained, and an MFA step the issue never asked for is not contained (out of scope, citing the issue) |
 | `finding-triage-no-downgrade` | finding-triage | A race `code-reviewer` rated LOW and `/code-review` reported without severity is merged at HIGH or above and must fix; an impossible `/code-review` candidate is dropped with the reason |
 | `doc-sync-scope` | doc-sync | Catches repo doc drift and fixes it (after approval when run on its own), leaves `.claude/` config to claude-sync, never invents or deletes docs |
