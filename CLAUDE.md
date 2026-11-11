@@ -30,7 +30,9 @@ built-in Claude Code skills `/code-review` and `/security-review` (plus
 a `/simplify` pre-pass on code changes); `pr-description`'s risk rubric is
 consumed by `commit-push-pr` ship mode, whose triage assigns severities
 to `/code-review` findings using `pr-description`'s Severity Scale —
-which the `code-reviewer` agent mirrors, so change both together. When renaming or
+which the `code-reviewer` agent mirrors, so change both together.
+`commit-push-pr` release mode also uses the `dev-tasks` skill's release
+closeout to map merged PRs to task folders and mark them released. When renaming or
 changing a component's behavior, grep for its name across `skills/`,
 `agents/`, and `README.md` and update every reference — the README's
 tables, workflow section, and directory tree mirror the components and
