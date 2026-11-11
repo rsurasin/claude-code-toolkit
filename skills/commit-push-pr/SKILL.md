@@ -1,22 +1,22 @@
 ---
 name: commit-push-pr
 description: >
-  Two-mode inner development loop. Commit mode (default): fast, gate-free
-  atomic commits — stage, write a conventional commit message per task,
-  push. Ship mode: when the feature is complete and a pull request should
-  open, run the built-in /simplify first on code changes, then the quality
-  gates (the repo's own test and verification skills, the code-reviewer,
-  security-auditor, perf-audit, and doc-sync agents, and the built-in
-  /code-review and /security-review skills side by side) over the full
-  branch diff, triage and merge their findings, fix introduced ones, and
-  open a PR with a structured description and risk assessment. Release
-  mode, ship mode's variant for a PR from an integration branch (e.g.
-  dev) to the default branch: list the features merged since the last
-  release, put them and their release steps in the release PR, and after
-  it merges confirm the issues closed and close out the dev-tasks
-  folders. Uses the commit-message, pr-description, and dev-tasks
-  skills. Use when asked to commit changes, to ship / open a PR, or to
-  open or close out a release.
+  Use whenever the user asks to commit ("commit this", "commit and push"),
+  to ship or open a PR, or to open or close out a release. Commit mode
+  (default): fast, gate-free atomic commits — stage, write a conventional
+  commit message per task, push. Ship mode: when the feature is complete
+  and a pull request should open, run the built-in /simplify first on code
+  changes, then the quality gates (the repo's own test and verification
+  skills, the code-reviewer, security-auditor, perf-audit, and doc-sync
+  agents, and the built-in /code-review and /security-review skills side
+  by side) over the full branch diff, triage and merge their findings, fix
+  introduced ones, and open a PR with a structured description and risk
+  assessment. Release mode, ship mode's variant for a PR from an
+  integration branch (e.g. dev) to the default branch: list the features
+  merged since the last release, put them and their release steps in the
+  release PR, and after it merges confirm the issues closed and close out
+  the dev-tasks folders. Uses the commit-message, pr-description, and
+  dev-tasks skills.
 ---
 
 # Commit, Push, PR — Two-Mode Inner Loop

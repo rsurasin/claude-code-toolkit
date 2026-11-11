@@ -154,7 +154,11 @@ reported privately", with no location or class).
    severity any source gave it and name **every** source, e.g.
    `[HIGH] (code-reviewer, /code-review)`. Exception: a finding that
    only `security-auditor` reported, and capped as `unconfirmed`, stays
-   at most MEDIUM.
+   at most MEDIUM. A merged finding with any security source
+   (`security-auditor` or `/security-review`) is a **security finding**
+   for item 6's disclosure rule, even if another reviewer reported it
+   as a correctness issue. Deciding it isn't a security issue is a
+   re-triage: its reason goes in the Step 6 report only.
 4. **Tag introduced vs existing.** **Introduced**: the defect lives in
    lines this branch adds or changes, or the branch causes it.
    **Existing**: already present at `git merge-base <base> HEAD` and not
