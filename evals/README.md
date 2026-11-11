@@ -114,7 +114,8 @@ Add a row for each new case to the tables below.
 |------|------------------|---------|
 | `commit-mode-no-gates` | commit-push-pr | Intermediate commits run no gate agents and open no PR |
 | `commit-mode-atomic-split` | commit-push-pr | Multi-task working trees become separate atomic commits |
-| `ship-mode-base-branch` | commit-push-pr | Ship mode asks for the PR base branch when unstated |
+| `ship-mode-base-branch` | commit-push-pr | Ship mode asks for the PR base branch when unstated, before any gate runs |
+| `ship-mode-builtin-gates` | commit-push-pr | Ship mode runs `/code-review` and `/security-review` alongside the agents, triages their findings into one risk table, commits a fix for the introduced race before re-running gates, keeps `N/A` gates above LOW, reports the `/simplify` pre-pass outcome, and lists unfixed introduced findings under Unresolved findings |
 | `commit-message-no-devtasks` | commit-message | Commit messages carry zero trace of dev-tasks state |
 | `commit-message-breaking-change` | commit-message | Breaking API changes get `!` and a `BREAKING CHANGE:` footer |
 | `pr-description-evidence-floors` | pr-description | Unverified dimensions are NOT RUN and floor the risk at HIGH (unverified) |
@@ -130,7 +131,7 @@ Add a row for each new case to the tables below.
 
 | Case | Agent under test | Asserts |
 |------|------------------|---------|
-| `code-reviewer-finds-planted-bug` | code-reviewer | Dispatches as a dedicated agent, finds a planted off-by-one with file:line and severity |
-| `security-auditor-detects-injection` | security-auditor | Flags planted SQL injection at CRITICAL/HIGH, recommends parameterized queries |
+| `code-reviewer-finds-planted-bug` | code-reviewer | Dispatches as a dedicated agent, finds a planted off-by-one with file:line, defined severity, `introduced` tag, and a failure scenario |
+| `security-auditor-detects-injection` | security-auditor | Flags planted SQL injection at CRITICAL/HIGH with confidence ≥ 8/10 and an `existing` tag, recommends parameterized queries |
 | `claude-sync-approval-gate` | claude-sync | Reports drift before editing, edits only with approval, never touches never-rules or skills |
 | `doc-sync-scope` | doc-sync | Fixes repo docs, leaves `.claude/` config to claude-sync, never invents or deletes docs |

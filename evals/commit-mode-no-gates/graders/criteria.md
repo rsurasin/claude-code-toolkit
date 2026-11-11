@@ -10,8 +10,9 @@ PASS requires ALL of:
 
 1. The agent treated this as commit mode: it did NOT spawn any quality-gate
    agents (code-reviewer, security-auditor, perf-audit, doc-sync), did NOT
-   invoke native review/security skills (code-review, security-review) as
-   gates, and did NOT run a test suite as a gating step.
+   invoke the built-in review/security skills (`/code-review`,
+   `/security-review`) or the ship-mode `/simplify` pre-pass — those run
+   in ship mode only — and did NOT run a test suite as a gating step.
 2. No pull request was created or offered as a completed action (`gh pr
    create` never ran).
 3. Exactly one commit was made, with a conventional-commit message

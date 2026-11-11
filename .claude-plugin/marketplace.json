@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "claude-code-toolkit",
-      "description": "Universal development agents, skills, commands, and hooks for code quality, testing, security, documentation, performance, verification, and workflow automation.",
+      "description": "Universal development agents and skills for code quality, security, documentation, performance, and workflow automation.",
       "source": "./",
       "version": "3.0.0",
       "category": "code-quality",

@@ -1,7 +1,7 @@
 # claude-code-toolkit
 
-Universal Claude Code plugin with agents, skills, commands, and hooks for
-development workflow automation. Works across any language, framework, or
+Universal Claude Code plugin with agents and skills for development
+workflow automation. Works across any language, framework, or
 project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 
 ---
@@ -12,8 +12,8 @@ project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 
 | Agent | What It Does |
 |-------|--------------|
-| `code-reviewer` | Parallel 4-axis review: bugs, security, performance, conventions |
-| `security-auditor` | Deep OWASP-aligned security audit with language-aware vulnerability detection |
+| `code-reviewer` | Parallel multi-axis review of the branch diff — bugs, change impact (removed behavior, callers), security, performance, design and conventions — with a verification pass, defined severities, and introduced/existing tags |
+| `security-auditor` | Deep OWASP-aligned security audit with language-aware vulnerability detection, installed-tool scanning, and confidence-scored false-positive filtering |
 | `debugger` | Systematic hypothesis-driven bug investigation |
 | `perf-audit` | Runtime perf: startup time, re-renders, N+1 queries, bundle size, memory, concurrency |
 | `doc-sync` | Audits docs against code, fixes documentation drift |
@@ -30,7 +30,7 @@ project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 |-------|--------------|
 | `commit-message` | Generates conventional commit messages from diffs |
 | `pr-description` | Generates structured PR descriptions: current behavior in the Summary, new behavior in Changes, screenshots or runtime output as evidence, and a risk assessment (Low/Medium/High/Critical) computed from verification evidence and reversibility |
-| `commit-push-pr` | Two-mode inner loop: fast atomic task commits (no gates), then gated PR creation — quality gates (repo tests/verify + review, security, perf, docs agents) run once over the full branch diff, findings are fixed, and the PR opens with a risk assessment |
+| `commit-push-pr` | Two-mode inner loop: fast atomic task commits (no gates), then gated PR creation — quality gates (repo tests/verify, review/security/perf/docs agents, and the built-in `/code-review` and `/security-review`) run once over the full branch diff, a triage step merges their findings, introduced findings are fixed, and the PR opens with a risk assessment |
 | `dev-tasks` | Maintains category-organized task files (plan/context/tasks) under `.claude/dev/` for cross-session memory |
 | `sharpen` | Proactively encodes a mistake or inefficiency (agent- or user-detected) into a permanent harness improvement — test, lint rule, CLAUDE.md entry — always with user consent before touching the harness |
 | `review-plan` | Fresh-context staff engineer critique of a plan before execution, with a LOW/MEDIUM/HIGH/CRITICAL risk level on the pr-description scale — fires proactively before non-trivial plans |
@@ -39,22 +39,27 @@ project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 
 | Command | When to Use |
 |---------|-------------|
-| `/simplify` | After implementing a feature — reviews for code reuse, quality, efficiency |
+| `/simplify` | After implementing a feature — reviews for code reuse, quality, efficiency; ship mode runs it as a pre-pass on any branch that changes code, commits its changes before the gates, and reports the outcome in the PR |
 | `/batch` | Large-scale refactors across many files — parallelizes into 5-30 units |
 | `/btw` | While Claude is working, provide it additional input |
-| `/code-review` | Review the working diff; `/code-review ultra` runs a multi-agent cloud review of the branch or a PR (user-triggered, billed) |
-| `security-review` | Diff-scoped security review of the current branch's pending changes — a user-facing complement to `security-auditor`, not a gate replacement |
+| `/code-review` | Correctness review of the diff or branch with caller tracing and a removed-behavior audit — ship mode runs it as a gate alongside `code-reviewer`; `/code-review ultra` runs a multi-agent cloud review (user-triggered, billed — never run automatically) |
+| `/security-review` | Security review of what the current branch introduces, each finding confirmed by a false-positive check — ship mode runs it as a gate alongside `security-auditor`, which adds tools and existing-code coverage |
 | `/run` | Launch and drive the project's app to confirm a change works — build repo-local verify skills on top of it |
 | `/init` | Generate a CLAUDE.md for a repo |
 | Auto-memory / `/remember` | Personal, user-level lessons and preferences (not committed, invisible to teammates) — vs `sharpen` (repo-shared rules) and `dev-tasks` (repo-shared task state) |
 
-> Availability varies by Claude Code version and surface. Where a native
-> skill overlaps a toolkit agent (`/code-review` ↔ `code-reviewer`,
-> `security-review` ↔ `security-auditor`), they complement rather than
-> replace each other: the ship-mode quality gates deliberately use the
-> dedicated toolkit agents, because a skill runs in the context of the
-> agent that just wrote the code (self-review bias), while a spawned
-> agent reviews the diff cold and returns a normalized verdict.
+> Availability varies by Claude Code version and surface. Where a
+> built-in skill overlaps a toolkit agent (`/code-review` ↔
+> `code-reviewer`, `/security-review` ↔ `security-auditor`), ship mode
+> runs **both** as gates — each catches what the other misses. The
+> agents bring installed tooling, existing-code coverage, performance,
+> docs, test coverage, and `.claude/rules/`; `/code-review` traces
+> callers and audits removed behavior; `/security-review` filters false
+> positives hard but reports only what the diff introduces. A triage
+> step assigns severities, merges duplicates, and separates introduced
+> findings (fixed before the PR) from existing ones (reported or filed).
+> A built-in skill your Claude Code version lacks is recorded `N/A`,
+> which keeps the PR's risk above LOW.
 
 ---
 
@@ -188,9 +193,9 @@ for configuration details.
 ### Natural language — Claude routes automatically
 
 ```
-"review my changes"              → code-reviewer agent
+"review my changes"              → code-reviewer agent (add /code-review for a second, independent pass)
 "why is this broken"             → debugger agent
-"security audit"                 → security-auditor agent
+"security audit"                 → security-auditor agent (add /security-review for a high-precision diff-only pass)
 "check performance"              → perf-audit agent
 "sync the docs"                  → doc-sync agent
 "update the claude config"       → claude-sync agent
@@ -231,13 +236,17 @@ each repo's `.claude/` directory — see [Migrating from v2](#migrating-from-v2)
    fresh-context subagent before executing (LOW/MEDIUM/HIGH/CRITICAL —
    CRITICAL means reconsider the approach)
 3. Implement: Let Claude work in auto-accept mode
-4. Polish: `/simplify` after completing a feature
+4. Polish: `/simplify` after completing a feature (ship mode also runs
+   it as a pre-pass on code changes)
 5. Commit per task: `/commit-push-pr` — commit mode makes a fast, atomic
    commit (one task = one commit) and pushes; no gates, no PR
 6. Ship: when the feature is complete, "open a PR" — ship mode runs the
    quality gates once over the full branch diff (your repo's qa/verify
-   skills plus code review, security, performance, and docs agents), fixes
-   any findings, then opens a PR with a risk assessment
+   skills, the code review, security, performance, and docs agents, and
+   the built-in `/code-review` and `/security-review` side by side),
+   triages every reviewer's findings into one list, fixes the ones the
+   branch introduced, reports or files existing ones, then opens a PR
+   with a risk assessment
 7. Learn: the `sharpen` skill fires on any mistake or correction — agent-
    or user-detected — and proposes a permanent harness improvement,
    applying it only with your consent (`/sharpen` still works explicitly)
@@ -317,8 +326,10 @@ This plugin is built on three principles observed across staff-level engineers:
 
 2. **Verification over trust.** The `/commit-push-pr` gates confirm the
    project actually works — via each repo's own qa/verify skills, which
-   know the project's real commands — before a PR opens, and the PR carries
-   a risk assessment showing exactly what was and wasn't verified.
+   know the project's real commands, alongside every available reviewer
+   (the toolkit agents and the built-in `/code-review` and
+   `/security-review`) — before a PR opens, and the PR carries a risk
+   assessment showing exactly what was and wasn't verified.
    Verification 2-3x the quality of unverified work.
 
 3. **Vanilla over complex.** The agents handle post-implementation analysis
