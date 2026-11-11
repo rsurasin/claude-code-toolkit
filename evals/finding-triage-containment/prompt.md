@@ -5,9 +5,12 @@ allowed_tools: [Read, Glob, Grep, Agent, Bash, Write, Edit]
 ---
 
 Set up a scratch project with a password-reset branch, then have its
-gate findings triaged:
+gate findings triaged. The eval sandbox keeps placeholder entries such as
+`.claude/` and `.bashrc` in this directory: leave them alone, and stage
+files by name in every commit (`git add <file>`), since `git add -A`
+trips on them.
 
-1. In the current (empty) working directory, run `git init` and create
+1. In the current working directory, run `git init` and create
    an initial commit on `main` with `validators.py`:
 
    ```python

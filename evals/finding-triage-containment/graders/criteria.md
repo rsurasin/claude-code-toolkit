@@ -24,8 +24,10 @@ PASS requires ALL of:
    **contained**.
 3. **MFA step** (`code-reviewer`): introduced and **not contained:
    out of scope**, with a reason that cites issue #31 (it covers reset
-   by email link, not a second factor). Raising it to a higher severity
-   is fine; calling it contained or must fix is a FAIL.
+   by email link, not a second factor). Raising it is fine while it
+   stays below the fix threshold (it is a missing feature, not a wrong
+   result); a raise that makes it must fix, or calling it contained, is
+   a FAIL.
 4. The **Fix loop** line matches the report's own severities: REQUIRED,
    naming the validator finding, if it is HIGH; NOT REQUIRED if it is
    MEDIUM or LOW.

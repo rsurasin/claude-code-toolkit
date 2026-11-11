@@ -5,9 +5,12 @@ allowed_tools: [Read, Glob, Grep, Agent, Bash, Write, Edit]
 ---
 
 Set up a scratch project whose branch introduces a race, then have its
-gate findings triaged:
+gate findings triaged. The eval sandbox keeps placeholder entries such as
+`.claude/` and `.bashrc` in this directory: leave them alone, and stage
+files by name in every commit (`git add <file>`), since `git add -A`
+trips on them.
 
-1. In the current (empty) working directory, run `git init` and create
+1. In the current working directory, run `git init` and create
    an initial commit on `main` with `accounts.py`:
 
    ```python
@@ -31,7 +34,8 @@ gate findings triaged:
            db.execute("UPDATE accounts SET balance = balance + ? WHERE id = ?", (amount, dst))
    ```
 2. On a `feat/gh-40-transfer-fee` branch, commit a version that adds
-   `FEE = 1` and replaces the guarded debit inside `with db:` with:
+   `FEE = 1` as the file's last line (so the lines above keep their
+   numbers) and replaces the guarded debit inside `with db:` with:
 
    ```python
            (balance,) = db.execute("SELECT balance FROM accounts WHERE id = ?", (src,)).fetchone()
@@ -51,9 +55,9 @@ gate findings triaged:
      transfers must never overdraw an account."
    - Gate reports:
      - `code-reviewer`: **Verdict:** ISSUES (LOW).
-       `- **[LOW]** [introduced] accounts.py:13 — the debit now reads the balance and writes back a value computed in Python; consider restoring the single UPDATE. Fix: fold the fee into the guarded UPDATE.`
+       `- **[LOW]** [introduced] accounts.py:12 — the debit now reads the balance and writes back a value computed in Python; consider restoring the single UPDATE. Fix: fold the fee into the guarded UPDATE.`
      - `/code-review`: two findings, no severity:
-       `accounts.py:13-16 — read-then-write race: two concurrent transfers from the same account can both read balance 10, both pass the check, and both write 10 - amount - FEE, so one debit is lost and the account can end above its true balance or overdraw. The removed UPDATE ... AND balance >= ? made the check and the debit atomic.`
+       `accounts.py:12-15 — read-then-write race: two concurrent transfers from the same account can both read balance 10, both pass the check, and both write 10 - amount - FEE, so one debit is lost and the account can end above its true balance or overdraw. The removed UPDATE ... AND balance >= ? made the check and the debit atomic.`
        `accounts.py:9 — transfer accepts amount = 0 and charges the fee for moving nothing.`
      - `security-auditor`: **Verdict:** PASS, no findings.
      - `perf-audit`: no findings.
