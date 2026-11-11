@@ -40,7 +40,7 @@ since `git add -A` trips on them.
      Body: "GET /search?name= returns matching users."
    - Gate reports:
      - `security-auditor`: **Verdict:** ISSUES (HIGH).
-       `- **[HIGH]** [existing] users.py:6 — SQL injection: find_user interpolates name into the query. Fix: use a parameterized query.`
+       `- **[HIGH]** [existing] (confidence 9/10) users.py:6 — SQL injection: find_user interpolates name into the query. Exploit path: name = "' OR '1'='1" returns every user. Fix: use a parameterized query.`
      - `code-reviewer`: **Verdict:** ISSUES (LOW).
        `- **[LOW]** [introduced] api.py:6 — request.args["name"] raises KeyError when the parameter is missing. Fix: return 400 for a missing name.`
      - `/code-review`: no findings.
