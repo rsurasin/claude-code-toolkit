@@ -1,3 +1,9 @@
+---
+type: llm
+weight: 1
+focus: trace
+---
+
 Grade the transcript against the commit-push-pr skill's atomic-commit rule.
 
 PASS requires ALL of:

@@ -74,15 +74,22 @@ them: release steps come only from task folders or the user.
    listed with "release steps unknown" and the user is asked. A PR that
    only one of `gh` and `git log` shows, and a task folder no PR maps to,
    are reported to the user, never written into the PR text.
-4. **Run the gates**: Ship Mode Steps 2–3 over what the release brings
-   in, `git diff <release-point>...origin/<integration>`. (A two-tree
+4. **Run the gates**: Ship Mode Steps 2–3 (gates, triage, evaluation)
+   over what the release brings in,
+   `git diff <release-point>...origin/<integration>`. Skip Ship Mode
+   Steps 1a and 1b: the base is the default branch by definition, and
+   `/simplify` never runs here, because its fixes would be commits on
+   `<integration>` (the release PR's Simplify pre-pass line reads
+   `Skipped — release PR`). (A two-tree
    diff against `origin/<default>` would show hotfixes made only on the
    default branch as reverted.) Each feature was gated on its own, but
    not together with the others. A migration or other one-way step among
    the release steps makes the release a one-way door in the risk
    assessment.
 
-   Never commit gate fixes onto `<integration>` or `<default>`. Report the
+   Never commit gate fixes onto `<integration>` or `<default>`, so Ship
+   Mode Step 3's fix loop and its contained below-threshold fixes don't
+   apply here. Report the
    findings and, with the user's approval, fix them on a new
    `fix/<slug>` branch off `<integration>` with its own dev-tasks folder
    (in `fixes/`, never reusing the feature's `gh-<N>`), ship that
@@ -90,7 +97,11 @@ them: release steps come only from task folders or the user.
    rerun release mode. The gate findings and the fix PR belong to that
    `fixes/` folder. Leave the feature folder's status line alone; its
    Session Log gets a back-reference, `gate fix: PR #<fix PR>`, which
-   folder mapping ignores.
+   folder mapping ignores. If the user releases without fixing, every
+   introduced finding goes in the release PR's Unresolved findings list
+   (reason: `release shipped without a fix PR`, with the follow-up issue
+   once filed), and security findings follow Ship Mode Step 2b's
+   disclosure rule.
 5. **Open the release PR** with the `pr-description` skill, adding these
    sections after the Summary:
 
@@ -117,22 +128,21 @@ them: release steps come only from task folders or the user.
    when the release merges.
 
    The body includes text from other people's PRs, so never interpolate
-   it into a shell string. Write it to a temp file outside the repo with
-   a quoted heredoc, and use a fixed title that contains no PR text, all
-   in one command (shell variables don't survive between tool calls):
+   it into a shell string. As in Ship Mode Step 5, write it to a
+   description file outside the repo (e.g. with the Write tool), run the
+   `pr-description` redaction scan against that file, and only then
+   send it, with a fixed title that contains no PR text:
 
    ```bash
-   body_file=$(mktemp) && cat > "$body_file" <<'RELEASE_PR_BODY_EOF' && \
    gh pr create --base <default> --head <integration> \
      --title "Release <integration> → <default> (<YYYY-MM-DD>)" \
-     --body-file "$body_file"; rm -f "$body_file"
-   <description>
-   RELEASE_PR_BODY_EOF
+     --body-file <description-file>; rm -f <description-file>
    ```
 
    If a release PR from `<integration>` to `<default>` is already open,
-   update it the same way with `gh pr edit <N> --body-file "$body_file"`
-   instead of opening another. When more PRs merge into `<integration>`
+   update it the same way, rescanning first, with
+   `gh pr edit <N> --body-file <description-file>` instead of opening
+   another. When more PRs merge into `<integration>`
    while it is open, rerun steps 2–5 to regenerate the body. If `gh`
    isn't available, give the compare URL
    (`.../compare/<default>...<integration>`) and the drafted body, and

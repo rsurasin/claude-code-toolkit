@@ -24,9 +24,13 @@ consistent.
   field that must stay in sync.
 
 Components reference each other by name: `commit-push-pr` invokes the
-`commit-message` and `pr-description` skills and the `code-reviewer`,
-`security-auditor`, `perf-audit`, and `doc-sync` agents; `pr-description`'s
-risk rubric is consumed by `commit-push-pr` ship mode. When renaming or
+`commit-message` and `pr-description` skills, the `code-reviewer`,
+`security-auditor`, `perf-audit`, and `doc-sync` agents, and the
+built-in Claude Code skills `/code-review` and `/security-review` (plus
+a `/simplify` pre-pass on code changes); `pr-description`'s risk rubric is
+consumed by `commit-push-pr` ship mode, whose triage assigns severities
+to `/code-review` findings using `pr-description`'s Severity Scale —
+which the `code-reviewer` agent mirrors, so change both together. When renaming or
 changing a component's behavior, grep for its name across `skills/`,
 `agents/`, and `README.md` and update every reference — the README's
 tables, workflow section, and directory tree mirror the components and
@@ -49,13 +53,20 @@ drift easily.
   mentions. External tracker IDs (Jira keys, GitHub issues) are fine.
 - **Atomic commits.** One commit = one task/logical change; never bundle
   unrelated changes.
-- **Quality gates are dedicated agents, not skills — independence over
-  nativeness.** Native code-review / security-review skills run in the
-  context of the agent that wrote the code (self-review bias) and their
-  output formats vary by Claude Code version; the toolkit's spawned
-  agents review cold and return verdicts the pr-description rubric can
-  normalize. Native skills are user-facing complements, never gate
-  replacements.
+- **Use every available reviewer.** Ship mode runs the toolkit's review
+  agents and the built-in `/code-review` and `/security-review` skills
+  side by side as gates over `<base>...HEAD`; a triage step assigns
+  severities to `/code-review` findings, merges duplicates (highest
+  severity, every source named), and tags introduced vs existing, so the
+  pr-description rubric gets one verdict. Side-by-side runs on a real PR
+  showed each side catches what the other misses: the agents bring
+  installed tooling, existing-code coverage, performance, docs, test
+  coverage, and `.claude/rules/`; `/code-review` traces callers and
+  audits removed behavior; `/security-review` filters false positives
+  hard. Don't drop either side as redundant. A built-in skill missing
+  from the running Claude Code version is `N/A`, which raises the risk
+  level (never LOW). Never auto-run `/code-review ultra` — it is
+  user-triggered and billed.
 - **Sharpen is proactive but consent-gated.** The skill fires on
   agent- or user-detected mistakes and inefficiencies, but never modifies
   a harness file (CLAUDE.md, `.claude/rules/`, lint config, guard tests)
@@ -73,14 +84,34 @@ new behavior.
 ## Testing Skills — Eval Suite
 
 Behavioral eval cases live under `evals/` (one dir per case: `prompt.md`
-+ `graders/criteria.md`), in the `claude plugin eval` layout. That
-command is currently **early access** (`claude plugin eval init` exits 1);
-until it's enabled, use the criteria files as manual review checklists
-when changing the corresponding skill. Once enabled:
++ `graders/criteria.md`), run by `claude plugin eval` (Claude Code
+2.1.269+). Run from the repo root:
 
 ```bash
-claude plugin eval .    # eval the working tree (no push/reinstall needed)
+# whole suite against the working tree (no push/reinstall needed)
+claude plugin eval . --allow-tools Bash Write Edit
+# one case, quick check
+claude plugin eval . --case <case> --runs 1 --ablation none --allow-tools Bash Write Edit
 ```
+
+`--allow-tools Bash Write Edit` is required: every case builds a scratch
+git project, and a case's `allowed_tools` only grants read-only tools on
+its own — gated tools (Bash, Write, Edit) also need the operator grant.
+Each run is a full Claude session on your own credential and plan limits,
+and the defaults (3 runs × with/without-plugin arms) multiply that, so
+prefer `--case`, `--runs 1`, `--ablation none`, `--no-publish` and a
+`--max-cost-usd` ceiling while iterating. Pass `--judge-model claude-sonnet-5-5`:
+the default Haiku judge has failed correct runs that needed judgment.
+
+Every case needs frontmatter or the runner rejects it. `prompt.md`
+starts with `max_turns` and `allowed_tools` (listing Bash, Write and Edit
+too); `graders/criteria.md` starts with `type: llm` and `weight: 1`. An
+`llm` grader sees only the final message unless it sets `focus: trace`
+(and then only the first and last 12 messages), so grade behavior —
+commands run, files created, agents spawned — with `tool_used` /
+`file_exists` graders. Copy an existing case's frontmatter;
+`evals/README.md` has the exact block. Single runs are noisy; confirm a
+change at the default 3 runs.
 
 When changing a skill's contract (modes, thresholds, separation rules),
 update or add the matching eval case in the same commit.

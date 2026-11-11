@@ -1,3 +1,9 @@
+---
+type: llm
+weight: 1
+focus: trace
+---
+
 Grade the transcript against the dev-tasks separation rule shared by the
 commit-message and commit-push-pr skills.
 
