@@ -32,4 +32,5 @@ branch, then open the release PR:
    Write the `.claude/dev/` files with shell commands (e.g. heredocs);
    the sandbox may refuse the Write tool under `.claude/`.
 5. Then: **promote dev to main: open the release PR.** (`gh` cannot reach
-   GitHub in this sandbox; if it fails, draft the PR description instead.)
+   GitHub in this sandbox; if it fails, draft the PR description instead, and end your reply
+   with the full drafted description.)
