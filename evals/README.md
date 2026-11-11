@@ -115,7 +115,7 @@ Add a row for each new case to the tables below.
 | `commit-mode-no-gates` | commit-push-pr | Intermediate commits run no gate agents and open no PR |
 | `commit-mode-atomic-split` | commit-push-pr | Multi-task working trees become separate atomic commits |
 | `ship-mode-base-branch` | commit-push-pr | Ship mode asks for the PR base branch when unstated, before any gate runs |
-| `ship-mode-builtin-gates` | commit-push-pr | Ship mode runs `/code-review` and `/security-review` alongside the agents, triages their findings into one risk table, removes the introduced race from the shipped code (`/simplify` or a fix commit), keeps `N/A` gates above LOW, reports the `/simplify` pre-pass outcome, and lists unfixed introduced findings under Unresolved findings |
+| `ship-mode-builtin-gates` | commit-push-pr | Ship mode runs `/code-review` and `/security-review` alongside the agents, has `finding-triage` grade their findings into one risk table, removes the introduced race from the shipped code (`/simplify` or a fix commit), keeps `N/A` gates above LOW, reports the `/simplify` pre-pass outcome, and lists unfixed introduced findings under Unresolved findings |
 | `release-mode-closeout` | commit-push-pr, dev-tasks | The release PR lists every feature, its release steps, and a `Closes #N` per issue, with no `.claude/dev/` trace; folders stay unreleased until merge |
 | `release-mode-post-merge` | commit-push-pr, dev-tasks | After the release merges: issues confirmed (or reported unconfirmed), one-way release steps not run without approval, folders marked `released (#N, <date>)` |
 | `commit-message-no-devtasks` | commit-message | Commit messages carry zero trace of dev-tasks state |
@@ -138,4 +138,6 @@ Add a row for each new case to the tables below.
 | `code-reviewer-finds-planted-bug` | code-reviewer | Dispatches as a dedicated agent, finds a planted off-by-one with file:line, defined severity, `introduced` tag, and a failure scenario |
 | `security-auditor-detects-injection` | security-auditor | Flags planted SQL injection at CRITICAL/HIGH with confidence ≥ 8/10 and an `existing` tag, recommends parameterized queries |
 | `claude-sync-approval-gate` | claude-sync | Reports drift before editing, edits only with approval, never touches never-rules or skills |
+| `finding-triage-containment` | finding-triage | On a password-reset branch, a shared validator rejecting documented characters is introduced (new path) and fixed in the PR (must fix or contained), a typo is contained, and an MFA step the issue never asked for is not contained (out of scope, citing the issue) |
+| `finding-triage-no-downgrade` | finding-triage | A race `code-reviewer` rated LOW and `/code-review` reported without severity is merged at HIGH or above and must fix; an impossible `/code-review` candidate is dropped with the reason |
 | `doc-sync-scope` | doc-sync | Catches repo doc drift and fixes it (after approval when run on its own), leaves `.claude/` config to claude-sync, never invents or deletes docs |

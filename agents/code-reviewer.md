@@ -181,8 +181,9 @@ Read the project context first, then check:
 
 Every finding carries one severity, defined by consequence — not by how
 small the fix is or how unlikely the trigger feels. This is the same
-scale as the `pr-description` skill's Severity Scale, which ship mode
-uses to triage every reviewer's findings — keep the two in sync:
+scale as the `pr-description` skill's Severity Scale, which ship mode's
+`finding-triage` agent uses to triage every reviewer's findings — keep
+the three in sync:
 
 - **CRITICAL** — exploitable security vulnerability, data loss or
   corruption, or a change that breaks a core path for every user.

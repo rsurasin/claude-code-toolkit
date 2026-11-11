@@ -25,12 +25,13 @@ consistent.
 
 Components reference each other by name: `commit-push-pr` invokes the
 `commit-message` and `pr-description` skills, the `code-reviewer`,
-`security-auditor`, `perf-audit`, and `doc-sync` agents, and the
-built-in Claude Code skills `/code-review` and `/security-review` (plus
+`security-auditor`, `perf-audit`, `doc-sync`, and `finding-triage`
+agents, and the built-in Claude Code skills `/code-review` and `/security-review` (plus
 a `/simplify` pre-pass on code changes); `pr-description`'s risk rubric is
-consumed by `commit-push-pr` ship mode, whose triage assigns severities
-to `/code-review` findings using `pr-description`'s Severity Scale —
-which the `code-reviewer` agent mirrors, so change both together.
+consumed by `commit-push-pr` ship mode, whose `finding-triage` agent
+assigns severities to every gate's findings using `pr-description`'s
+Severity Scale — which `code-reviewer` and `finding-triage` both copy,
+so change all three together.
 `commit-push-pr` release mode also uses the `dev-tasks` skill's release
 closeout to map merged PRs to task folders and mark them released. When renaming or
 changing a component's behavior, grep for its name across `skills/`,
@@ -53,16 +54,23 @@ drift easily.
   other contributors. Commit messages and PR descriptions carry
   zero trace of them — no paths, no dev-tasks task IDs, no bookkeeping
   mentions. External tracker IDs (Jira keys, GitHub issues) are fine.
+- **The author never grades its own findings.** Ship mode hands every
+  gate's raw findings to the `finding-triage` agent, which assigns
+  severities, tags introduced vs existing, decides the fix loop, and
+  makes the contained / not-contained call with no context from the
+  session that wrote the code. Ship mode applies its list and may only
+  make it stricter; a disagreement in the other direction goes to the
+  user. Don't move triage back into the authoring session.
 - **Atomic commits.** One commit = one task/logical change; never bundle
   unrelated changes.
 - **Use every available reviewer.** Ship mode runs the toolkit's review
   agents and the built-in `/code-review` and `/security-review` skills
-  side by side as gates over `<base>...HEAD`; a triage step assigns
-  severities to `/code-review` findings, merges duplicates (highest
-  severity, every source named), and tags introduced vs existing, so the
-  pr-description rubric gets one verdict. Side-by-side runs on a real PR
-  showed each side catches what the other misses: the agents bring
-  installed tooling, existing-code coverage, performance, docs, test
+  side by side as gates over `<base>...HEAD`; the `finding-triage`
+  agent assigns severities to `/code-review` findings, merges duplicates
+  (highest severity, every source named), and tags introduced vs
+  existing, so the pr-description rubric gets one verdict. Side-by-side
+  runs on a real PR showed each side catches what the other misses: the
+  agents bring installed tooling, existing-code coverage, performance, docs, test
   coverage, and `.claude/rules/`; `/code-review` traces callers and
   audits removed behavior; `/security-review` filters false positives
   hard. Don't drop either side as redundant. A built-in skill missing

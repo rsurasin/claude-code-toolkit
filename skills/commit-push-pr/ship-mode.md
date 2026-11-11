@@ -119,69 +119,51 @@ Capture each gate's outcome verbatim enough to normalize later. Do not
 skip gates in ship mode; a gate that is available but didn't run (or
 errored) is recorded as `NOT RUN`, which raises the risk level.
 
-## Step 2b: Triage — merge every reviewer's findings
+## Step 2b: Triage — dispatch `finding-triage`
 
-Triage the findings from all gates, agents and skills alike, into one
-list before evaluating, using the `pr-description` Severity Scale. You
-wrote this branch, so guard against grading your own work leniently:
-**when unsure, choose `introduced` and the higher severity**, and never
-lower a reviewer's severity or re-tag its finding `existing` without
-recording the reason — in the PR's Notes for Reviewers, except for a
-security finding re-tagged `existing`, whose reason goes in the Step 6
-report only (the PR may say "a security finding was re-triaged and
-reported privately", with no location or class).
+You wrote this branch, so you don't grade its findings: the
+**`finding-triage` agent** does, cold. It assigns every finding a
+severity on the `pr-description` Severity Scale, verifies `/code-review`
+candidates against the code, merges duplicates at the highest severity
+with every source named, tags introduced vs existing (an existing defect
+the branch worsens is introduced), decides whether the fix loop is
+required, makes the contained / not-contained call for every
+below-threshold introduced finding, and returns each gate's verdict.
 
-1. **Assign severities.** Map every finding onto the Severity Scale by
-   consequence:
-   - `/code-review` findings carry no severity: assign one from the
-     failure scenario (a reachable race that leaves inconsistent state
-     is HIGH, however small the fix).
-   - `perf-audit`: Critical → HIGH (CRITICAL for a serious regression),
-     Important → MEDIUM, Optimization → LOW.
-   - `doc-sync`: CRITICAL and STALE → MEDIUM (docs contradict code),
-     MISSING and MINOR → LOW.
-   - `/security-review` reports HIGH, MEDIUM, or LOW; keep it, or raise
-     it (e.g. an exploitable injection to CRITICAL) — never lower it.
-2. **Verify `/code-review` findings.** Unlike the agents' findings,
-   `/code-review` candidates haven't been through a verification pass.
-   For each one at MEDIUM or above, trace its failure scenario through
-   the actual code — or hand it to a fresh verifier subagent with the
-   finding and the code, not this session's reasoning. Drop findings
-   whose scenario can't be reproduced, and list the drops in the Step 6
-   report.
-3. **Merge duplicates.** When reviewers report the same defect (same
-   root cause, same location), keep one finding with the **highest**
-   severity any source gave it and name **every** source, e.g.
-   `[HIGH] (code-reviewer, /code-review)`. Exception: a finding that
-   only `security-auditor` reported, and capped as `unconfirmed`, stays
-   at most MEDIUM. A merged finding with any security source
-   (`security-auditor` or `/security-review`) is a **security finding**
-   for item 6's disclosure rule, even if another reviewer reported it
-   as a correctness issue. Deciding it isn't a security issue is a
-   re-triage: its reason goes in the Step 6 report only.
-4. **Tag introduced vs existing.** **Introduced**: the defect lives in
-   lines this branch adds or changes, or the branch causes it.
-   **Existing**: already present at `git merge-base <base> HEAD` and not
-   worsened. Keep the tags of agents that emit them (`code-reviewer`,
-   `security-auditor`) after a sanity check that includes worsening: an
-   `existing` defect the branch makes worse (a bigger loss, a wider
-   reach, a new path to it) is introduced, whatever the agent said;
-   record the re-tag and its reason for the PR's triage notes (Step 5)
-   — for a security finding, the Step 6 report only. Tag the rest yourself
-   (`/code-review`, `perf-audit`, `doc-sync`) with
-   `git diff <base>...HEAD` and `git blame`. `/security-review` findings
-   are introduced when `<base>` is the remote's default branch;
-   otherwise tag them like `/code-review` findings and drop any outside
-   `<base>...HEAD` from its row (route them per item 6). When sources
-   disagree, re-check with `git blame`; introduced wins if any source
-   shows the branch causes the defect.
-5. **Check open issues.** If `gh` works and the remote is on GitHub,
+If every gate came back clean (no findings from any source), skip the
+agent: there is nothing to triage, and every reviewing gate is PASS.
+
+1. **Dispatch it** with:
+   - the range `<base>...HEAD` and the base ref;
+   - every gate's report **verbatim**, labeled by source, plus which
+     gates errored, didn't run, or are `N/A`;
+   - the work's scope: the GitHub issue number the branch resolves
+     (from `gh-<N>` in the branch name or a `Closes #N` in its commits)
+     and its text if you have it, the paths of the active dev-tasks
+     `plan.md` and `tasks.md` if any, and the PR title or the user's
+     request in their words.
+
+   Pass no reasoning of your own about the findings — no severities,
+   no "this one is minor", no summary of the conversation. It runs
+   unattended and read-only, like the gates.
+2. **Apply its list as written.** You may raise a severity, or re-tag a
+   finding introduced when you have evidence it missed; record why under
+   triage changes. Never lower a severity, re-tag a finding existing,
+   drop a finding, or turn a contained call into not contained. If you
+   disagree with a call in that direction, put both positions to the
+   user and let them decide; never override it silently.
+3. **Record its changes.** The reasons for its triage changes go in the
+   PR's Notes for Reviewers, except for a security finding re-tagged
+   `existing`, whose reason goes in the Step 6 report only (the PR may
+   say "a security finding was re-triaged and reported privately", with
+   no location or class). Its Dropped list goes in the Step 6 report.
+4. **Check open issues.** If `gh` works and the remote is on GitHub,
    fetch the open issues once
    (`gh issue list --state open --limit 500 --json number,title`) and
    match existing findings against them locally; link a match. If `gh`
    is unavailable, or the list hit the limit, say so in the Step 6
    report and never file an issue that may duplicate an unchecked one.
-6. **Route.** Introduced findings go into Step 3. Existing findings
+5. **Route.** Introduced findings go into Step 3. Existing findings
    don't enter the fix loop and are never fixed inside this PR
    unprompted:
    - **Existing security findings, at any severity,** are reported to
@@ -196,8 +178,10 @@ reported privately", with no location or class).
      the matching issue link, or into a new issue (`gh issue create`)
      when the user asked for it or approves.
 
-Then normalize each gate's verdict from its triaged findings using the
-`pr-description` verdict normalization table.
+Each reviewing gate's verdict is the one in the agent's Gate verdicts
+table (the `pr-description` verdict normalization, applied to the
+triaged list); Tests and runtime verification are normalized directly
+from their runs.
 
 ## Step 3: Evaluate — fix findings before the PR opens
 
@@ -224,13 +208,13 @@ can't be fixed.
 
 **Fix-before-PR loop — findings do not ship:**
 
-If the triaged **introduced** findings include any CRITICAL or HIGH
-finding, or two or more MEDIUM findings:
+If `finding-triage` reports **Fix loop: REQUIRED** (any introduced
+CRITICAL or HIGH finding, or two or more introduced MEDIUM findings):
 
 1. Report the findings to the user
 2. Append them to the active dev-tasks context file, if one exists
-3. Fix the issues — plus, in the same round, every contained
-   below-threshold finding (see below)
+3. Fix every finding it marked **must fix** — plus, in the same round,
+   every finding it marked **contained** (see below)
 4. Commit the fixes atomically (Commit Mode Steps 3–4, e.g.
    `fix(<scope>): <subject>`) — the gates review `<base>...HEAD`, so an
    uncommitted fix is invisible to them and missing from the PR
@@ -241,52 +225,37 @@ finding, or two or more MEDIUM findings:
    holds); the fix commits' files and the flagged locations are its
    *focus*, not its range (`security-auditor` skips DAST and
    full-codebase tooling on a re-run unless the finding came from that
-   tooling). Then re-triage, carrying forward every earlier finding the
-   re-run didn't cover, so each row reflects the whole branch.
-6. Repeat until the threshold is no longer met, or the user says to
+   tooling). Then re-triage: dispatch `finding-triage` again with its
+   previous list, the fix commits, and the re-run gates' reports. It
+   carries forward every earlier finding the re-run didn't cover, so
+   each row reflects the whole branch, and grades your fixes as cold as
+   the original code.
+6. Repeat until it reports the fix loop NOT REQUIRED, or the user says to
    proceed anyway. After three fix rounds, stop and ask the user whether
    to continue, listing the remaining findings.
 
 **Below-threshold findings — fix the contained ones too:**
 
 Every other introduced finding (any number of LOW, or a single MEDIUM)
-is fixed in this PR when the fix is **contained** — all of:
-
-- **Scope** — it is **within the PR's scope**: the fix is needed for the
-  branch to deliver what its work asked for. Measure that against the
-  GitHub issue the branch resolves (from `gh-<N>` in the branch name or
-  a `Closes #N`, read with `gh issue view <N>`), the active dev-tasks
-  `plan.md` and `tasks.md` if present, and the user's request. With no
-  issue or task plan, use the branch's commits and the user's request.
-  A defect in the requested behavior is in scope even when its fix
-  touches code the branch didn't change. Behavior the issue and tasks
-  never captured — a new requirement, flow, or user-facing step — is
-  out of scope, however small. Example: for a password-reset issue, a
-  finding that passwords containing `!` are rejected (even by a shared
-  validator the branch never touched) is in scope and fixed here; a
-  finding that reset should require an MFA step, which neither the
-  issue nor the tasks mention, is out of scope and becomes a follow-up
-  issue.
-- **No design or contract change** — no architectural or
-  design-pattern change, no new dependency, and no change to a public
-  API, schema, or config contract.
-- **Size** — small enough that it wouldn't warrant its own issue. Size
-  measures effort only; it never makes an out-of-scope fix contained.
-
-When unsure whether a finding is contained, treat it as contained — you
-wrote this branch, and "not contained" is the answer that saves you
-work. If a contained fix turns out bigger once started (it needs a
-design change, or spreads well beyond the requested behavior), revert
-that fix and record what you found as its reason.
+is fixed in this PR when `finding-triage` calls it **contained**: in
+the PR's scope (measured against the issue, the task plan, and the
+request, not the diff), no design or contract change, and small enough
+not to warrant its own issue. Its agent definition has the full tests.
+The call is the agent's, not yours: fix every contained finding, and
+never mark one not contained yourself (Step 2b item 2). If a contained
+fix turns out bigger once started (it needs a design or contract change,
+or spreads well beyond the requested behavior), revert that fix and
+give the agent what you found as the reason at the next re-triage; it
+confirms the call.
 
 Fold contained fixes into the fix loop's current round, so they cost no
 extra gate re-run. If the threshold was never met, run one round of the
-loop (items 3–5) for the contained fixes alone. A finding that fails any
-of the three tests is **not contained**: leave it unfixed, record which
-test it failed and why — citing the issue for a scope call, never a
-dev-tasks file (e.g. "out of scope: #31 covers reset by email link,
-not MFA", or "needs a schema change") — and offer to file it as an
-issue, with that reason as the draft (`gh issue create` once the user approves). Every introduced
+loop (items 3–5) for the contained fixes alone. A **not contained**
+finding stays unfixed with the agent's reason — which test it failed and
+why, citing the issue, never a dev-tasks file (e.g. "out of scope: #31
+covers reset by email link, not MFA") — and you offer to file it as an
+issue with that reason as the draft (`gh issue create` once the user
+approves). Every introduced
 finding still unfixed when the PR opens — not contained, the user said
 to proceed, or the loop stopped after three rounds — goes in the PR's
 **Unresolved findings** list (Step 5) with its reason, and the PR

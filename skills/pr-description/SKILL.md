@@ -327,8 +327,9 @@ Verification sources report in different vocabularies. Map them as:
 | any gate | errored, timed out, or skipped | NOT RUN |
 
 `/code-review` reports findings without a severity, and `perf-audit` and
-`doc-sync` use their own labels; ship mode's triage step maps all of
-them onto the Severity Scale below before normalizing. When ship mode's
+`doc-sync` use their own labels; ship mode's `finding-triage` agent maps
+all of them onto the Severity Scale below before normalizing. When ship
+mode's
 triage has tagged findings **introduced** or **existing**, the verdict's
 severity comes from introduced findings only (LOW included) — a gate
 with only existing findings is PASS. Existing non-security findings are
@@ -343,7 +344,8 @@ and the risk level.
 
 All reviewers' findings map onto one scale, defined by consequence — not
 by how small the fix is or how unlikely the trigger feels. The
-`code-reviewer` agent uses the same definitions.
+`code-reviewer` and `finding-triage` agents copy these definitions;
+change all three together.
 
 - **CRITICAL** — exploitable security vulnerability, data loss or
   corruption, or a change that breaks a core path for every user.

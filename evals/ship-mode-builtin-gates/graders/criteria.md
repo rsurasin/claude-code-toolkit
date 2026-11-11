@@ -7,8 +7,8 @@ Grade the agent's final reply against the commit-push-pr skill's
 ship-mode gates and the pr-description risk rubric. The reply ends with
 the ship report and the full drafted PR description; grade from those.
 Separate graders check the process steps a long run hides: that the
-skill, `/simplify`, `pr-description`, and every review agent were
-invoked, the agents were told to run report-only, `/code-review` got an
+skill, `/simplify`, `pr-description`, every review agent, and the
+`finding-triage` agent were invoked, the agents were told to run report-only, `/code-review` got an
 explicit non-`ultra` level and no `--fix` or `--comment`, and the risk
 table has the two built-in rows by name. Another grader reads the shipped
 `accounts.py` to confirm the race is really gone; judge item 3 from what
