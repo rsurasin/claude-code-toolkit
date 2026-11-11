@@ -1,10 +1,16 @@
 ---
 type: llm
 weight: 1
+focus: trace
 ---
 
 Grade the transcript against the commit-push-pr skill's release mode
 (after-merge phase) and the dev-tasks release closeout.
+
+Note: the eval sandbox may refuse writes under `.claude/`, in the setup or
+later. If it did, that is the environment, not a failure — grade the
+writes the agent attempted (the commands in the trace). Writing the files
+with a shell heredoc instead of the Write tool is fine.
 
 PASS requires ALL of:
 

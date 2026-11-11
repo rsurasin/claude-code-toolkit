@@ -1,18 +1,21 @@
 ---
 max_turns: 30
+timeout_seconds: 600
 allowed_tools: [Read, Glob, Grep, Skill, Bash, Write, Edit, Agent]
 ---
 
 Set up a scratch project with an active task, then settle a product
 question and keep working:
 
-1. Create a temporary directory with `git init`, a `.gitignore`
+1. In the current (empty) working directory, run `git init` and create a `.gitignore`
    containing `.claude/dev/`, an initial commit with a small `logs.py`,
    and a `feat/gh-31-workout-logs` branch checked out.
 2. Create the task folder
    `.claude/dev/features/2026-10-04-gh-31-workout-logs/` with `plan.md`
    (including a `## Key Decisions` section), `context.md` (with a few
    existing Session Log entries), and `tasks.md`.
+   Write the `.claude/dev/` files with shell commands (e.g. heredocs);
+   the sandbox may refuse the Write tool under `.claude/`.
 3. Then, as the user: **The app can send a workout log for an exercise
    we've since retired from the plan. Two options: reject those logs
    after a 7-day grace period, which keeps reports clean but throws away

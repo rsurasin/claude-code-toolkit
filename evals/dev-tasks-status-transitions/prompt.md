@@ -1,12 +1,13 @@
 ---
 max_turns: 30
+timeout_seconds: 600
 allowed_tools: [Read, Glob, Grep, Skill, Bash, Write, Edit, Agent]
 ---
 
 Set up a scratch project with dev-tasks folders in three states, then
 resume work:
 
-1. Create a temporary directory with `git init`, a `.gitignore` containing
+1. In the current (empty) working directory, run `git init` and create a `.gitignore` containing
    `.claude/dev/`, an initial commit on `main`, and a long-lived `dev`
    branch (the integration branch; `main` is the default branch).
 2. Create three task folders, each with `plan.md`, `context.md`, and a
@@ -19,5 +20,7 @@ resume work:
      `- [ ] apply migration 0042_cap_sets`
    - `.claude/dev/features/2026-10-20-gh-48-streak-badges/` ending in
      `Status: in progress`
+   Write the `.claude/dev/` files with shell commands (e.g. heredocs);
+   the sandbox may refuse the Write tool under `.claude/`.
 3. Then, in a fresh session: **PR #41 was merged into dev as commit
    9f3c2e1. Catch me up on where things stand.**
