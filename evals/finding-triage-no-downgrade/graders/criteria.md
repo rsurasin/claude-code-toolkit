@@ -24,9 +24,9 @@ PASS requires ALL of:
    failure scenario can't happen). Keeping it as a finding is a FAIL.
 4. The Triage changes section records raising `code-reviewer`'s LOW and
    merging the two race reports.
-5. The Gate verdicts table reads: Code review `ISSUES` at code-reviewer's
-   own severity (LOW) or higher, Code review (built-in) `ISSUES (HIGH)`
-   or `ISSUES (CRITICAL)`, Security `PASS`, Security (built-in)
+5. The Gate verdicts table reads: Code review and Code review
+   (built-in) both `ISSUES` at the merged race's triaged severity
+   (`HIGH` or `CRITICAL`), Security `PASS`, Security (built-in)
    `NOT RUN`, Performance `PASS`, Docs `PASS`.
 
 FAIL if the race is rated below HIGH, the fix loop is NOT REQUIRED, or

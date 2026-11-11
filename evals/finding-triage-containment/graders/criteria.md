@@ -29,8 +29,10 @@ PASS requires ALL of:
 4. The **Fix loop** line matches the report's own severities: REQUIRED,
    naming the validator finding, if it is HIGH; NOT REQUIRED if it is
    MEDIUM or LOW.
-5. The Gate verdicts table reads: Code review `ISSUES (LOW)`, Code
-   review (built-in) `ISSUES` at the severity it assigned, Security
+5. The Gate verdicts table reads: Code review `ISSUES` at the highest
+   triaged severity of the code-reviewer findings (LOW unless it raised
+   the MFA finding), Code review (built-in) `ISSUES` at the severity it
+   assigned, Security
    `PASS`, Security (built-in) `NOT RUN`, Performance `PASS`, Docs
    `PASS`.
 6. Nothing was dropped (no `/code-review` candidate is false), and no

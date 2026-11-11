@@ -189,8 +189,8 @@ adds a new exception callers would have to handle`.
 
 For each gate: `PASS` when no introduced finding names it as a source;
 otherwise `ISSUES (<highest severity>)` from the introduced findings
-that name it, using the severity that gate gave (triage-assigned for
-`/code-review`, `perf-audit`, and `doc-sync`). A gate that errored or
+that name it, at each finding's final, triaged severity (after any raise
+or merge), so a row never reads lower than a finding it names. A gate that errored or
 didn't run is `NOT RUN`; one missing from this Claude Code version is
 `N/A`. Existing findings alone leave a gate at `PASS`.
 

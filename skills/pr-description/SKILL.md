@@ -328,17 +328,17 @@ Verification sources report in different vocabularies. Map them as:
 
 `/code-review` reports findings without a severity, and `perf-audit` and
 `doc-sync` use their own labels; ship mode's `finding-triage` agent maps
-all of them onto the Severity Scale below before normalizing. When ship
-mode's
-triage has tagged findings **introduced** or **existing**, the verdict's
-severity comes from introduced findings only (LOW included) — a gate
-with only existing findings is PASS. Existing non-security findings are
+all of them onto the Severity Scale below before normalizing. When
+ship mode's triage has tagged findings **introduced** or **existing**,
+the verdict's severity comes from introduced findings only (LOW
+included) — a gate with only existing findings is PASS. Existing non-security findings are
 listed under Notes for Reviewers (with issue links when filed); existing
 security findings, at any severity, are reported to the user, not
-published in the PR body. A finding merged across reviewers appears in
-every source's row at the severity that source gave it (triage-assigned
-for `/code-review`); the merged, highest severity drives the fix loop
-and the risk level.
+published in the PR body. Every row uses the final, triaged severity of
+the findings it names: a finding raised in triage, or merged across
+reviewers at the highest severity, appears at that severity in every
+source's row, and the same severity drives the fix loop and the risk
+level.
 
 ### Severity Scale
 
