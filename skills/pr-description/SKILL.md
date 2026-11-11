@@ -116,9 +116,9 @@ Output Guidance" below.]
 [Every finding this PR introduces that is not fixed, one per line, or
 "None":
 - [SEVERITY] (sources) `file:line` — what is wrong — why it is unfixed
-  (not contained: <reason>, #<issue> | author chose to proceed — only
-  when they said so | awaiting author decision | stopped after 3 fix
-  rounds)
+  (not contained: scope|contract|size — <reason>, #<issue> | author
+  chose to proceed — only when they said so | awaiting author decision
+  | stopped after 3 fix rounds)
 An unfixed security finding gets severity and sources only: "security
 finding, details shared privately".]
 
@@ -318,7 +318,7 @@ Verification sources report in different vocabularies. Map them as:
 | Repo verify skill/agent | pass with warnings | ISSUES (LOW) |
 | Repo verify skill/agent | fail | ISSUES (HIGH) |
 | code-reviewer / security-auditor / perf-audit / doc-sync | no findings | PASS |
-| code-reviewer / security-auditor / perf-audit / doc-sync | findings | ISSUES (highest severity found) |
+| code-reviewer / security-auditor / perf-audit / doc-sync | findings | ISSUES (highest severity found; in ship mode, the triaged severity of introduced findings) |
 | `/code-review` | no findings | PASS |
 | `/code-review` | findings | ISSUES (highest severity assigned during triage) |
 | `/security-review` | no findings | PASS |
@@ -331,10 +331,10 @@ Verification sources report in different vocabularies. Map them as:
 all of them onto the Severity Scale below before normalizing. When
 ship mode's triage has tagged findings **introduced** or **existing**,
 the verdict's severity comes from introduced findings only (LOW
-included) — a gate with only existing findings is PASS. Existing non-security findings are
-listed under Notes for Reviewers (with issue links when filed); existing
-security findings, at any severity, are reported to the user, not
-published in the PR body. Every row uses the final, triaged severity of
+included) — a gate with only existing findings is PASS. Existing
+non-security findings are listed under Notes for Reviewers (with issue
+links when filed); existing security findings, at any severity, are
+reported to the user, not published in the PR body. Every row uses the final, triaged severity of
 the findings it names: a finding raised in triage, or merged across
 reviewers at the highest severity, appears at that severity in every
 source's row, and the same severity drives the fix loop and the risk
