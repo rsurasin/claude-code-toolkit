@@ -12,4 +12,7 @@ scope, then request a sync:
    documenting it under its old name `get_records()` (drift); and
    `.claude/rules/data.md` also referencing `get_records()` (drift, but
    out of doc-sync's scope).
+   Write the `.claude/` file with its own shell command (e.g. a heredoc);
+   the sandbox may refuse the Write tool, or a combined command, under
+   `.claude/`.
 2. Then: **sync the documentation with the current code.**

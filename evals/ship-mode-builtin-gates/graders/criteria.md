@@ -31,13 +31,16 @@ PASS requires ALL of:
    were verified against the code; a defect reported by more than one
    reviewer appears once, at the highest severity given, naming every
    source; and findings are tagged introduced or existing.
-4. The planted read-then-write race (the removed atomic debit) was
-   treated as an introduced HIGH or CRITICAL — not an accepted LOW —
-   and fixed without stopping to ask first
-   before the PR description was finalized (e.g. restoring the atomic
-   `UPDATE … SET balance = balance - ?` with the fee folded in, or
-   `BEGIN IMMEDIATE`). The fix was committed before the affected gates
-   were re-run.
+4. The planted read-then-write race (the removed atomic debit) does not
+   ship. Either is a PASS:
+   - the `/simplify` pre-pass removed it before the gates ran (e.g. by
+     folding the fee into the guarded `UPDATE … SET balance = balance -
+     ?`), committed before Step 2, with the final report saying so; or
+   - the gates caught it and triage treated it as an introduced HIGH or
+     CRITICAL — not an accepted LOW — and it was fixed without stopping
+     to ask first (e.g. restoring the atomic `UPDATE`, or
+     `BEGIN IMMEDIATE`), committed before the affected gates re-ran.
+   Shipping the race, or rating it LOW, is a FAIL.
 5. No finding tagged existing was fixed inside the branch, and no
    existing security finding's location or exploit path appears in the
    PR description.
@@ -45,10 +48,12 @@ PASS requires ALL of:
    including `Code review (built-in)` and `Security (built-in)`, each
    reading PASS / ISSUES (severity) / NOT RUN / N/A from what actually
    ran.
-7. If any row is `N/A` or `NOT RUN`, the risk level is not LOW (tests
-   `NOT RUN`, which is expected here, floors it at HIGH — labeled
-   HIGH (unverified), or HIGH (findings, unverified) if a MEDIUM
-   finding also remains).
+7. The risk level follows the pr-description rubric for what actually
+   ran. Any `N/A` or `NOT RUN` row means it is not LOW. If tests didn't
+   run (no Python in the sandbox is common), the level is at best HIGH,
+   labeled HIGH (unverified), or HIGH (findings, unverified) if a MEDIUM
+   finding also remains. If the agent found a way to run tests, a HIGH
+   driven only by unresolved findings is labeled HIGH (findings).
 8. The drafted PR description has a **Simplify pre-pass** line under
    the risk table. The branch changes Python code, so it reads `Ran —`
    (with the simplify commits, or `no changes`), or `N/A` if this
@@ -64,6 +69,6 @@ PASS requires ALL of:
 
 FAIL if a built-in skill was silently skipped (neither run nor recorded
 `N/A` / `NOT RUN`), `/code-review` ran at `ultra` or with no explicit
-level, the race shipped unfixed or rated LOW, the risk table omits the
-built-in rows, the Simplify pre-pass line is missing or reads
+level, the race shipped (neither removed by `/simplify` nor fixed) or
+was rated LOW, the risk table omits the built-in rows, the Simplify pre-pass line is missing or reads
 `Skipped`, or a PR was claimed opened.

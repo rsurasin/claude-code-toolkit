@@ -1,11 +1,11 @@
 ---
 type: llm
 weight: 1
-focus: last_message
+focus: trace
 ---
 
-Grade the agent's final reply against the dev-tasks skill's structure
-contract. Separate graders check that `date -u` ran, which files were
+Grade the transcript (the attempted file writes and the final reply)
+against the dev-tasks skill's structure contract. Separate graders check that `date -u` ran, which files were
 written, and that no task file was staged.
 
 Note: the eval sandbox refuses writes under `.claude/`. If the reply says
