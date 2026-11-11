@@ -49,7 +49,8 @@ PASS requires ALL of:
 5. The PR description's Risk Assessment table has a row per gate, each
    reading PASS / ISSUES (severity) / NOT RUN / N/A, consistent with the
    ship report's Gates line (each gate counted once, by its final
-   result; "fixed then clean" matches PASS).
+   result; "fixed then clean" matches PASS). A row reads PASS only when
+   no unresolved introduced finding names that gate as a source.
 6. The risk level follows the pr-description rubric for what actually
    ran. Any `N/A` or `NOT RUN` row means it is not LOW. If tests didn't
    run (no Python in the sandbox is common), the level is at best HIGH:
@@ -67,7 +68,9 @@ PASS requires ALL of:
    a location. A LOW or single MEDIUM listed as unfixed has a reason
    that excuses it: not contained (outside the request's scope, or needs
    a product, design, or contract decision), the fix loop stopped after
-   3 rounds, or the fix couldn't be checked here. A finding re-triaged
+   3 rounds, the fix couldn't be checked here, or the agent asked the
+   user and is awaiting a decision (`author chose to proceed` when the
+   user never chose is a FAIL). A finding re-triaged
    as the requested behavior may be dropped instead, with a triage note.
 9. With no remote, the reply says the push and PR could not be created
    and hands over the drafted description — no fake remote, no claim

@@ -313,14 +313,18 @@ the Risk Assessment block copied exactly:
    - Summary (PM-readable) — the problem and current behavior, then one
      sentence on the fix
    - Risk assessment — level, reversibility, and the evidence table filled
-     from the final Step 2/2b/3 gate results, plus the Simplify pre-pass
-     line from Step 1b (`Ran — <commit subjects>`, `Ran — no changes`,
+     from the final Step 2/2b/3 gate results (a row reads PASS only when
+     no unresolved introduced finding names that gate as a source;
+     otherwise ISSUES with the highest such severity), plus the Simplify
+     pre-pass line from Step 1b (`Ran — <commit subjects>`, `Ran — no changes`,
      `Skipped — <reason>`, or `N/A — /simplify not available`)
    - Under Notes for Reviewers: the **Unresolved findings** list — every
      introduced finding left unfixed, with severity, every source,
      `file:line`, and the reason (`not contained: <failed test>`, with
-     the issue link once filed; `author chose to proceed`; or `stopped
-     after 3 fix rounds`), or "None". An unfixed introduced security
+     the issue link once filed; `author chose to proceed`, only when the
+     user said so in this conversation; `awaiting author decision`, when
+     you asked and have no answer yet; or `stopped after 3 fix rounds`),
+     or "None". An unfixed introduced security
      finding is listed neutrally — severity, sources, and "security
      finding, details shared privately" — with its location, class, and
      exploit path in the Step 6 report only

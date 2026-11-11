@@ -116,8 +116,9 @@ Output Guidance" below.]
 [Every finding this PR introduces that is not fixed, one per line, or
 "None":
 - [SEVERITY] (sources) `file:line` — what is wrong — why it is unfixed
-  (not contained: <reason>, #<issue> | author chose to proceed | stopped
-  after 3 fix rounds)
+  (not contained: <reason>, #<issue> | author chose to proceed — only
+  when they said so | awaiting author decision | stopped after 3 fix
+  rounds)
 An unfixed security finding gets severity and sources only: "security
 finding, details shared privately".]
 
