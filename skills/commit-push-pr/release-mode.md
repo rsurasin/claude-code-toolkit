@@ -78,7 +78,8 @@ them: release steps come only from task folders or the user.
    are reported to the user, never written into the PR text.
 4. **Run the gates**: Ship Mode Steps 2–3 (gates, triage, evaluation)
    over what the release brings in,
-   `git diff <release-point>...origin/<integration>`. Skip Ship Mode
+   `git diff <release-point>...origin/<integration>`. `finding-triage`
+   gets that range and, as scope, the issues the release closes. Skip Ship Mode
    Steps 1a and 1b: the base is the default branch by definition, and
    `/simplify` never runs here, because its fixes would be commits on
    `<integration>` (the release PR's Simplify pre-pass line reads
@@ -91,7 +92,8 @@ them: release steps come only from task folders or the user.
 
    Never commit gate fixes onto `<integration>` or `<default>`, so Ship
    Mode Step 3's fix loop and its contained below-threshold fixes don't
-   apply here. Report the
+   apply here; the triage agent's must-fix and contained calls only
+   tell the user what a fix PR would cover. Report the
    findings and, with the user's approval, fix them on a new
    `fix/<slug>` branch off `<integration>` with its own dev-tasks folder
    (in `fixes/`, never reusing the feature's `gh-<N>`), ship that
@@ -103,7 +105,7 @@ them: release steps come only from task folders or the user.
    introduced finding goes in the release PR's Unresolved findings list
    (reason: `release shipped without a fix PR`, with the follow-up issue
    once filed), and security findings follow Ship Mode Step 2b's
-   disclosure rule.
+   routing rule.
 5. **Open the release PR** with the `pr-description` skill, adding these
    sections after the Summary:
 

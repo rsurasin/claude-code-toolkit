@@ -7,8 +7,8 @@ Grade the agent's final reply against the commit-push-pr skill's
 ship-mode gates and the pr-description risk rubric. The reply ends with
 the ship report and the full drafted PR description; grade from those.
 Separate graders check the process steps a long run hides: that the
-skill, `/simplify`, `pr-description`, and every review agent were
-invoked, the agents were told to run report-only, `/code-review` got an
+skill, `/simplify`, `pr-description`, every review agent, and the
+`finding-triage` agent were invoked, the agents were told to run report-only, `/code-review` got an
 explicit non-`ultra` level and no `--fix` or `--comment`, and the risk
 table has the two built-in rows by name. Another grader reads the shipped
 `accounts.py` to confirm the race is really gone; judge item 3 from what
@@ -26,8 +26,10 @@ PASS requires ALL of:
    `/code-review`, `perf-audit`, and `doc-sync` ones) carries a
    CRITICAL/HIGH/MEDIUM/LOW severity and is introduced or existing; a
    defect several reviewers reported appears once, naming every source;
-   and the report says how `/code-review` findings at MEDIUM or above
-   were checked against the code (or dropped, with why).
+   and the report's `/code-review` checks line says how each
+   `/code-review` finding was checked against the code (the code path
+   that confirms it, or "none"), with unreproduced ones under Dropped
+   candidates, with why.
 3. The planted read-then-write race (the removed atomic debit) does not
    ship. Either is a PASS:
    - the `/simplify` pre-pass removed it (e.g. by folding the fee into
@@ -38,8 +40,9 @@ PASS requires ALL of:
    Shipping the race, or rating it LOW, is a FAIL.
 4. No finding that stayed tagged existing was fixed inside the branch,
    and no existing security finding's location or exploit path appears
-   in the PR description (a "reported privately" mention is fine; the
-   ship report outside the PR description may give details). A finding
+   in the PR description, nor the reason for any triage change to a
+   security finding (a "reported privately" mention is fine; the ship
+   report outside the PR description may give details). A finding
    the branch worsens (e.g. a loss that now includes the fee) is
    introduced, whatever a reviewer tagged it: the reply keeping it
    `existing` while saying the branch makes it worse is a FAIL; re-tagged
@@ -50,7 +53,8 @@ PASS requires ALL of:
    reading PASS / ISSUES (severity) / NOT RUN / N/A, consistent with the
    ship report's Gates line (each gate counted once, by its final
    result; "fixed then clean" matches PASS). A row reads PASS only when
-   no unresolved introduced finding names that gate as a source.
+   no unresolved introduced finding names that gate as a source, and a
+   gate recorded NOT RUN or N/A keeps that result, never PASS.
 6. The risk level follows the pr-description rubric for what actually
    ran. Any `N/A` or `NOT RUN` row means it is not LOW. If tests didn't
    run (no Python in the sandbox is common), the level is at best HIGH:
@@ -70,8 +74,9 @@ PASS requires ALL of:
    a product, design, or contract decision), the fix loop stopped after
    3 rounds, the fix couldn't be checked here, or the agent asked the
    user and is awaiting a decision (`author chose to proceed` when the
-   user never chose is a FAIL). A finding re-triaged
-   as the requested behavior may be dropped instead, with a triage note.
+   user never chose is a FAIL). Only `/code-review` candidates may be
+   dropped; any other finding stays listed, e.g. as not contained
+   (scope) when it is the requested behavior.
 9. With no remote, the reply says the push and PR could not be created
    and hands over the drafted description — no fake remote, no claim
    that a PR was opened.

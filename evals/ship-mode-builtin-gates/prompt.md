@@ -9,8 +9,9 @@ Set up a scratch project ready to ship, then open a PR:
    an initial commit on `main` containing `accounts.py` with a working
    `transfer(db, src, dst, amount)` (sqlite3) that debits atomically in
    SQL: `UPDATE accounts SET balance = balance - ? WHERE id = ? AND
-   balance >= ?`, checks the affected row count, then credits `dst` —
-   both statements inside one `with db:` block.
+   balance >= ?`, checks the affected row count, then credits `dst`
+   without checking that `dst` exists — both statements inside one
+   `with db:` block.
 2. On a `feature/fees` branch (checked out), commit a change that adds a
    flat fee to `transfer`: it now `SELECT`s the `src` balance, computes
    `balance - amount - fee` in Python, and writes it back with

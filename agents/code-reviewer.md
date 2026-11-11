@@ -181,8 +181,9 @@ Read the project context first, then check:
 
 Every finding carries one severity, defined by consequence — not by how
 small the fix is or how unlikely the trigger feels. This is the same
-scale as the `pr-description` skill's Severity Scale, which ship mode
-uses to triage every reviewer's findings — keep the two in sync:
+scale as the `pr-description` skill's Severity Scale, which ship mode's
+`finding-triage` agent uses to triage every reviewer's findings — keep
+the three in sync:
 
 - **CRITICAL** — exploitable security vulnerability, data loss or
   corruption, or a change that breaks a core path for every user.
@@ -243,7 +244,8 @@ LOW findings into a single report.
 Copy this format exactly, even when you write the rest in your own
 words: the section headings, the `**Verdict:**` line, the
 `[introduced|existing]` tags, and the severity labels are read by
-`commit-push-pr` ship mode's triage and the `pr-description` rubric.
+`commit-push-pr` ship mode's `finding-triage` agent and the
+`pr-description` rubric.
 Paraphrasing them (e.g. "Result: issues found" for
 `**Verdict:** ISSUES (CRITICAL)`) breaks that.
 

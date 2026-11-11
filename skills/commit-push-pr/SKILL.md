@@ -9,9 +9,9 @@ description: >
   changes, then the quality gates (the repo's own test and verification
   skills, the code-reviewer, security-auditor, perf-audit, and doc-sync
   agents, and the built-in /code-review and /security-review skills side
-  by side) over the full branch diff, triage and merge their findings, fix
-  introduced ones, and open a PR with a structured description and risk
-  assessment. Release mode, ship mode's variant for a PR from an
+  by side) over the full branch diff, have the finding-triage agent grade
+  and merge their findings, fix introduced ones, and open a PR with a
+  structured description and risk assessment. Release mode, ship mode's variant for a PR from an
   integration branch (e.g. dev) to the default branch: list the features
   merged since the last release, put them and their release steps in the
   release PR, and after it merges confirm the issues closed and close out
@@ -173,8 +173,9 @@ state and is never staged.
 In ship mode, read [`ship-mode.md`](ship-mode.md) in this skill's
 directory **before taking any ship-mode step**, and follow it. In short:
 commit outstanding work, confirm the PR base branch, run `/simplify` on
-code changes, run every quality gate over `<base>...HEAD`, triage the
-findings into one list, fix introduced findings above the threshold and
+code changes, run every quality gate over `<base>...HEAD`, have the
+`finding-triage` agent grade the findings into one list, fix introduced
+findings above the threshold and
 contained ones below it, push, and open the PR with a risk assessment
 and an Unresolved findings list. The Rules below apply in every mode.
 
