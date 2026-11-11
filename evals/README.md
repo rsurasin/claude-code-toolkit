@@ -115,7 +115,7 @@ Add a row for each new case to the tables below.
 | `commit-mode-no-gates` | commit-push-pr | Intermediate commits run no gate agents and open no PR |
 | `commit-mode-atomic-split` | commit-push-pr | Multi-task working trees become separate atomic commits |
 | `ship-mode-base-branch` | commit-push-pr | Ship mode asks for the PR base branch when unstated, before any gate runs |
-| `ship-mode-builtin-gates` | commit-push-pr | Ship mode runs `/code-review` and `/security-review` alongside the agents, triages their findings into one risk table, commits a fix for the introduced race before re-running gates, keeps `N/A` gates above LOW, reports the `/simplify` pre-pass outcome, and lists unfixed introduced findings under Unresolved findings |
+| `ship-mode-builtin-gates` | commit-push-pr | Ship mode runs `/code-review` and `/security-review` alongside the agents, triages their findings into one risk table, removes the introduced race from the shipped code (`/simplify` or a fix commit), keeps `N/A` gates above LOW, reports the `/simplify` pre-pass outcome, and lists unfixed introduced findings under Unresolved findings |
 | `release-mode-closeout` | commit-push-pr, dev-tasks | The release PR lists every feature, its release steps, and a `Closes #N` per issue, with no `.claude/dev/` trace; folders stay unreleased until merge |
 | `release-mode-post-merge` | commit-push-pr, dev-tasks | After the release merges: issues confirmed (or reported unconfirmed), one-way release steps not run without approval, folders marked `released (#N, <date>)` |
 | `commit-message-no-devtasks` | commit-message | Commit messages carry zero trace of dev-tasks state |
