@@ -244,7 +244,8 @@ LOW findings into a single report.
 Copy this format exactly, even when you write the rest in your own
 words: the section headings, the `**Verdict:**` line, the
 `[introduced|existing]` tags, and the severity labels are read by
-`commit-push-pr` ship mode's triage and the `pr-description` rubric.
+`commit-push-pr` ship mode's `finding-triage` agent and the
+`pr-description` rubric.
 Paraphrasing them (e.g. "Result: issues found" for
 `**Verdict:** ISSUES (CRITICAL)`) breaks that.
 

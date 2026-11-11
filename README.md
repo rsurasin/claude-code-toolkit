@@ -14,7 +14,7 @@ project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 |-------|--------------|
 | `code-reviewer` | Parallel multi-axis review of the branch diff — bugs, change impact (removed behavior, callers), security, performance, design and conventions — with a verification pass, defined severities, and introduced/existing tags |
 | `security-auditor` | Deep OWASP-aligned security audit with language-aware vulnerability detection, installed-tool scanning, and confidence-scored false-positive filtering |
-| `finding-triage` | Grades every gate's findings cold for ship mode, so the author never grades its own work — severities on one scale, `/code-review` candidates verified, duplicates merged, introduced/existing tags, the fix-loop decision, and the contained / not-contained call measured against the issue, not the diff |
+| `finding-triage` | Dispatched by ship mode, not by request. Grades every gate's findings cold, so the author never grades its own work — severities on one scale, `/code-review` candidates verified, duplicates merged, introduced/existing tags, the fix-loop decision, and the contained / not-contained call measured against the issue, not the diff |
 | `debugger` | Systematic hypothesis-driven bug investigation |
 | `perf-audit` | Runtime perf: startup time, re-renders, N+1 queries, bundle size, memory, concurrency |
 | `doc-sync` | Audits docs against code, fixes documentation drift |
@@ -253,8 +253,8 @@ each repo's `.claude/` directory — see [Migrating from v2](#migrating-from-v2)
    skills, the code review, security, performance, and docs agents, and
    the built-in `/code-review` and `/security-review` side by side),
    has the `finding-triage` agent grade every reviewer's findings into
-   one list, fixes the ones the branch introduced, reports or files existing ones, then opens a PR
-   with a risk assessment. The task folder's status moves to `PR open
+   one list, fixes the ones the branch introduced, reports or files
+   existing ones, then opens a PR with a risk assessment. The task folder's status moves to `PR open
    (#N)`, then to `merged to <base> (<sha>), not released` once the PR
    merges into an integration branch
 7. Learn: the `sharpen` skill fires on any mistake or correction — agent-
@@ -302,10 +302,10 @@ claude-code-toolkit/
 ├── agents/
 │   ├── code-reviewer.md             # Parallel multi-axis code review
 │   ├── security-auditor.md          # Deep security audit (OWASP-aligned)
+│   ├── finding-triage.md            # Independent triage of ship-mode gate findings
 │   ├── debugger.md                  # Systematic bug investigation
 │   ├── perf-audit.md                # Runtime performance analysis
 │   ├── doc-sync.md                  # Documentation parity auditor
-│   ├── finding-triage.md            # Independent triage of ship-mode gate findings
 │   ├── claude-sync.md               # .claude directory updater
 │   └── cross-repo-audit.md          # Cross-repo consistency checker
 ├── skills/

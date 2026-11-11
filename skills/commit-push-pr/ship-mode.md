@@ -99,8 +99,8 @@ report instead) and must not edit files — fixes happen in Step 3.
    because `origin/HEAD` is unset, run
    `git remote set-head origin --auto` and retry once. If the confirmed
    `<base>` isn't the remote's default branch, it covers a different
-   range: Step 2b re-tags its findings, and the risk justification
-   sentence states the mismatch.
+   range: `finding-triage` (Step 2b) re-tags its findings, and the risk
+   justification sentence states the mismatch.
 
 Agents and built-in skills run side by side, never one instead of the
 other: side-by-side runs showed each catches defects the other misses.
@@ -275,7 +275,7 @@ Fold contained fixes into the fix loop's current round, so they cost no
 extra gate re-run. If the threshold was never met, run one round of the
 loop (items 3–5) for the contained fixes alone. A **not contained**
 finding stays unfixed with the agent's reason — which test it failed and
-why, citing the issue, never a dev-tasks file (e.g. "out of scope: #31
+why, citing the issue, never a dev-tasks file (e.g. "not contained: scope — #31
 covers reset by email link, not MFA") — and you offer to file it as an
 issue with that reason as the draft (`gh issue create` once the user
 approves). Every introduced
@@ -312,7 +312,7 @@ the Risk Assessment block copied exactly:
      `Skipped — <reason>`, or `N/A — /simplify not available`)
    - Under Notes for Reviewers: the **Unresolved findings** list — every
      introduced finding left unfixed, with severity, every source,
-     `file:line`, and the reason (`not contained: <failed test>`, with
+     `file:line`, and the reason (`not contained: scope|contract|size — <reason>`, with
      the issue link once filed; `author chose to proceed`, only when the
      user said so in this conversation; `awaiting author decision`, when
      you asked and have no answer yet; or `stopped after 3 fix rounds`),

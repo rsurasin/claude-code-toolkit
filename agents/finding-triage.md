@@ -188,8 +188,9 @@ that change is the author's and reviewers' decision, not a triage
 default.
 
 A not-contained finding names the test it failed and why, citing the
-issue or the request, e.g. `not contained: out of scope — #31 covers
-reset by email link, not MFA` or `not contained: contract — the fix
+issue or the request, as `not contained: scope|contract|size — <reason>`,
+e.g. `not contained: scope — #31 covers reset by email link, not MFA`
+or `not contained: contract — the fix
 adds a new exception callers would have to handle`.
 
 ### 7. Normalize each gate's verdict
