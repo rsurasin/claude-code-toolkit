@@ -156,7 +156,9 @@ agent: there is nothing to triage, and every reviewing gate is PASS.
    PR's Notes for Reviewers, except for a security finding re-tagged
    `existing`, whose reason goes in the Step 6 report only (the PR may
    say "a security finding was re-triaged and reported privately", with
-   no location or class). Its Dropped list goes in the Step 6 report.
+   no location or class). Its Verified and Dropped lists go in the
+   Step 6 report, so the report shows how every `/code-review` finding
+   at MEDIUM or above was checked against the code.
 4. **Check open issues.** If `gh` works and the remote is on GitHub,
    fetch the open issues once
    (`gh issue list --state open --limit 500 --json number,title`) and
@@ -369,7 +371,8 @@ explanation under them, not in place of them.
 **Unfixed introduced:** <n> (listed under Unresolved findings in the PR; offer an issue for each not-contained one)
 **Existing issues:** <n> reported, <n> linked or filed
 **Reported privately:** <existing security findings and unfixed introduced security findings (file:line, class, severity), and security re-triage reasons; recommend a security advisory>
-**Dropped candidates:** <unreproduced /code-review findings; security-auditor drops (see its report)>
+**`/code-review` checks:** <each /code-review finding at MEDIUM or above, from finding-triage's Verified list: kept, with the code path that confirms it; or "none at MEDIUM or above">
+**Dropped candidates:** <unreproduced /code-review findings, with why; security-auditor drops (see its report)>
 **PR:** <url or instructions>
 **Files:** <count> changed, <insertions> insertions, <deletions> deletions
 ```

@@ -26,8 +26,10 @@ PASS requires ALL of:
    `/code-review`, `perf-audit`, and `doc-sync` ones) carries a
    CRITICAL/HIGH/MEDIUM/LOW severity and is introduced or existing; a
    defect several reviewers reported appears once, naming every source;
-   and the report says how `/code-review` findings at MEDIUM or above
-   were checked against the code (or dropped, with why).
+   and the report's `/code-review` checks line says how each
+   `/code-review` finding at MEDIUM or above was checked against the
+   code (the code path that confirms it, or "none at MEDIUM or above"),
+   with unreproduced ones under Dropped candidates, with why.
 3. The planted read-then-write race (the removed atomic debit) does not
    ship. Either is a PASS:
    - the `/simplify` pre-pass removed it (e.g. by folding the fee into

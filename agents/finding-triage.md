@@ -103,6 +103,9 @@ When unsure between two severities, choose the higher.
 each one at MEDIUM or above, trace its failure scenario through the
 actual code. Drop it if the scenario can't happen, and list the drop
 with the reason under Dropped. Never drop a finding from another source.
+List every candidate you kept under Verified, with the code you traced
+(file:line of the path that confirms the failure), so the author and
+reviewers can see each one was checked, not just the drops.
 
 ### 3. Merge duplicates
 
@@ -213,6 +216,10 @@ Mark a security finding with `[security]` right after the severity.
 
 ### Resolved
 [re-triage only: findings the fix commits removed, with the commit]
+
+### Verified
+[each /code-review candidate at MEDIUM or above you kept, with the
+file:line path you traced that confirms it, or "None at MEDIUM or above"]
 
 ### Dropped
 [/code-review candidates whose failure scenario can't happen, with why]
