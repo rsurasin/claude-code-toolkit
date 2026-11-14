@@ -57,6 +57,13 @@ symbolic link", the sandbox refuses to run while `~/.docker` contains
 symlinks (common on WSL with Docker Desktop). Move those links out of
 `~/.docker` for the duration of the run and restore them afterwards.
 
+On Claude Code 2.1.322 (WSL/NixOS), the eval Bash sandbox mounted each
+case's scratch directory and `$TMPDIR` read-only ("Read-only file
+system" on `git init`), so every case that builds its project with Bash
+failed at setup; 2.1.287 ran the suite correctly. If most cases in a
+run show that error, discard its scores and rerun the suite with a
+known-good `claude` binary.
+
 The criteria files also work as manual review checklists when changing
 the corresponding skills and agents.
 
