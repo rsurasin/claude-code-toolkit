@@ -19,6 +19,10 @@ consistent.
   (it's a command-template feature) — skills must phrase argument
   handling as "if the user provided X in their request". The repo no
   longer ships a `commands/` directory; all former commands are skills.
+  `commit-push-pr` is split across files in its directory: `SKILL.md`
+  (commit mode and the Rules), `ship-mode.md` (gates, triage, PR),
+  `fix-loop.md` (what is fixed before the PR opens), and
+  `release-mode.md`.
 - `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` — the
   plugin manifest and the marketplace catalog. Both carry a `version`
   field that must stay in sync.
@@ -49,6 +53,34 @@ drift easily.
 - **Gates run at the PR boundary, not per commit.** `commit-push-pr` is
   two-mode: commit mode (fast, atomic, gate-free) and ship mode (all gates
   once over the full branch diff, findings fixed before the PR opens).
+- **The fix loop is bounded and never hides a serious finding.**
+  `fix-loop.md` allows at most two fix rounds (which re-run the
+  reviewers) and then one cleanup pass for LOW findings (which re-runs
+  only the tests, so it cannot raise new findings). Unbounded rounds
+  did not converge: every fix raised new minor findings. LOW findings
+  are still fixed, not just listed. An introduced CRITICAL or HIGH
+  still open after two rounds, or failing tests, is a hard stop: no
+  mergeable PR opens, and an unattended run opens a draft PR titled
+  `[BLOCKED]`. Don't raise the round count or let a hard stop proceed
+  on its own.
+- **The PR tells the human what to look at.** The goal is an unattended
+  implement, review and fix loop where the human only merges. Every PR
+  description carries a Needs human review line (unresolved MEDIUM or
+  higher, pending decisions, one-way doors, gates that didn't run) and
+  an Unresolved findings list with a reason per entry.
+- **Style is the linter's job.** A style-only finding (formatting, line
+  length, wording preference) is not a finding unless a project rule or
+  linter config requires it. The Severity Scale says so in all three
+  copies.
+- **Review findings are tracked in the task files.** The fix loop
+  writes an AUDIT entry in `context.md` per round and one line per
+  finding under `## Review Fixes` in `tasks.md`. `finding-triage` does
+  not read those as scope, so recording a finding cannot make it in
+  scope; the rest of `plan.md` and `tasks.md` stays frozen during
+  triage.
+- **Tests are never weakened to pass a gate.** No deleting, skipping,
+  or loosening a test; a test believed wrong is a question for the
+  user.
 - **Dev-tasks separation.** `.claude/dev/` task files are internal
   tracking state — gitignored, never staged or committed, invisible to
   other contributors. Commit messages and PR descriptions carry
@@ -98,7 +130,7 @@ new behavior.
 ## Testing Skills — Eval Suite
 
 Behavioral eval cases live under `evals/` (one dir per case: `prompt.md`
-+ `graders/*.md`, usually one `criteria.md`), run by `claude plugin eval` (Claude Code
++ `graders/*.md`), run by `claude plugin eval` (Claude Code
 2.1.269+). Run from the repo root:
 
 ```bash
@@ -126,7 +158,8 @@ the default Haiku judge has failed correct runs that needed judgment.
 
 Every case needs frontmatter or the runner rejects it. `prompt.md`
 starts with `max_turns` and `allowed_tools` (listing Bash, Write and Edit
-too); an LLM grader file (`graders/criteria.md`, or each
+too); an LLM grader file (`graders/criteria.md`, each
+`graders/criteria-*.md` in `finding-triage-security-marker`, or each
 `graders/reply-*.md` in `ship-mode-builtin-gates`) starts with
 `type: llm` and `weight: 1`. An
 `llm` grader sees only the final message unless it sets `focus: trace`
@@ -135,6 +168,17 @@ commands run, files created, agents spawned — with `tool_used` /
 `file_exists` graders. Copy an existing case's frontmatter;
 `evals/README.md` has the exact block. Single runs are noisy; confirm a
 change at the default 3 runs.
+
+Prefer deterministic graders. A `regex` grader can read the final reply
+(`target: last_message`) or a file the agent wrote (`target:` with
+`source: file` and `path:`), takes `flags: m`, and fails if the file is
+missing; `ship-mode-builtin-gates` has the agent save the PR body to
+`pr-body.md` for this. Give an LLM grader one check, not a list: the
+judge has failed a multi-item rubric 3–0 on a reply that passed every
+item alone, and it flips on identical text between runs. To find which
+item fails without re-running a case, replay a saved reply: a scratch
+plugin whose case prompt tells the model to repeat the reply verbatim,
+with one grader per item (about $1).
 
 When changing a skill's contract (modes, thresholds, separation rules),
 update or add the matching eval case in the same commit.
