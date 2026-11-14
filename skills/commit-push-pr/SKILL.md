@@ -213,12 +213,11 @@ off the release steps, and mark the folders `released`.
   never opens with one unless the user said to proceed;
   existing findings are reported or filed, not blocking (except an
   existing CRITICAL security finding)
-- Below the threshold, a contained single MEDIUM (needed to deliver
-  what the issue and tasks asked for, no design or contract change, too
-  small for its own issue) is fixed in this PR too, and contained LOW
-  findings are fixed when a fix round runs; LOW findings never start a
-  round, and a MEDIUM or LOW a re-run raises on code no fix touched is
-  listed, not fixed (a CRITICAL or HIGH one is fixed in round 2); every introduced finding left unfixed is
+- Below the threshold, contained findings (needed to deliver what the
+  issue and tasks asked for, no design or contract change, too small
+  for its own issue) are fixed in this PR too: a single MEDIUM in a
+  fix round, and every LOW in a round or in the one cleanup pass that
+  follows the rounds; every introduced finding left unfixed is
   listed under Unresolved findings in the PR with its reason
 - Never publish an existing security finding's location, class, or
   exploit path in a PR body, commit message, or public issue — nor an

@@ -5,36 +5,32 @@ after `finding-triage` returned its list (Step 2b of `ship-mode.md`).
 Step numbers below refer to `ship-mode.md`; the Rules in `SKILL.md`
 apply here too.
 
-The loop is bounded: **at most two fix rounds.** Round 1 fixes what the
-first triage found. Round 2 repairs round 1 and fixes any serious
-finding a re-run raised late. Minor findings left after that are listed
-under Unresolved findings; every fix can raise new ones, so more rounds
-do not converge. The bound never lets a serious finding through: **a PR
-never opens with an introduced CRITICAL or HIGH finding unfixed** unless
-the user said to proceed.
+Every introduced finding is fixed before the PR opens, LOW ones
+included: small findings left behind pile up as debt. The work is
+bounded so it converges: **at most two fix rounds, then one cleanup
+pass.** A round re-runs the reviewers, which is what finds new
+problems; the cleanup pass fixes the LOW findings that are left without
+re-running them, so nothing new is raised after it. The bound never
+lets a serious finding through: **a PR never opens with an introduced
+CRITICAL or HIGH finding unfixed** unless the user said to proceed.
 
-## When round 1 runs
+## Fix rounds (MEDIUM and above)
 
-Round 1 runs when `finding-triage` reports **Fix loop: REQUIRED** (any
-introduced CRITICAL or HIGH, or two or more introduced MEDIUM), or when
-it called a single introduced MEDIUM **contained**. LOW findings never
-start a round: when nothing else starts one, no round runs and each LOW
-is listed with `LOW: no fix round for it`.
-
-## A round
+A round runs while an introduced finding of MEDIUM or higher is open
+and fixable: one marked **must fix**, or a single MEDIUM marked
+**contained**. In each round:
 
 1. Report the findings to the user
 2. Append them to the active dev-tasks context file, if one exists
-3. Fix this round's findings (round 1: every finding marked **must
-   fix** or **contained**; round 2: see below). Each fix is the
-   smallest change that resolves its finding and passes
-   `finding-triage`'s no-design-or-contract-change test (its step 6).
-   When only a design or contract change would resolve a must-fix
-   finding, don't make it: ask the user, and list the finding as
-   `awaiting author decision` until they answer (for a CRITICAL or
-   HIGH, that is a hard stop too). Never delete, skip,
-   or weaken a test to make a gate pass; a test you believe is wrong
-   is a question for the user
+3. Fix every open finding marked **must fix** or **contained**, LOW
+   ones included (they cost no extra re-run). Each fix is the smallest
+   change that resolves its finding and passes `finding-triage`'s
+   no-design-or-contract-change test (its step 6). When only a design
+   or contract change would resolve a must-fix finding, don't make it:
+   ask the user, and list the finding as `awaiting author decision`
+   until they answer (for a CRITICAL or HIGH, that is a hard stop too).
+   Never delete, skip, or weaken a test to make a gate pass; a test you
+   believe is wrong is a question for the user
 4. Commit the fixes atomically (Commit Mode Steps 3–4, e.g.
    `fix(<scope>): <subject>`) — the gates review `<base>...HEAD`, so an
    uncommitted fix is invisible to them and missing from the PR
@@ -47,47 +43,48 @@ is listed with `LOW: no fix round for it`.
    full-codebase tooling on a re-run unless the finding came from that
    tooling). Then re-triage: dispatch `finding-triage` again with
    everything Step 2b item 1 gave it (range, base ref, scope), plus its
-   previous list, the commit the round started from, the fix commits,
-   the re-run gates' reports, and any contained fix you reverted. It
-   carries forward every earlier finding the re-run didn't cover, marks
-   every new finding `fix-caused` or `late`, and grades your fixes as
-   cold as the original code. Check its list as in Step 2b item 2; a
-   failed re-triage follows Step 2b's retry rule.
+   previous list, the fix commits, the re-run gates' reports, and any
+   contained fix you reverted. It carries forward every earlier finding
+   the re-run didn't cover, and grades your fixes as cold as the
+   original code. Check its list as in Step 2b item 2; a failed
+   re-triage follows Step 2b's retry rule.
+
+**After the second round, stop.** Never start a third round unless the
+user asks for one in this conversation. A MEDIUM still open is listed
+with `stopped after 2 fix rounds`. **An introduced CRITICAL or HIGH
+still open, or failing tests, is a hard stop** (Step 3): no PR opens
+for merging. Report it under **Decisions needed** with what you tried,
+and let the user choose between another round, a different fix, or
+proceeding.
 
 The contained call is the agent's, not yours: fix every contained
 finding, and never mark one not contained yourself (Step 2b item 2). If
 a contained fix turns out bigger once started (it needs a design or
 contract change, or spreads well beyond the requested behavior), revert
 that fix and pass the agent the revert commit and what the fix needed
-at the re-triage: what it needed, not a call. If it says contained
+at the next re-triage: what it needed, not a call. If it says contained
 again and you still can't make the fix here, put both positions to the
 user and list the finding as `awaiting author decision`.
 
-## After round 1
+## Cleanup pass (LOW)
 
-The re-triage marks each finding it had not listed before:
+Run this once, after the last round, or straight away when no round
+ran, if any introduced LOW marked **contained** is still open:
 
-- **`fix-caused`** — in lines a fix commit added or changed.
-- **`late`** — anywhere else: a re-run raised it on code no fix touched.
+1. Fix every one of them, each with the smallest change, and commit
+   atomically (e.g. `refactor(<scope>): …`, `test(<scope>): …`,
+   `docs(<scope>): …`)
+2. Re-run Tests and runtime verification. Don't re-run the review
+   gates: that is what keeps this pass from raising new findings. If a
+   test fails, revert the cleanup commit that broke it
+3. Re-triage once more, with the cleanup commits and no new gate
+   reports. `finding-triage` confirms each fix in the code: a finding
+   it lists under Resolved is done; one it doesn't is listed with
+   `cleanup fix not confirmed`. If it grades a cleanup commit as
+   introducing a MEDIUM or higher, revert that commit and list its
+   finding the same way
 
-Then:
-
-- A **late CRITICAL or HIGH** is a real defect the first pass missed:
-  it is must fix, in round 2.
-- A **late MEDIUM or LOW** is not fixed in this loop. List it with
-  `late: raised by a re-run on code the fixes didn't touch`.
-- **Round 2 runs only** when a must-fix finding is still unresolved, a
-  late finding is CRITICAL or HIGH, or a fix-caused finding is MEDIUM
-  or higher. It fixes those findings and nothing else (items 3–5
-  again). LOW findings never start or extend a round: a fix-caused LOW
-  is listed with `LOW: no fix round for it`.
-- **After round 2's re-run and re-triage, stop.** Never start a third
-  round unless the user asks for one in this conversation. A MEDIUM or
-  LOW still open is listed with `stopped after 2 fix rounds`. **An
-  introduced CRITICAL or HIGH still open, or failing tests, is a hard
-  stop** (Step 3): no PR opens for merging. Report it under
-  **Decisions needed** with what you tried, and let the user choose
-  between another round, a different fix, or proceeding.
+There is no second cleanup pass.
 
 ## What ships unfixed
 
@@ -103,9 +100,11 @@ and the PR proceeds:
 - `awaiting author decision` — you asked and have no answer yet
 - `author chose to proceed` — only when the user said so in this
   conversation; the only reason a CRITICAL or HIGH may carry
-- `late: raised by a re-run on code the fixes didn't touch`
-- `LOW: no fix round for it`
-- `stopped after 2 fix rounds`
+- `stopped after 2 fix rounds` — a MEDIUM the rounds didn't resolve
+- `cleanup fix not confirmed` — a LOW whose cleanup fix was reverted or
+  not confirmed
+- `no change recommended by triage — <its reason>` — a finding whose
+  Fix line in the triage list says none is needed
 
 That list is the final triage's Introduced section, one entry per
 finding: a finding leaves it only when a re-triage lists it under

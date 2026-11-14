@@ -118,8 +118,8 @@ Output Guidance" below.]
 - [SEVERITY] (sources) `file:line` — what is wrong — why it is unfixed
   (not contained: scope|contract|size — <reason>, #<issue> | author
   chose to proceed — only when they said so | awaiting author decision
-  | late: raised by a re-run on code the fixes didn't touch | LOW: no
-  fix round for it | stopped after 2 fix rounds)
+  | stopped after 2 fix rounds | cleanup fix not confirmed | no change
+  recommended by triage — <its reason>)
 An unfixed security finding gets severity and sources only: "security
 finding, details shared privately".]
 
@@ -363,8 +363,12 @@ change all three together.
   a codebase that has tests, a hard project-rule violation, or
   docs/comments that now contradict the code. In a codebase with no
   tests, missing coverage is one LOW summary note, not a MEDIUM per path.
-- **LOW** — hardening, simplification, reuse, style, naming, or a
+- **LOW** — hardening, simplification, reuse, naming, or a
   performance improvement without evidence of user-visible impact.
+
+Style alone — formatting, line length, quoting, ordering, or a wording
+preference — is not a finding, unless a project rule or linter config
+requires it; then it is LOW.
 
 A one-line fix for a real race is still HIGH. Lower a severity for
 likelihood only when the triggering state is shown to be unreachable.

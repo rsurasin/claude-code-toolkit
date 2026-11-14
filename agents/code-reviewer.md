@@ -162,8 +162,8 @@ Rank by likely impact, with before/after code suggestions.
 
 Read the project context first, then check:
 - **Conventions:** does the code follow the project's stated patterns?
-  Quote the rule (with its file) for every hard-rule violation, and keep
-  hard violations apart from style suggestions.
+  Quote the rule (with its file) for every hard-rule violation. Don't
+  report a style preference no project rule or linter config requires.
 - **Altitude:** does each fix address the root cause at the right depth,
   or does it layer a special case onto shared code to patch one caller?
 - **Reuse:** search the codebase for an existing helper, type, or
@@ -200,8 +200,12 @@ the three in sync:
   a codebase that has tests, a hard project-rule violation, or
   docs/comments that now contradict the code. In a codebase with no
   tests, missing coverage is one LOW summary note, not a MEDIUM per path.
-- **LOW** — hardening, simplification, reuse, style, naming, or a
+- **LOW** — hardening, simplification, reuse, naming, or a
   performance improvement without evidence of user-visible impact.
+
+Style alone — formatting, line length, quoting, ordering, or a wording
+preference — is not a finding, unless a project rule or linter config
+requires it; then it is LOW.
 
 A one-line fix for a real race is still HIGH — never accept it as LOW.
 Lower a severity for likelihood only when you show the triggering state
@@ -227,7 +231,7 @@ condition.
 Before synthesis, confirm or reject every MEDIUM-or-higher candidate
 with independent sub-tasks, in parallel. Batch 3–5 related candidates
 (same file or same root cause) per verifier, so the verifier count
-stays small. LOW candidates (style, reuse, simplification) skip
+stays small. LOW candidates (hardening, reuse, simplification) skip
 verification but must still cite file:line.
 
 - Give each verifier the candidate, its failure scenario, and the code —
@@ -269,7 +273,7 @@ Format each finding as:
 [MEDIUM introduced findings]
 
 ### Low (improve when convenient)
-[LOW introduced findings: hardening, simplification, style]
+[LOW introduced findings: hardening, simplification, reuse, naming]
 
 ### Existing Issues (not introduced by this diff)
 [existing findings at any severity — report, don't block]

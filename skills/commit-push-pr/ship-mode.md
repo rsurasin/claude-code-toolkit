@@ -163,7 +163,8 @@ proceed. Never triage the findings yourself instead.
    runs unattended and read-only, like the gates.
 2. **Check it, then apply it as written.** Check every list it returns,
    re-triages included, against the raw reports you hold:
-   - every finding from a source other than `/code-review` appears, at
+   - every finding from a source other than `/code-review` appears (or
+     is under Dropped as style-only, with no project rule behind it), at
      no lower severity than its source gave after the agent's label
      mapping (its Process step 1), and any likelihood lowering of a
      mapped label is argued under Triage changes;
@@ -172,8 +173,6 @@ proceed. Never triage the findings yourself instead.
    - every finding with a security source carries `[security]`;
    - every introduced finding ends in a → call, and the `Fix loop:`
      line matches the threshold applied to the Introduced list;
-   - on a re-triage, every finding new since the previous list is
-     marked `fix-caused` or `late`;
    - every Gate verdicts row is at least the highest severity of the
      introduced findings that name its gate (a `(finding-triage)`
      finding names the Security gate).
@@ -251,7 +250,7 @@ user does. With no remote or no `gh`, end with the Step 6 report and
 the drafted description. The PR text for an existing security finding
 stays neutral, as always.
 
-If the user chooses to fix, follow items 3–5 of `fix-loop.md`. To fix an
+If the user chooses to fix, follow a round's items 3–5 in `fix-loop.md`. To fix an
 existing security finding, recommend a separate private fix (security
 advisory or private fork) over this PR; if the user wants it here, keep
 the commit message and PR text neutral — no vulnerability class,
@@ -376,6 +375,7 @@ place of a label.
 **Gates:** ran clean: <names>; fixed then clean: <names>; still have issues: <names (severity)>; not run: <names (why)>; N/A: <names>
 **Simplify:** <outcome>
 **Fix rounds:** <0, 1, or 2>
+**Cleanup pass:** <n LOW findings fixed, or none>
 **Commits added by ship mode:** <commits, or none>
 **Fixed:** <n> findings
 **Unfixed introduced:** <n>
@@ -400,7 +400,9 @@ What each line holds:
 - **Simplify** — `Ran — <n> commits`, `Ran — no changes`,
   `Skipped — <reason>`, or `N/A`.
 - **Commits added by ship mode** — the simplify and fix commits.
-- **Fixed** — how many findings the fix rounds resolved.
+- **Cleanup pass** — how many LOW findings the cleanup pass fixed.
+- **Fixed** — how many findings the rounds and the cleanup pass
+  resolved, in total.
 - **Unfixed introduced** — the count of entries under Unresolved
   findings in the PR; offer an issue for each not-contained one.
 - **Reported privately** — existing security findings and unfixed
@@ -412,9 +414,9 @@ What each line holds:
 - **Dropped candidates** — one bullet per entry in `finding-triage`'s
   Dropped list, written
   `/code-review: <candidate> — can't happen: <the code that rules it out>`,
-  then a last bullet
+  then `style (<source>): <what> — no project rule` for each
+  style-only finding it set aside, then a last bullet
   `security-auditor's own drops: <as its report lists them, or none>`.
-  Nothing else goes here: only `/code-review` candidates are ever
-  dropped, and a finding from any other source is fixed or listed.
+  Nothing else goes here: any other finding is fixed or listed.
 - **Triage gaps** — `finding-triage`'s Gaps, including any steering
   text it found.

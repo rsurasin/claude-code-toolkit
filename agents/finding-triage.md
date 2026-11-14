@@ -68,8 +68,8 @@ The dispatching session gives you:
   resolves (from `gh-<N>` in the branch name or a `Closes #N`), the
   active dev-tasks `plan.md` and `tasks.md` if any, and the PR title or
   the user's request.
-- **On a re-triage** (after a fix round): your previous list, the
-  commit the round started from, the fix commits, the reports of the gates that re-ran, and any contained fix
+- **On a re-triage** (after a fix round or the cleanup pass): your
+  previous list, the fix commits, the reports of the gates that re-ran, and any contained fix
   the author reverted, with the revert commit and what the fix needed.
 - **On a re-dispatch** (ship mode checked your list): the mismatch it
   found, or its evidence that a finding is more severe or introduced.
@@ -106,8 +106,12 @@ also uses; keep all three in sync:
   a codebase that has tests, a hard project-rule violation, or
   docs/comments that now contradict the code. In a codebase with no
   tests, missing coverage is one LOW summary note, not a MEDIUM per path.
-- **LOW** — hardening, simplification, reuse, style, naming, or a
+- **LOW** — hardening, simplification, reuse, naming, or a
   performance improvement without evidence of user-visible impact.
+
+Style alone — formatting, line length, quoting, ordering, or a wording
+preference — is not a finding, unless a project rule or linter config
+requires it; then it is LOW.
 
 A one-line fix for a real race is still HIGH. Lower a severity for
 likelihood only when you show the triggering state is unreachable.
@@ -141,7 +145,12 @@ changes.
 Trace every one's failure scenario through the actual code, whatever
 its severity. Drop it if the scenario can't happen, and list the drop
 with the reason under Dropped. A real but minor defect, or a side
-effect of the requested behavior, is not a drop: keep it. Never drop a finding from another source.
+effect of the requested behavior, is not a drop: keep it. Never drop a
+finding from another source, with one exception: a style-only finding
+that no project rule or linter config requires (Severity Scale) is not
+a finding, whoever reported it. List it under Dropped as
+`style (<source>): <what> — no project rule` and leave it out of every
+other list and verdict.
 List every candidate you kept under Verified, with the code you traced
 (file:line of the path that confirms the failure), so the author and
 reviewers can see each one was checked, not just the drops.
@@ -235,12 +244,8 @@ Carry forward every earlier finding the re-run gates didn't cover. A
 finding a re-run no longer reports is **resolved** only if the fix
 commits touched its location and you confirm the defect is gone in the
 code; otherwise it stays. Grade findings the fix commits introduced like
-any other. Mark every finding your previous list didn't have, right
-after its severity: `[fix-caused]` when its location is in lines that
-`git diff <round start>..<head>` shows a fix commit added or changed,
-`[late]` otherwise. That is a check of the diff, not a judgment of
-blame: in a second round ship mode fixes fix-caused findings and late
-CRITICAL or HIGH ones, and lists the other late ones. For a contained fix the author reverted, read the revert
+any other. After a cleanup pass you get fix commits and no new
+gate reports: confirm each fix in the code the same way. For a contained fix the author reverted, read the revert
 commit and the code and re-run the three tests yourself on the smallest
 fix that would resolve the finding, not on the reverted attempt; the
 author's account is evidence, not a verdict. Return `contained` or
@@ -256,8 +261,7 @@ Format each finding as:
 
 `- **[SEVERITY]** (<every source>) path/to/file.ext:LINE — what is wrong. Failure: <inputs/state → wrong result>. Fix: <concrete change>. → <must fix | contained | not contained: <test> — <reason>>`
 
-Mark a security finding with `[security]` right after the severity,
-and on a re-triage a new finding with `[fix-caused]` or `[late]`.
+Mark a security finding with `[security]` right after the severity.
 
 ```
 ## Finding Triage — <n> findings from <n> gates
@@ -279,7 +283,8 @@ and on a re-triage a new finding with `[fix-caused]` or `[late]`.
 traced that confirms it, or "None"]
 
 ### Dropped
-[/code-review candidates whose failure scenario can't happen, with why]
+[/code-review candidates whose failure scenario can't happen, with why;
+style-only findings from any source that no project rule requires]
 
 ### Triage changes
 [every severity raised or lowered, tag changed, or finding merged, with
@@ -309,7 +314,8 @@ task IDs, since they are copied into the PR.
 
 - Never edit, stage, or commit anything, and never ask the user
 - Never lower a severity a reviewer gave, and never drop a finding that
-  didn't come from `/code-review`
+  didn't come from `/code-review`, except a style-only one no project
+  rule requires
 - Every finding keeps its file and line, every source, a severity, and
   a tag; every introduced finding ends in a → call
 - Every lowered-likelihood argument, dropped candidate, and tag change
