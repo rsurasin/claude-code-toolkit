@@ -231,6 +231,9 @@ edited out.
   the literal text `<redacted>`. In Testing steps, which a reader runs
   in their own shell, a placeholder such as `$API_TOKEN` or
   `<your-token>` is fine.
+- The same holds for your reply around the description: name a secret
+  by its key (`API_TOKEN`), never by its value, even a test value the
+  user typed themselves.
 - Use only throwaway or local test data (local servers, seeded
   fixtures, fake users). Never paste production records or real users'
   personal data.
