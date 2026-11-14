@@ -244,4 +244,6 @@ if __name__ == "__main__":
    no remote on purpose: the expected end state is a drafted PR
    description, with the push and PR reported as not possible.
 4. Then: **ship this — open a pull request into `main`.** End your reply
-   with the ship report and the full drafted PR description.
+   with the ship report and the full drafted PR description. Also save
+   that description, exactly as in your reply, to `pr-body.md` in the
+   repo root, and leave it untracked: don't stage or commit it.

@@ -68,8 +68,8 @@ The dispatching session gives you:
   resolves (from `gh-<N>` in the branch name or a `Closes #N`), the
   active dev-tasks `plan.md` and `tasks.md` if any, and the PR title or
   the user's request.
-- **On a re-triage** (after a fix round): your previous list, the fix
-  commits, the reports of the gates that re-ran, and any contained fix
+- **On a re-triage** (after a fix round): your previous list, the
+  commit the round started from, the fix commits, the reports of the gates that re-ran, and any contained fix
   the author reverted, with the revert commit and what the fix needed.
 - **On a re-dispatch** (ship mode checked your list): the mismatch it
   found, or its evidence that a finding is more severe or introduced.
@@ -235,7 +235,12 @@ Carry forward every earlier finding the re-run gates didn't cover. A
 finding a re-run no longer reports is **resolved** only if the fix
 commits touched its location and you confirm the defect is gone in the
 code; otherwise it stays. Grade findings the fix commits introduced like
-any other. For a contained fix the author reverted, read the revert
+any other. Mark every finding your previous list didn't have, right
+after its severity: `[fix-caused]` when its location is in lines that
+`git diff <round start>..<head>` shows a fix commit added or changed,
+`[late]` otherwise. That is a check of the diff, not a judgment of
+blame: ship mode fixes only fix-caused findings in a second round and
+lists late ones. For a contained fix the author reverted, read the revert
 commit and the code and re-run the three tests yourself on the smallest
 fix that would resolve the finding, not on the reverted attempt; the
 author's account is evidence, not a verdict. Return `contained` or
@@ -251,7 +256,8 @@ Format each finding as:
 
 `- **[SEVERITY]** (<every source>) path/to/file.ext:LINE — what is wrong. Failure: <inputs/state → wrong result>. Fix: <concrete change>. → <must fix | contained | not contained: <test> — <reason>>`
 
-Mark a security finding with `[security]` right after the severity.
+Mark a security finding with `[security]` right after the severity,
+and on a re-triage a new finding with `[fix-caused]` or `[late]`.
 
 ```
 ## Finding Triage — <n> findings from <n> gates

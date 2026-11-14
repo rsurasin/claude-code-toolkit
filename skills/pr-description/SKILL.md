@@ -118,7 +118,8 @@ Output Guidance" below.]
 - [SEVERITY] (sources) `file:line` — what is wrong — why it is unfixed
   (not contained: scope|contract|size — <reason>, #<issue> | author
   chose to proceed — only when they said so | awaiting author decision
-  | stopped after 3 fix rounds)
+  | late: raised by a re-run on code the fixes didn't touch | LOW: no
+  fix round for it | stopped after 2 fix rounds)
 An unfixed security finding gets severity and sources only: "security
 finding, details shared privately".]
 

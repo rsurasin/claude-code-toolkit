@@ -175,8 +175,7 @@ directory **before taking any ship-mode step**, and follow it. In short:
 commit outstanding work, confirm the PR base branch, run `/simplify` on
 code changes, run every quality gate over `<base>...HEAD`, have the
 `finding-triage` agent grade the findings into one list, fix introduced
-findings above the threshold and
-contained ones below it, push, and open the PR with a risk assessment
+findings in at most two rounds (`fix-loop.md`), push, and open the PR with a risk assessment
 and an Unresolved findings list. The Rules below apply in every mode.
 
 ---
@@ -206,15 +205,20 @@ off the release steps, and mark the folders `released`.
   and billed
 - Introduced findings above the threshold (any CRITICAL or HIGH, or 2+
   MEDIUM) are
-  fixed before the PR opens, with the smallest contract-preserving
-  change (one that needs a design or contract change goes to the user)
-  — never shipped with a risk label as a substitute for fixing;
+  fixed before the PR opens, in at most two fix rounds, with the
+  smallest contract-preserving change (one that needs a design or
+  contract change goes to the user); a MEDIUM or LOW that two rounds
+  leave open is listed under Unresolved findings and raises the risk
+  level, and a CRITICAL or HIGH still open is a hard stop — the PR
+  never opens with one unless the user said to proceed;
   existing findings are reported or filed, not blocking (except an
   existing CRITICAL security finding)
-- Below the threshold, contained fixes (needed to deliver what the
-  issue and tasks asked for, no design or contract change, too small
-  for its own issue)
-  are made in this PR too; every introduced finding left unfixed is
+- Below the threshold, a contained single MEDIUM (needed to deliver
+  what the issue and tasks asked for, no design or contract change, too
+  small for its own issue) is fixed in this PR too, and contained LOW
+  findings are fixed when a fix round runs; LOW findings never start a
+  round, and a MEDIUM or LOW a re-run raises on code no fix touched is
+  listed, not fixed (a CRITICAL or HIGH one is fixed in round 2); every introduced finding left unfixed is
   listed under Unresolved findings in the PR with its reason
 - Never publish an existing security finding's location, class, or
   exploit path in a PR body, commit message, or public issue — nor an
@@ -224,8 +228,11 @@ off the release steps, and mark the folders `released`.
 - Never commit feature work directly to the default branch
 - If there are merge conflicts, stop and report
 - On a hard stop (failing tests, existing critical security finding,
-  serious perf regression), never push without explicit user approval;
-  an introduced CRITICAL is fixed, not shipped
+  serious perf regression, or an introduced CRITICAL or HIGH still open
+  after two fix rounds), never open a ready-to-merge PR without
+  explicit user approval; when nobody can answer, open a draft PR
+  titled `[BLOCKED]` so the block is visible, and never mark it ready
+- Never delete, skip, or weaken a test to make a gate pass
 - Ask for the PR base branch unless the user stated it — before the
   gates run (Step 1a)
 - Release PRs list features, PR and issue numbers, and release steps,

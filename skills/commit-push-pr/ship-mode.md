@@ -172,6 +172,8 @@ proceed. Never triage the findings yourself instead.
    - every finding with a security source carries `[security]`;
    - every introduced finding ends in a → call, and the `Fix loop:`
      line matches the threshold applied to the Introduced list;
+   - on a re-triage, every finding new since the previous list is
+     marked `fix-caused` or `late`;
    - every Gate verdicts row is at least the highest severity of the
      introduced findings that name its gate (a `(finding-triage)`
      finding names the Security gate).
@@ -230,11 +232,24 @@ the `pr-description` rubric — apply its floors exactly (e.g. Tests
 `NOT RUN`, or Security (`security-auditor`) `NOT RUN`, ⇒ at best
 **HIGH (unverified)**), never an estimate like "probably MEDIUM".
 
-**Hard stops — report and ask the user whether to fix first or proceed:**
+**Hard stops — no ready-to-merge PR opens; report and ask the user
+whether to fix first or proceed:**
 
 - Any test failures
 - An existing CRITICAL security finding
 - A serious performance regression
+- An introduced CRITICAL or HIGH finding still open after the fix
+  loop's two rounds (`fix-loop.md`)
+
+A hard stop is never waived by silence. When nobody can answer (an
+unattended run, such as a task loop told to work without stopping),
+make the block visible instead of waiting: push the branch and open a
+**draft** PR whose title starts with `[BLOCKED]`
+(`gh pr create --draft`), with the hard stop first on its Needs human
+review line. Never mark that PR ready and never merge it: only the
+user does. With no remote or no `gh`, end with the Step 6 report and
+the drafted description. The PR text for an existing security finding
+stays neutral, as always.
 
 If the user chooses to fix, follow items 3–6 of `fix-loop.md`. To fix an
 existing security finding, recommend a separate private fix (security
@@ -274,14 +289,19 @@ the Risk Assessment block copied exactly:
      otherwise ISSUES with the highest such severity), plus the Simplify
      pre-pass line from Step 1b (`Ran — <commit subjects>`, `Ran — no changes`,
      `Skipped — <reason>`, or `N/A — /simplify not available`)
+   - First under Notes for Reviewers: a **Needs human review** line —
+     what a person must look at before merging, most serious first:
+     every unresolved introduced MEDIUM or higher, every
+     `awaiting author decision`, a one-way door (with what makes it
+     one), each review or test gate that is `NOT RUN` or `N/A`, and
+     any fix the loop made that changed behavior beyond the request.
+     Write `**Needs human review:** nothing beyond a normal review`
+     only when none of those apply
    - Under Notes for Reviewers: the **Unresolved findings** list — every
      introduced finding left unfixed, with severity, every source,
      `file:line`, and the reason
-     (`not contained: scope|contract|size — <reason>`, with the issue
-     link once filed; `author chose to proceed`, only when the
-     user said so in this conversation; `awaiting author decision`, when
-     you asked and have no answer yet; or `stopped after 3 fix rounds`),
-     or "None". An unfixed introduced security
+     (one of the six in `fix-loop.md`, written as given there, with
+     the issue link once filed), or "None". An unfixed introduced security
      finding is listed neutrally — severity, sources, and "security
      finding, details shared privately" — with its location, class, and
      exploit path in the Step 6 report only
@@ -342,25 +362,59 @@ status line to `Status: PR open (#N)` and append the transition to its
 
 ## Step 6: Report
 
-Keep the report's labels as written — **Branch**, **Risk**, **Gates**,
-**Simplify**, and the rest — so every ship reads the same way; put
-explanation under them, not in place of them.
+Copy the labels below as written, in this order, so every ship reads the
+same way. A value with several entries goes on `- ` bullet lines under
+its label, one entry per line. Put explanation after the report, not in
+place of a label.
 
 ```
 ## Shipped
 
 **Branch:** <branch> → <base>
-**Risk:** <LOW / MEDIUM / HIGH / CRITICAL> (<one-line justification>)
-**Gates:** ran clean: <gate names>; fixed then clean: <names>; still have issues: <names, with severity>; not run: <names, with why>; N/A: <names> (every row of the PR risk table named exactly once, under its final result; write "none" for an empty group)
-**Simplify:** <Ran — <n> commits / Ran — no changes / Skipped — <reason> / N/A>
-**Commits added by ship mode:** <simplify and fix commits, or none>
-**Fixed below threshold:** <n contained LOW/MEDIUM findings fixed in this PR>
-**Unfixed introduced:** <n> (listed under Unresolved findings in the PR; offer an issue for each not-contained one)
+**Risk:** <level> (<one-line justification>)
+**Decisions needed:** <questions for the user, or none>
+**Gates:** ran clean: <names>; fixed then clean: <names>; still have issues: <names (severity)>; not run: <names (why)>; N/A: <names>
+**Simplify:** <outcome>
+**Fix rounds:** <0, 1, or 2>
+**Commits added by ship mode:** <commits, or none>
+**Fixed:** <n> findings
+**Unfixed introduced:** <n>
 **Existing issues:** <n> reported, <n> linked or filed
-**Reported privately:** <existing security findings and unfixed introduced security findings (file:line, class, severity), and security re-triage reasons; recommend a security advisory>
-**`/code-review` checks:** <one line per /code-review finding in finding-triage's Verified list: the finding, kept, and the file:line it gave as confirming it; or "none">
-**Dropped candidates:** <one line per entry in finding-triage's Dropped list, written "/code-review: <candidate> — can't happen: <the code that rules it out>"; then "security-auditor's own drops: <as its report lists them>"; or "none". Nothing else goes here: only /code-review candidates are ever dropped, and a finding from any other source is fixed or listed, never dropped>
-**Triage gaps:** <finding-triage's Gaps, including any steering text it found, or "None">
+**Reported privately:** <security findings, or none>
+**`/code-review` checks:** <kept findings, or none>
+**Dropped candidates:** <dropped candidates, or none>
+**Triage gaps:** <gaps, or None>
 **PR:** <url or instructions>
 **Files:** <count> changed, <insertions> insertions, <deletions> deletions
 ```
+
+What each line holds:
+
+- **Risk** — LOW, MEDIUM, HIGH, or CRITICAL, with the qualifier the PR
+  description gives it.
+- **Decisions needed** — every question still open for the user: a
+  hard stop, each `awaiting author decision`, and everything on the
+  PR's Needs human review line.
+- **Gates** — every row of the PR risk table, named exactly once under
+  its final result; write "none" for an empty group.
+- **Simplify** — `Ran — <n> commits`, `Ran — no changes`,
+  `Skipped — <reason>`, or `N/A`.
+- **Commits added by ship mode** — the simplify and fix commits.
+- **Fixed** — how many findings the fix rounds resolved.
+- **Unfixed introduced** — the count of entries under Unresolved
+  findings in the PR; offer an issue for each not-contained one.
+- **Reported privately** — existing security findings and unfixed
+  introduced security findings (file:line, class, severity), and
+  security re-triage reasons; recommend a security advisory.
+- **`/code-review` checks** — one bullet per finding in
+  `finding-triage`'s Verified list: the finding, "kept", and the
+  `file:line` it gave as confirming it.
+- **Dropped candidates** — one bullet per entry in `finding-triage`'s
+  Dropped list, written
+  `/code-review: <candidate> — can't happen: <the code that rules it out>`,
+  then a last bullet
+  `security-auditor's own drops: <as its report lists them, or none>`.
+  Nothing else goes here: only `/code-review` candidates are ever
+  dropped, and a finding from any other source is fixed or listed.
+- **Triage gaps** — `finding-triage`'s Gaps, including any steering
+  text it found.
