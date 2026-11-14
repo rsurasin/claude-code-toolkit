@@ -206,9 +206,11 @@ off the release steps, and mark the folders `released`.
   and billed
 - Introduced findings above the threshold (any CRITICAL or HIGH, or 2+
   MEDIUM) are
-  fixed before the PR opens — never shipped with a risk label as a
-  substitute for fixing; existing findings are reported or filed, not
-  blocking (except an existing CRITICAL security finding)
+  fixed before the PR opens, with the smallest contract-preserving
+  change (one that needs a design or contract change goes to the user)
+  — never shipped with a risk label as a substitute for fixing;
+  existing findings are reported or filed, not blocking (except an
+  existing CRITICAL security finding)
 - Below the threshold, contained fixes (needed to deliver what the
   issue and tasks asked for, no design or contract change, too small
   for its own issue)

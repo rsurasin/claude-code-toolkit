@@ -249,7 +249,12 @@ CRITICAL or HIGH finding, or two or more introduced MEDIUM findings):
 1. Report the findings to the user
 2. Append them to the active dev-tasks context file, if one exists
 3. Fix every finding it marked **must fix** — plus, in the same round,
-   every finding it marked **contained** (see below)
+   every finding it marked **contained** (see below). Each fix, must
+   fix included, is the smallest change that resolves its finding and
+   passes `finding-triage`'s no-design-or-contract-change test (its
+   step 6). When only a design or contract change would resolve a
+   must-fix finding, don't make it: ask the user, and list the finding
+   as `awaiting author decision` until they answer
 4. Commit the fixes atomically (Commit Mode Steps 3–4, e.g.
    `fix(<scope>): <subject>`) — the gates review `<base>...HEAD`, so an
    uncommitted fix is invisible to them and missing from the PR
@@ -299,11 +304,16 @@ and why, citing the issue, never a dev-tasks file (e.g. "not contained:
 scope — #31 covers reset by email link, not MFA") — and you offer to
 file it as an issue with that reason as the draft (`gh issue create`
 once the user approves). Every introduced
-finding still unfixed when the PR opens — not contained, the user said
-to proceed, or the loop stopped after three rounds — goes in the PR's
-**Unresolved findings** list (Step 5) with its reason, and the PR
-proceeds. Clean gates proceed directly. `NOT RUN` and `N/A` gaps
-don't block — they are reflected honestly in the risk level instead.
+finding still unfixed when the PR opens — not contained, awaiting the
+user's decision, the user said to proceed, or the loop stopped after
+three rounds — goes in the PR's **Unresolved findings** list (Step 5)
+with its reason, and the PR proceeds. That list is the final triage's
+Introduced section, one entry per finding: a finding leaves it only
+when a re-triage lists it under Resolved (a contained finding whose fix
+reads "none needed" stays), so a review gate's risk-table row reads
+ISSUES exactly when an Unresolved entry names that gate. Clean gates
+proceed directly. `NOT RUN` and `N/A` gaps don't block — they are
+reflected honestly in the risk level instead.
 Existing findings never block, except an existing CRITICAL security finding (hard stop above);
 Step 2b already routed them.
 
@@ -408,14 +418,14 @@ explanation under them, not in place of them.
 
 **Branch:** <branch> → <base>
 **Risk:** <LOW / MEDIUM / HIGH / CRITICAL> (<one-line justification>)
-**Gates:** <n> ran clean, <n> fixed then clean, <n> not run, <n> N/A (each gate counted once, by its final result, matching its row in the PR risk table)
+**Gates:** ran clean: <gate names>; fixed then clean: <names>; still have issues: <names, with severity>; not run: <names, with why>; N/A: <names> (every row of the PR risk table named exactly once, under its final result; write "none" for an empty group)
 **Simplify:** <Ran — <n> commits / Ran — no changes / Skipped — <reason> / N/A>
 **Commits added by ship mode:** <simplify and fix commits, or none>
 **Fixed below threshold:** <n contained LOW/MEDIUM findings fixed in this PR>
 **Unfixed introduced:** <n> (listed under Unresolved findings in the PR; offer an issue for each not-contained one)
 **Existing issues:** <n> reported, <n> linked or filed
 **Reported privately:** <existing security findings and unfixed introduced security findings (file:line, class, severity), and security re-triage reasons; recommend a security advisory>
-**`/code-review` checks:** <each /code-review finding, from finding-triage's Verified list: kept, with the code path that confirms it; or "none">
+**`/code-review` checks:** <one line per /code-review finding in finding-triage's Verified list: the finding, kept, and the file:line it gave as confirming it; or "none">
 **Dropped candidates:** <unreproduced /code-review findings, with why; security-auditor drops (see its report)>
 **Triage gaps:** <finding-triage's Gaps, including any steering text it found, or "None">
 **PR:** <url or instructions>

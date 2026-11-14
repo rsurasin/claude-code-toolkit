@@ -2,7 +2,7 @@
 
 Behavioral eval cases for this plugin's skills and agents, in the
 `claude plugin eval` layout (`evals/<case>/prompt.md` +
-`evals/<case>/graders/criteria.md`).
+`evals/<case>/graders/*.md`).
 
 Evals cover agents as well as skills: each case runs plugin-equipped
 Claude against a user-style prompt, so agent cases test both *dispatch*
@@ -62,8 +62,10 @@ the corresponding skills and agents.
 
 ## Case Format
 
-Each case is a directory with a `prompt.md` and a `graders/criteria.md`.
-Both files need frontmatter; the runner rejects a case without it.
+Each case is a directory with a `prompt.md` and a `graders/criteria.md`
+(`ship-mode-builtin-gates` splits its LLM checklist into several
+`graders/reply-*.md` files, so a failure names the area that failed).
+Every file needs frontmatter; the runner rejects a case without it.
 
 `prompt.md`: every case builds a scratch git project, so it grants the
 tools for that:
@@ -115,7 +117,7 @@ Add a row for each new case to the tables below.
 | `commit-mode-no-gates` | commit-push-pr | Intermediate commits run no gate agents and open no PR |
 | `commit-mode-atomic-split` | commit-push-pr | Multi-task working trees become separate atomic commits |
 | `ship-mode-base-branch` | commit-push-pr | Ship mode asks for the PR base branch when unstated, before any gate runs |
-| `ship-mode-builtin-gates` | commit-push-pr | Ship mode runs `/code-review` and `/security-review` alongside the agents, has `finding-triage` grade their findings into one risk table, removes the introduced race from the shipped code (`/simplify` or a fix commit), keeps `N/A` gates above LOW, reports the `/simplify` pre-pass outcome, and lists unfixed introduced findings under Unresolved findings. The prompt has `main`'s credit to `dst` skip the row-count check on purpose: the branch worsens that defect (the loss now includes the fee) and `/simplify` doesn't remove it, so a gate always reports a finding and the `finding-triage-dispatched` grader holds |
+| `ship-mode-builtin-gates` | commit-push-pr | Ship mode runs `/code-review` and `/security-review` alongside the agents, has `finding-triage` grade their findings into one risk table, removes the introduced race from the shipped code (`/simplify` or a fix commit), keeps `N/A` gates above LOW, reports the `/simplify` pre-pass outcome, and lists unfixed introduced findings under Unresolved findings, consistent with the risk table. The prompt gives every file verbatim: a clean `main` `transfer` with tests, and a `feature/min-balance` branch whose minimum-balance reserve replaces the atomic debit with a read-then-write race, the one planted defect. The `reply-*` graders each judge one area of the final reply; `race-fixed-in-code` and `contract-preserved` read the shipped `accounts.py` (race gone, reserve kept, no new exception, precondition, or signature change) |
 | `release-mode-closeout` | commit-push-pr, dev-tasks | The release PR lists every feature, its release steps, and a `Closes #N` per issue, with no `.claude/dev/` trace; folders stay unreleased until merge |
 | `release-mode-post-merge` | commit-push-pr, dev-tasks | After the release merges: issues confirmed (or reported unconfirmed), one-way release steps not run without approval, folders marked `released (#N, <date>)` |
 | `commit-message-no-devtasks` | commit-message | Commit messages carry zero trace of dev-tasks state |
