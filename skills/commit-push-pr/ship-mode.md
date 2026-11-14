@@ -94,7 +94,13 @@ report instead) and must not edit files — fixes happen in Step 3.
    runs in the cloud and is billed to the user, so only the user
    triggers it. Don't pass `--fix` (fixes go through Step 3) or
    `--comment` (no PR exists yet).
-8. **Built-in `/security-review`** — invoke the skill; it reviews what
+8. **Built-in `/security-review`** — run it through a
+   `general-purpose` subagent: tell the subagent to invoke the
+   `/security-review` skill and return its report verbatim. Don't
+   invoke the skill in your own session: its instructions make the
+   report the session's final reply, which has ended ships before
+   triage ran. If the subagent can't invoke skills, invoke it yourself
+   as the last gate and then carry on to Step 2b. It reviews what
    the current branch introduces relative to `origin/HEAD`. If it errors
    because `origin/HEAD` is unset, run
    `git remote set-head origin --auto` and retry once. If the confirmed
@@ -103,9 +109,9 @@ report instead) and must not edit files — fixes happen in Step 3.
    justification sentence states the mismatch.
 
 A built-in skill's report is a gate result, not your reply. When
-`/code-review` or `/security-review` returns, carry on in the same turn
-(the remaining gates, then Step 2b onwards); never end the turn on a
-gate's report.
+`/code-review` or the `/security-review` subagent returns, carry on in
+the same turn (the remaining gates, then Step 2b onwards); never end
+the turn on a gate's report.
 
 Agents and built-in skills run side by side, never one instead of the
 other: side-by-side runs showed each catches defects the other misses.
