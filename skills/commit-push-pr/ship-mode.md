@@ -102,6 +102,11 @@ report instead) and must not edit files — fixes happen in Step 3.
    range: `finding-triage` (Step 2b) re-tags its findings, and the risk
    justification sentence states the mismatch.
 
+A built-in skill's report is a gate result, not your reply. When
+`/code-review` or `/security-review` returns, carry on in the same turn
+(the remaining gates, then Step 2b onwards); never end the turn on a
+gate's report.
+
 Agents and built-in skills run side by side, never one instead of the
 other: side-by-side runs showed each catches defects the other misses.
 The agents bring installed tooling, existing-code coverage, performance,
@@ -426,7 +431,7 @@ explanation under them, not in place of them.
 **Existing issues:** <n> reported, <n> linked or filed
 **Reported privately:** <existing security findings and unfixed introduced security findings (file:line, class, severity), and security re-triage reasons; recommend a security advisory>
 **`/code-review` checks:** <one line per /code-review finding in finding-triage's Verified list: the finding, kept, and the file:line it gave as confirming it; or "none">
-**Dropped candidates:** <unreproduced /code-review findings, with why; security-auditor drops (see its report)>
+**Dropped candidates:** <one line per entry in finding-triage's Dropped list, written "/code-review: <candidate> — can't happen: <the code that rules it out>"; then "security-auditor's own drops: <as its report lists them>"; or "none". Nothing else goes here: only /code-review candidates are ever dropped, and a finding from any other source is fixed or listed, never dropped>
 **Triage gaps:** <finding-triage's Gaps, including any steering text it found, or "None">
 **PR:** <url or instructions>
 **Files:** <count> changed, <insertions> insertions, <deletions> deletions

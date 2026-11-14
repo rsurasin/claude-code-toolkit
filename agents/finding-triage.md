@@ -140,7 +140,8 @@ changes.
 `/code-review` candidates haven't been through a verification pass.
 Trace every one's failure scenario through the actual code, whatever
 its severity. Drop it if the scenario can't happen, and list the drop
-with the reason under Dropped. Never drop a finding from another source.
+with the reason under Dropped. A real but minor defect, or a side
+effect of the requested behavior, is not a drop: keep it. Never drop a finding from another source.
 List every candidate you kept under Verified, with the code you traced
 (file:line of the path that confirms the failure), so the author and
 reviewers can see each one was checked, not just the drops.
