@@ -98,7 +98,7 @@ new behavior.
 ## Testing Skills — Eval Suite
 
 Behavioral eval cases live under `evals/` (one dir per case: `prompt.md`
-+ `graders/criteria.md`), run by `claude plugin eval` (Claude Code
++ `graders/*.md`, usually one `criteria.md`), run by `claude plugin eval` (Claude Code
 2.1.269+). Run from the repo root:
 
 ```bash
@@ -119,7 +119,9 @@ the default Haiku judge has failed correct runs that needed judgment.
 
 Every case needs frontmatter or the runner rejects it. `prompt.md`
 starts with `max_turns` and `allowed_tools` (listing Bash, Write and Edit
-too); `graders/criteria.md` starts with `type: llm` and `weight: 1`. An
+too); an LLM grader file (`graders/criteria.md`, or each
+`graders/reply-*.md` in `ship-mode-builtin-gates`) starts with
+`type: llm` and `weight: 1`. An
 `llm` grader sees only the final message unless it sets `focus: trace`
 (and then only the first and last 12 messages), so grade behavior —
 commands run, files created, agents spawned — with `tool_used` /
