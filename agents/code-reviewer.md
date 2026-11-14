@@ -7,7 +7,10 @@ description: >
   performance, test coverage, and convention violations, and reports
   every finding with a defined severity, a concrete failure scenario, a
   fix, and an introduced/existing tag. Use before committing, before PRs,
-  or after implementing a feature. Complements the built-in /code-review
+  or after implementing a feature. Dispatch it whenever the user asks
+  for a review of their changes, a commit, or a branch ("review my
+  changes"), however small the change: never review inline in the
+  session that wrote or set up the code. Complements the built-in /code-review
   skill rather than replacing it: this agent adds the security,
   performance, and test-coverage axes, reads `.claude/rules/` and nested
   CLAUDE.md files, and returns severities a quality gate can normalize —
