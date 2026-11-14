@@ -72,6 +72,9 @@ the corresponding skills and agents.
 ## Case Format
 
 Each case is a directory with a `prompt.md` and a `graders/criteria.md`
+(`finding-triage-security-marker` has one `criteria-*.md` per check: the
+judge failed its five-item rubric on a report that passed every item
+alone)
 (`ship-mode-builtin-gates` instead has the agent save the PR body to
 `pr-body.md` and checks its format, and the ship report's, with regex
 graders; three `graders/reply-*.md` files keep the checks that need a

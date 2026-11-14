@@ -239,8 +239,8 @@ any other. Mark every finding your previous list didn't have, right
 after its severity: `[fix-caused]` when its location is in lines that
 `git diff <round start>..<head>` shows a fix commit added or changed,
 `[late]` otherwise. That is a check of the diff, not a judgment of
-blame: ship mode fixes only fix-caused findings in a second round and
-lists late ones. For a contained fix the author reverted, read the revert
+blame: in a second round ship mode fixes fix-caused findings and late
+CRITICAL or HIGH ones, and lists the other late ones. For a contained fix the author reverted, read the revert
 commit and the code and re-run the three tests yourself on the smallest
 fix that would resolve the finding, not on the reverted attempt; the
 author's account is evidence, not a verdict. Return `contained` or

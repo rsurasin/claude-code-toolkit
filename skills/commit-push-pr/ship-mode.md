@@ -232,7 +232,7 @@ the `pr-description` rubric — apply its floors exactly (e.g. Tests
 `NOT RUN`, or Security (`security-auditor`) `NOT RUN`, ⇒ at best
 **HIGH (unverified)**), never an estimate like "probably MEDIUM".
 
-**Hard stops — no ready-to-merge PR opens; report and ask the user
+**Hard stops — don't push or open the PR; report and ask the user
 whether to fix first or proceed:**
 
 - Any test failures
@@ -241,7 +241,7 @@ whether to fix first or proceed:**
 - An introduced CRITICAL or HIGH finding still open after the fix
   loop's two rounds (`fix-loop.md`)
 
-A hard stop is never waived by silence. When nobody can answer (an
+A hard stop is never waived by silence. Only when nobody can answer (an
 unattended run, such as a task loop told to work without stopping),
 make the block visible instead of waiting: push the branch and open a
 **draft** PR whose title starts with `[BLOCKED]`
@@ -251,7 +251,7 @@ user does. With no remote or no `gh`, end with the Step 6 report and
 the drafted description. The PR text for an existing security finding
 stays neutral, as always.
 
-If the user chooses to fix, follow items 3–6 of `fix-loop.md`. To fix an
+If the user chooses to fix, follow items 3–5 of `fix-loop.md`. To fix an
 existing security finding, recommend a separate private fix (security
 advisory or private fork) over this PR; if the user wants it here, keep
 the commit message and PR text neutral — no vulnerability class,

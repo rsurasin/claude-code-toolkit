@@ -229,9 +229,10 @@ off the release steps, and mark the folders `released`.
 - If there are merge conflicts, stop and report
 - On a hard stop (failing tests, existing critical security finding,
   serious perf regression, or an introduced CRITICAL or HIGH still open
-  after two fix rounds), never open a ready-to-merge PR without
-  explicit user approval; when nobody can answer, open a draft PR
-  titled `[BLOCKED]` so the block is visible, and never mark it ready
+  after two fix rounds), never push or open a PR without explicit user
+  approval. The one exception is an unattended run, where nobody can
+  answer: push and open a draft PR titled `[BLOCKED]` so the block is
+  visible, and never mark it ready
 - Never delete, skip, or weaken a test to make a gate pass
 - Ask for the PR base branch unless the user stated it — before the
   gates run (Step 1a)

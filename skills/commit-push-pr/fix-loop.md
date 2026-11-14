@@ -31,7 +31,8 @@ is listed with `LOW: no fix round for it`.
    `finding-triage`'s no-design-or-contract-change test (its step 6).
    When only a design or contract change would resolve a must-fix
    finding, don't make it: ask the user, and list the finding as
-   `awaiting author decision` until they answer. Never delete, skip,
+   `awaiting author decision` until they answer (for a CRITICAL or
+   HIGH, that is a hard stop too). Never delete, skip,
    or weaken a test to make a gate pass; a test you believe is wrong
    is a question for the user
 4. Commit the fixes atomically (Commit Mode Steps 3–4, e.g.
@@ -84,7 +85,7 @@ Then:
   round unless the user asks for one in this conversation. A MEDIUM or
   LOW still open is listed with `stopped after 2 fix rounds`. **An
   introduced CRITICAL or HIGH still open, or failing tests, is a hard
-  stop** (Step 3): no ready-to-merge PR opens. Report it under
+  stop** (Step 3): no PR opens for merging. Report it under
   **Decisions needed** with what you tried, and let the user choose
   between another round, a different fix, or proceeding.
 
