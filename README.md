@@ -316,7 +316,8 @@ claude-code-toolkit/
 │   │   └── SKILL.md                 # PR description generator w/ risk assessment
 │   ├── commit-push-pr/
 │   │   ├── SKILL.md                 # Two-mode commit → PR inner loop
-│   │   ├── ship-mode.md             # Gates, triage, fix loop, PR (read in ship and release mode)
+│   │   ├── ship-mode.md             # Gates, triage, PR (read in ship and release mode)
+│   │   ├── fix-loop.md              # What is fixed before the PR opens, and when to stop (read in ship mode)
 │   │   └── release-mode.md          # Release PR + post-merge closeout (read in release mode)
 │   ├── dev-tasks/
 │   │   └── SKILL.md                 # Task-specific cross-session context

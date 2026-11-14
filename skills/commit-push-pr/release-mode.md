@@ -90,8 +90,8 @@ them: release steps come only from task folders or the user.
    the release steps makes the release a one-way door in the risk
    assessment.
 
-   Never commit gate fixes onto `<integration>` or `<default>`, so Ship
-   Mode Step 3's fix loop and its contained below-threshold fixes don't
+   Never commit gate fixes onto `<integration>` or `<default>`, so the
+   fix loop (`fix-loop.md`) and its contained below-threshold fixes don't
    apply here; the triage agent's must-fix and contained calls only
    tell the user what a fix PR would cover. Report the
    findings and, with the user's approval, fix them on a new
