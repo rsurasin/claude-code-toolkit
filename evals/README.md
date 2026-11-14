@@ -57,7 +57,8 @@ symbolic link", the sandbox refuses to run while `~/.docker` contains
 symlinks (common on WSL with Docker Desktop). Move those links out of
 `~/.docker` for the duration of the run and restore them afterwards.
 
-On Claude Code 2.1.322 (WSL/NixOS), the eval Bash sandbox mounts a
+On Linux and WSL, Claude Code 2.1.304 through at least 2.1.322
+(anthropics/claude-code#106687), the eval Bash sandbox mounts a
 case's scratch directory read-only when it sits under `/tmp` ("Read-only
 file system" on `git init`), so every case that builds its project with
 Bash fails at setup. Point `TMPDIR` at a directory outside `/tmp` for

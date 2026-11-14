@@ -108,6 +108,13 @@ claude plugin eval . --allow-tools Bash Write Edit
 claude plugin eval . --case <case> --runs 1 --ablation none --allow-tools Bash Write Edit
 ```
 
+On Linux and WSL, Claude Code 2.1.304 through at least 2.1.322 needs
+`TMPDIR` set outside `/tmp` for these commands, e.g.
+`TMPDIR=$HOME/.cache/eval-tmp claude plugin eval . …` (create the
+directory first): the eval sandbox denies writes to a scratch directory
+under `/tmp`, so every case fails at `git init` with "Read-only file
+system" (anthropics/claude-code#106687). Discard a run that shows it.
+
 `--allow-tools Bash Write Edit` is required: every case builds a scratch
 git project, and a case's `allowed_tools` only grants read-only tools on
 its own — gated tools (Bash, Write, Edit) also need the operator grant.
