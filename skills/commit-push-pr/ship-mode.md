@@ -159,7 +159,9 @@ proceed. Never triage the findings yourself instead.
    facts of your own it ever gets are the two re-dispatch inputs: a
    mismatch or evidence from item 2, and a reverted contained fix's
    needs (Step 3). From this dispatch until the final re-triage, don't
-   edit the dev-tasks `plan.md` or `tasks.md`: they are scope input. It
+   edit the dev-tasks `plan.md` or `tasks.md`, which are scope input,
+   except to add lines under `tasks.md`'s `## Review Fixes`
+   (`fix-loop.md`), which triage does not read as scope. It
    runs unattended and read-only, like the gates.
 2. **Check it, then apply it as written.** Check every list it returns,
    re-triages included, against the raw reports you hold:

@@ -240,11 +240,21 @@ Each product decision gets one record under `## Decisions` in
 ## Discovered During Implementation
 - [ ] [new task found while working]
 
+## Review Fixes
+- [x] [YYYY-MM-DDThh:mm:ssZ] [SEVERITY] [finding, file:line] — fixed in [commit], [round 1 | round 2 | cleanup]
+- [ ] [SEVERITY] [finding, file:line] — unresolved: [reason]
+
 ## Release Steps
 - [ ] [what the release itself must do, e.g. "deploy together with org/frontend#56", "apply migration 0042_cap_sets", "turn on the streaks flag"; or "None"]
 
 Status: in progress
 ```
+
+`## Review Fixes` is written by `commit-push-pr` ship mode: one line per
+finding its review gates raised, ticked with the fix commit or left open
+with the reason it shipped unfixed. It is an audit record, not planned
+work: leave it empty until ship mode runs, and never use it to widen
+what the task covers.
 
 The `## Release Steps` heading and the final `Status:` line are fixed: the
 release closeout finds them by that exact heading and prefix, so never

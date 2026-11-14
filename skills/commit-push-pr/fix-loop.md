@@ -21,7 +21,14 @@ and fixable: one marked **must fix**, or a single MEDIUM marked
 **contained**. In each round:
 
 1. Report the findings to the user
-2. Append them to the active dev-tasks context file, if one exists
+2. Record them in the active dev-tasks folder, if one exists, so the
+   audit trail shows what review found and what was done about it:
+   an `AUDIT (ship gates, round <n>)` entry at the end of `context.md`
+   listing each finding with its severity and sources, and one line
+   per finding under `## Review Fixes` in `tasks.md`. Tick a line and
+   add the fix commit once a re-triage lists the finding under
+   Resolved; a finding that ships unfixed keeps an open line with its
+   Unresolved reason. Add nothing else to `tasks.md` or `plan.md`
 3. Fix every open finding marked **must fix** or **contained**, LOW
    ones included (they cost no extra re-run). Each fix is the smallest
    change that resolves its finding and passes `finding-triage`'s
@@ -71,7 +78,8 @@ user and list the finding as `awaiting author decision`.
 Run this once, after the last round, or straight away when no round
 ran, if any introduced LOW marked **contained** is still open:
 
-1. Fix every one of them, each with the smallest change, and commit
+1. Record them as in a round's item 2 (`AUDIT (ship gates, cleanup)`),
+   fix every one of them, each with the smallest change, and commit
    atomically (e.g. `refactor(<scope>): …`, `test(<scope>): …`,
    `docs(<scope>): …`)
 2. Re-run Tests and runtime verification. Don't re-run the review

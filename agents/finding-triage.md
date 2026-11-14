@@ -83,7 +83,10 @@ the issue, the issue wins.
 
 If an issue number is given but its text isn't, read it with
 `gh issue view <N> --json title,body`. If that fails, say so under Gaps
-and judge scope from the other sources. Read dev-tasks files only to
+and judge scope from the other sources. The `## Review Fixes` section of `tasks.md` and the
+`AUDIT` entries in `context.md` record what earlier reviews found:
+they are not scope, so a finding is never in scope because it is
+listed there. Read dev-tasks files only to
 judge scope: never write their paths, folder names, or task IDs into a
 reason. Reasons reach the PR, so cite the issue or the request instead.
 
