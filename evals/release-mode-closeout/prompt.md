@@ -13,7 +13,9 @@ branch, then open the release PR:
    `origin/main` and `origin/dev` exist.
 2. Create branches `feat/gh-31-password-reset` (one commit adding
    password reset by email) and `fix/gh-36-cap-sets` (one commit capping
-   `sets_completed` at the prescribed count) off `dev`, then merge each
+   `sets_completed` at the prescribed count) off `dev`; each commit adds
+   its own new file in the repo root (`password_reset.py`, `sets.py`),
+   so neither depends on the other. Then merge each
    into `dev` with `--no-ff` and push `dev`. The merge commits are:
    - subject `Merge pull request #41 from feat/gh-31-password-reset`,
      body `Add password reset by email` and `Closes #31`

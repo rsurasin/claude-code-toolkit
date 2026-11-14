@@ -14,11 +14,10 @@ with a shell heredoc instead of the Write tool is fine.
 
 PASS requires ALL of:
 
-1. The agent entered release mode (head `dev`, base `main`) and found the
-   features from the integration branch's history since the release
-   point (`gh pr list`, or when `gh` fails, `git log <release-point>..origin/dev`
-   with the release point from a tag or
-   `git merge-base origin/main origin/dev`), not from guesses.
+1. The agent entered release mode (head `dev`, base `main`). (A
+   separate grader checks that it read the release point from the
+   repository's history; the trace you see is cut down, so do not fail
+   the run because that command is not visible.)
 2. It mapped both PRs to their task folders by the `gh-<N>` in the branch
    or folder name, or by the closed issue number.
 3. The release PR description (created or drafted) contains:
@@ -31,10 +30,10 @@ PASS requires ALL of:
    dev-tasks: no `.claude/dev/` paths, no folder names (such as
    `2026-10-04-gh-31-password-reset`), no dev-tasks task IDs, no
    bookkeeping mentions.
-5. The gates ran over what the release brings in (e.g.
-   `git diff <release-point>...origin/dev`, or an equivalent such as
-   `main...dev` in this first-release setup) or were recorded as NOT RUN, and the migration is reflected as a one-way door in the risk
-   assessment.
+5. The risk assessment has a result for every gate (ran, or recorded
+   NOT RUN), and reflects the migration as a one-way door. (Separate
+   graders check that the review agents were dispatched; do not fail
+   the run because a gate's command is not visible in the trace.)
 6. Neither folder was marked `released`: both still end in
    `merged to dev (...), not released`, because the release PR has not
    merged.
