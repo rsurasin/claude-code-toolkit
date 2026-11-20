@@ -207,9 +207,8 @@ Style alone — formatting, line length, quoting, ordering, or a wording
 preference — is not a finding, unless a project rule or linter config
 requires it; then it is LOW.
 
-A one-line fix for a real race is still HIGH — never accept it as LOW.
-Lower a severity for likelihood only when you show the triggering state
-is unreachable.
+A one-line fix for a real race is still HIGH. Lower a severity for
+likelihood only when the triggering state is shown to be unreachable.
 
 Every finding is also tagged:
 
