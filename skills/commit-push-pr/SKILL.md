@@ -231,7 +231,10 @@ off the release steps, and mark the folders `released`.
   after two fix rounds), never push or open a PR without explicit user
   approval. The one exception is an unattended run, where nobody can
   answer: push and open a draft PR titled `[BLOCKED]` so the block is
-  visible, and never mark it ready
+  visible, and never mark it ready. When the stop is an existing
+  CRITICAL security finding, the draft says only that a hard stop needs
+  a decision, with the details in the ship report (`ship-mode.md`
+  Step 3)
 - Never delete, skip, or weaken a test to make a gate pass
 - Ask for the PR base branch unless the user stated it — before the
   gates run (Step 1a)

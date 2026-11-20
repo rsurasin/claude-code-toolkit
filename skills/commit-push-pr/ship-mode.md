@@ -255,8 +255,17 @@ make the block visible instead of waiting: push the branch and open a
 (`gh pr create --draft`), with the hard stop first on its Needs human
 review line. Never mark that PR ready and never merge it: only the
 user does. With no remote or no `gh`, end with the Step 6 report and
-the drafted description. The PR text for an existing security finding
-stays neutral, as always.
+the drafted description.
+
+When the hard stop is an existing CRITICAL security finding, still open
+the draft, so the user learns the loop stopped. Nothing published may
+name or describe the finding: the title, the body, the Needs human
+review line and every commit message say only "a hard stop that needs
+your decision, details in the ship report". Don't say it is a security
+finding, and give no severity, source, class, location or exploit path.
+Leave out the usual "existing security findings were reported
+privately" line in this draft. The details go in the Step 6 report only
+(Decisions needed and Reported privately).
 
 If the user chooses to fix, follow a round's items 3–5 in `fix-loop.md`. To fix an
 existing security finding, recommend a separate private fix (security
@@ -302,6 +311,8 @@ the Risk Assessment block copied exactly:
      `awaiting author decision`, a one-way door (with what makes it
      one), each review or test gate that is `NOT RUN` or `N/A`, and
      any fix the loop made that changed behavior beyond the request.
+     A hard stop that is an existing CRITICAL security finding is
+     written as Step 3's neutral sentence, nothing more.
      Write `**Needs human review:** nothing beyond a normal review`
      only when none of those apply
    - Under Notes for Reviewers: the **Unresolved findings** list — every
