@@ -119,7 +119,8 @@ Output Guidance" below.]
   (not contained: scope|contract|size — <reason>, #<issue> | author
   chose to proceed — only when they said so | awaiting author decision
   | stopped after 2 fix rounds | cleanup fix not confirmed | no change
-  recommended by triage — <its reason>)
+  recommended by triage — <its reason> | release shipped without a fix
+  PR — release mode only)
 An unfixed security finding gets severity and sources only: "security
 finding, details shared privately".]
 

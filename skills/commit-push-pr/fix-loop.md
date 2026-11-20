@@ -115,6 +115,9 @@ and the PR proceeds:
 - `no change recommended by triage — <its reason>` — a finding whose
   Fix line in the triage list says none is needed
 
+Release mode adds one reason of its own, `release shipped without a
+fix PR` (`release-mode.md`); ship mode never uses it.
+
 That list is the final triage's Introduced section, one entry per
 finding: a finding leaves it only when a re-triage lists it under
 Resolved (a contained finding whose fix reads "none needed" stays), so
