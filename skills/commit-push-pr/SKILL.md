@@ -207,10 +207,11 @@ off the release steps, and mark the folders `released`.
   MEDIUM) are
   fixed before the PR opens, in at most two fix rounds, with the
   smallest contract-preserving change (one that needs a design or
-  contract change goes to the user); a MEDIUM or LOW that two rounds
-  leave open is listed under Unresolved findings and raises the risk
-  level, and a CRITICAL or HIGH still open is a hard stop — the PR
-  never opens with one unless the user said to proceed;
+  contract change goes to the user); a MEDIUM that two rounds leave
+  open is listed under Unresolved findings and raises the risk level
+  (a LOW goes to the cleanup pass), and a CRITICAL or HIGH still open
+  is a hard stop — no mergeable PR opens with one unless the user said
+  to proceed (an unattended run opens a `[BLOCKED]` draft instead);
   existing findings are reported or filed, not blocking (except an
   existing CRITICAL security finding)
 - Below the threshold, contained findings (needed to deliver what the

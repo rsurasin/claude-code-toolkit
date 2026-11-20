@@ -11,8 +11,9 @@ bounded so it converges: **at most two fix rounds, then one cleanup
 pass.** A round re-runs the reviewers, which is what finds new
 problems; the cleanup pass fixes the LOW findings that are left without
 re-running them, so nothing new is raised after it. The bound never
-lets a serious finding through: **a PR never opens with an introduced
-CRITICAL or HIGH finding unfixed** unless the user said to proceed.
+lets a serious finding through: **no mergeable PR opens with an
+introduced CRITICAL or HIGH finding unfixed** unless the user said to
+proceed (an unattended run opens a `[BLOCKED]` draft instead).
 
 ## Fix rounds (MEDIUM and above)
 
