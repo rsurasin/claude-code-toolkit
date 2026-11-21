@@ -258,8 +258,9 @@ review line. Never mark that PR ready and never merge it: only the
 user does. With no remote or no `gh`, end with the Step 6 report and
 the drafted description.
 
-When the hard stop is an existing CRITICAL security finding, still open
-the draft, so the user learns the loop stopped. Nothing published may
+When the hard stop in an unattended run is an existing CRITICAL
+security finding, still open the draft, so the user learns the loop
+stopped. (An attended run opens nothing: it asks the user, as above.) Nothing published may
 name or describe the finding: the title, the body, the Needs human
 review line and every commit message say only "a hard stop that needs
 your decision, details in the ship report". Don't say it is a security
