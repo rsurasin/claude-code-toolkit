@@ -236,8 +236,9 @@ off the release steps, and mark the folders `released`.
   CRITICAL security finding, the draft says only that a hard stop needs
   a decision, with the details in the ship report (`ship-mode.md`
   Step 3)
-- A PR whose Needs human review line lists anything, and every
-  `[BLOCKED]` draft, gets the `needs-human-review` label
+- A PR gets the `needs-human-review` label unless its Needs human
+  review line reads "nothing beyond a normal review"; every `[BLOCKED]`
+  draft gets it, and an update that clears the line removes it
 - Never delete, skip, or weaken a test to make a gate pass
 - Ask for the PR base branch unless the user stated it — before the
   gates run (Step 1a)
