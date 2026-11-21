@@ -367,8 +367,8 @@ the Risk Assessment block copied exactly:
    - First under Notes for Reviewers: a **Needs human review** line —
      what a person must look at before merging, most serious first:
      every unresolved introduced MEDIUM or higher, every
-     `awaiting author decision`, a one-way door (with what makes it
-     one), each review or test gate that is `NOT RUN` or `N/A`, and
+     `awaiting author decision`, a one-way door from the list in
+     `pr-description`'s Rules of evidence (with what makes it one), each review or test gate that is `NOT RUN` or `N/A`, and
      any fix the loop made that changed behavior beyond the request.
      A hard stop that is an existing CRITICAL security finding is
      written as Step 3's neutral sentence, nothing more.

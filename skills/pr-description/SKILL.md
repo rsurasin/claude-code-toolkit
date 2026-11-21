@@ -58,7 +58,8 @@ the fix. See "Behavior Before / After" below.]
 
 **Reversibility:** [Two-way door — revertible with a simple `git revert`,
 no data migrations, no published API/schema/infra changes | One-way door —
-state why: migration, deletion, published contract, irreversible infra]
+state why: migration, deletion, published API or schema, auth or
+permission change, major dependency upgrade, infra, or spend]
 
 | Dimension | Verified By | Result |
 |-----------|-------------|--------|
@@ -391,9 +392,17 @@ likelihood only when the triggering state is shown to be unreachable.
   `NOT RUN` (or `N/A` for a built-in skill this Claude Code version
   doesn't have) and let the floors raise the level. Never claim LOW without
   evidence for every dimension.
-- Reversibility is judged from the diff: data migrations, schema changes,
-  deleted data, published API/package changes, and infra mutations are
-  one-way doors. Pure code changes behind an unreleased surface are two-way.
+- Reversibility is judged from the diff. These are one-way doors:
+  - data migrations
+  - deleting data
+  - public API or schema changes, including a published package
+  - auth and permission changes
+  - major dependency upgrades
+  - infra mutations
+  - anything that spends money (a paid service, a billed API, new
+    cloud resources)
+
+  Pure code changes behind an unreleased surface are two-way.
 
 ## Rules
 
