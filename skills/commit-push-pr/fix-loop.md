@@ -19,7 +19,10 @@ proceed (an unattended run opens a `[BLOCKED]` draft instead).
 
 A round runs while an introduced finding of MEDIUM or higher is open
 and fixable: one marked **must fix**, or a single MEDIUM marked
-**contained**. In each round:
+**contained**. A round also runs while a test this branch broke is
+failing (Step 3 tells those from tests already failing on the base):
+treat it like a must-fix finding and fix the code, never the test. In
+each round:
 
 1. Report the findings to the user
 2. Record them in the active dev-tasks folder, if one exists, so the
@@ -60,7 +63,8 @@ and fixable: one marked **must fix**, or a single MEDIUM marked
 **After the second round, stop.** Never start a third round unless the
 user asks for one in this conversation. A MEDIUM still open is listed
 with `stopped after 2 fix rounds`. **An introduced CRITICAL or HIGH
-still open, or failing tests, is a hard stop** (Step 3): no PR opens
+still open, or a test the branch broke still failing, is a hard stop**
+(Step 3): no PR opens
 for merging. Report it under **Decisions needed** with what you tried,
 and let the user choose between another round, a different fix, or
 proceeding.

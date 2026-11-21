@@ -241,12 +241,29 @@ the `pr-description` rubric — apply its floors exactly (e.g. Tests
 **HIGH (unverified)**), never an estimate like "probably MEDIUM".
 
 **Hard stops — don't push or open the PR; report and ask the user
-whether to fix first or proceed:**
+whether to fix first or proceed.** They come at two points.
 
-- Any test failures
-- A serious performance regression
-- An introduced CRITICAL or HIGH finding still open after the fix
-  loop's two rounds (`fix-loop.md`)
+Before any fix round, as soon as the gates are back:
+
+- A test that already fails on `<base>`. The branch can't fix what it
+  didn't break, and its own test result can't be trusted until the
+  base is green
+
+After the fix loop (`fix-loop.md`), which gets two rounds at each of
+these first:
+
+- A test this branch broke that still fails
+- An introduced CRITICAL or HIGH finding still open (a serious
+  performance regression is one of these)
+
+To tell the two kinds of failing test apart, re-run only the failing
+tests on `<base>` in a temporary worktree
+(`git worktree add --detach <tmp-dir> <base>`, removed afterwards). A
+test that fails there too was already failing: stop now. A test that
+passes there was broken by this branch: it goes into the fix loop like
+a must-fix finding. If the tests can't be run on `<base>` (it won't
+build, or no worktree can be made), treat the failure as already
+failing and stop.
 
 A hard stop is never waived by silence. A run is **unattended** only
 when one of these holds:
@@ -319,8 +336,8 @@ carries on:
   HIGH is a hard stop
 - **A contained call you can't deliver (`fix-loop.md`):** revert the
   fix and list the finding `awaiting author decision`
-- **A test you believe is wrong:** leave it as it is; if it fails,
-  that is the failing-tests hard stop
+- **A test you believe is wrong:** leave it as it is; if it still
+  fails after the fix rounds, that is a hard stop
 - **An issue that needs approval to file:** don't file it; list the
   offer in the Step 6 report
 - **A hard stop's "fix first or proceed":** never proceed; open the

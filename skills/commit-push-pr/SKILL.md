@@ -228,8 +228,9 @@ off the release steps, and mark the folders `released`.
 - Never commit `.env`, secrets, or large binary files
 - Never commit feature work directly to the default branch
 - If there are merge conflicts, stop and report
-- On a hard stop (failing tests, serious perf regression, or an introduced CRITICAL or HIGH still open
-  after two fix rounds), never push or open a PR without explicit user
+- On a hard stop (a test already failing on the base; or, after two
+  fix rounds, a test the branch broke still failing or an introduced
+  CRITICAL or HIGH still open), never push or open a PR without explicit user
   approval. The one exception is an unattended run (headless, or the
   author said up front to work without stopping to ask; when unsure it
   is attended, see `ship-mode.md` Step 3): push and open a draft PR titled `[BLOCKED]` so the block is
