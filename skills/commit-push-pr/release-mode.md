@@ -93,7 +93,23 @@ them: release steps come only from task folders or the user.
    Never commit gate fixes onto `<integration>` or `<default>`, so the
    fix loop (`fix-loop.md`) and its contained below-threshold fixes don't
    apply here; the triage agent's must-fix and contained calls only
-   tell the user what a fix PR would cover. Report the
+   tell the user what a fix PR would cover.
+
+   With no fix rounds, Step 3's hard stops apply at once here: **any
+   introduced CRITICAL or HIGH finding, and any failing test on
+   `<integration>`, is a hard stop as soon as triage returns.** Don't
+   open the release PR. Report each one under **Decisions needed**,
+   naming the merged feature PR that brought it in (match
+   `git blame` on the finding's lines to the step 2 PR list; write
+   "source PR not determined" rather than guess) and suggesting a
+   `fix/<slug>` branch off `<integration>`. The user chooses between
+   that fix PR and releasing anyway; an unattended run (Step 3's
+   definition) never releases anyway, and opens the release PR as a
+   `[BLOCKED]` draft instead. An existing CRITICAL security finding is
+   not a hard stop here either (Step 3). MEDIUM and LOW findings
+   don't stop the release: report them with the same source PR.
+
+   Report the
    findings and, with the user's approval, fix them on a new
    `fix/<slug>` branch off `<integration>` with its own dev-tasks folder
    (in `fixes/`, never reusing the feature's `gh-<N>`), ship that
@@ -101,7 +117,7 @@ them: release steps come only from task folders or the user.
    rerun release mode. The gate findings and the fix PR belong to that
    `fixes/` folder. Leave the feature folder's status line alone; its
    Session Log gets a back-reference, `gate fix: PR #<fix PR>`, which
-   folder mapping ignores. If the user releases without fixing, every
+   folder mapping ignores. If the user says to release without fixing, every
    introduced finding goes in the release PR's Unresolved findings list
    (reason: `release shipped without a fix PR`, with the follow-up issue
    once filed), and security findings follow Ship Mode Step 2b's
