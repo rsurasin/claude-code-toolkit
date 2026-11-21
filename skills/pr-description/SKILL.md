@@ -112,6 +112,11 @@ Output Guidance" below.]
 
 ## Notes for Reviewers
 
+**Needs human review:** [What a person must look at before merging,
+most serious first: unresolved MEDIUM or higher findings, pending
+decisions, one-way doors, and gates that are NOT RUN or N/A. Write
+"nothing beyond a normal review" only when none apply.]
+
 ### Unresolved findings
 
 [Every finding this PR introduces that is not fixed, one per line, or
