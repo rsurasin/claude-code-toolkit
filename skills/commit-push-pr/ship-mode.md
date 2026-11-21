@@ -284,7 +284,7 @@ report's **Decisions needed** line.
 Only in an unattended run,
 make the block visible instead of waiting: push the branch and open a
 **draft** PR whose title starts with `[BLOCKED]`
-(`gh pr create --draft`), with the hard stop first on its Needs human
+(Step 5's command with `--draft`), with the hard stop first on its Needs human
 review line. Never mark that PR ready and never merge it: only the
 user does. With no remote or no `gh`, end with the Step 6 report and
 the drafted description.
@@ -348,7 +348,7 @@ Never pick "proceed" for the user, lower a severity, or make a
 one-way-door change to keep the run moving.
 
 **If the user chooses to proceed past a hard stop, the PR opens as a
-draft** (`gh pr create --draft`), without `[BLOCKED]` in the title,
+draft** (Step 5's command with `--draft`), without `[BLOCKED]` in the title,
 since the user decided. Never mark it ready: the user does, once they
 have looked. The PR says what was proceeded past, first on the Needs
 human review line: a finding is listed under Unresolved findings with
@@ -448,7 +448,10 @@ generating one.
 # Write the file outside the repo (a temp path) and delete it afterwards.
 # Single-quote the title so backticked names in it aren't run; write
 # any ' inside it as '\''.
-gh pr create --title '<title>' --body-file <description-file> --base <confirmed-base>
+# [--draft] and [--label …] are optional flags: the two rules below this
+# block say when each is passed. Don't type the square brackets.
+gh label create needs-human-review --description 'Has items a person must look at before merging' 2>/dev/null || true   # only when passing --label
+gh pr create [--draft] [--label needs-human-review] --title '<title>' --body-file <description-file> --base <confirmed-base>
 
 # Or if gh isn't available, provide the URL
 echo "Create PR at: https://github.com/$(git remote get-url origin | sed 's/.*github.com[:/]//' | sed 's/.git$//')/compare/<confirmed-base>...<branch>"
@@ -461,16 +464,18 @@ which a double-quoted argument would execute or expand. A file (rather than
 a heredoc piped to `gh`) also lets the `pr-description` secret scan run
 against exactly what gets sent.
 
-**Label a PR that needs a person.** When the Needs human review line
-says anything other than "nothing beyond a normal review", or the PR is
-a `[BLOCKED]` draft, open it with the `needs-human-review` label, so
-it stands out in the PR list. Make sure the label exists, then pass it
-to `gh pr create`:
+This is the only command that opens a PR; every case uses it, with
+these two flags decided as follows:
 
-```bash
-gh label create needs-human-review --description 'Has items a person must look at before merging' 2>/dev/null || true
-gh pr create --label needs-human-review --title '<title>' --body-file <description-file> --base <confirmed-base>
-```
+- **`--draft`: on a hard stop only** (Step 3). Either the run is
+  unattended, and the title also starts with `[BLOCKED]`; or the user
+  chose to proceed, and the title is the normal one. Never pass it
+  otherwise: an existing CRITICAL security finding is not a hard stop,
+  so its PR is not a draft
+- **`--label needs-human-review`: unless the Needs human review line
+  reads "nothing beyond a normal review"**, and always on a draft, so
+  a PR that needs a person stands out in the PR list. Create the label
+  first, as shown
 
 When updating an existing PR, make the label match the current line:
 `gh pr edit <number> --add-label needs-human-review`, or

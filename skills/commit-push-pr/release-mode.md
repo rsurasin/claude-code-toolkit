@@ -155,10 +155,17 @@ them: release steps come only from task folders or the user.
    send it, with a fixed title that contains no PR text:
 
    ```bash
-   gh pr create --base <default> --head <integration> \
+   # [--draft] and [--label …] are optional flags, decided by the two
+   # rules under Ship Mode Step 5's command. Don't type the brackets.
+   gh label create needs-human-review --description 'Has items a person must look at before merging' 2>/dev/null || true   # only when passing --label
+   gh pr create [--draft] [--label needs-human-review] --base <default> --head <integration> \
      --title "Release <integration> → <default> (<YYYY-MM-DD>)" \
      --body-file <description-file>; rm -f <description-file>
    ```
+
+   Here `--draft` applies to the two cases in step 4: the user said to
+   release anyway past a hard stop, or an unattended run hit one, where
+   the title also starts with `[BLOCKED] `.
 
    If a release PR from `<integration>` to `<default>` is already open,
    update it the same way, rescanning first, with
