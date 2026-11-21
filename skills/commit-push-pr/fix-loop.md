@@ -106,11 +106,18 @@ ran, if any introduced LOW marked **contained** is still open:
    listed with `cleanup fix not confirmed`
 5. **The closing review can only take a cleanup commit back.** If it
    or the re-triage finds a defect, of any severity, that a cleanup
-   commit introduced, revert that commit, re-run Tests, and list the
-   LOW it was fixing with `cleanup fix not confirmed`. Never fix what
-   the closing review found: a revert restores code the gates already
-   reviewed, so it needs no further review, and nothing new is left to
-   chase
+   commit introduced, revert that commit and re-run Tests. Never fix
+   what the closing review found: a revert restores code the gates
+   already reviewed, so it needs no further review or re-triage, and
+   nothing new is left to chase
+6. **Bring the list in line with the reverts.** Step 4's triage read
+   the code before any revert, so for each reverted cleanup commit,
+   and only for those: take off the list every finding the triage
+   attributed to that commit (the revert removed it, so it is not a
+   finding and never a hard stop), and put back the LOW the commit was
+   fixing, with `cleanup fix not confirmed`, even if the triage listed
+   it under Resolved. This is bookkeeping for a revert, not a triage
+   call: change nothing else on the list
 
 There is no second cleanup pass and no second closing review.
 
@@ -138,7 +145,8 @@ and the PR proceeds:
 Release mode adds one reason of its own, `release shipped without a
 fix PR` (`release-mode.md`); ship mode never uses it.
 
-That list is the final triage's Introduced section, one entry per
+That list is the final triage's Introduced section, after the cleanup
+pass's step 6 if a cleanup commit was reverted, one entry per
 finding: a finding leaves it only when a re-triage lists it under
 Resolved (a contained finding whose fix reads "none needed" stays), so
 a review gate's risk-table row reads ISSUES exactly when an Unresolved
