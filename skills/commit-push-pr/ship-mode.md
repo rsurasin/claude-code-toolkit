@@ -368,6 +368,23 @@ which a double-quoted argument would execute or expand. A file (rather than
 a heredoc piped to `gh`) also lets the `pr-description` secret scan run
 against exactly what gets sent.
 
+**Label a PR that needs a person.** When the Needs human review line
+says anything other than "nothing beyond a normal review", or the PR is
+a `[BLOCKED]` draft, add the `needs-human-review` label once the PR
+exists, so it stands out in the PR list:
+
+```bash
+gh label create needs-human-review --description 'Has items a person must look at before merging' 2>/dev/null || true
+gh pr edit <number> --add-label needs-human-review
+```
+
+When updating an existing PR, make the label match the current line:
+add it, or take it off with `--remove-label needs-human-review` once
+the line reads "nothing beyond a normal review". The label carries no
+detail, so it also goes on a draft blocked by a security finding. If
+labelling fails (no permission, no `gh`), say so on the Step 6 report's
+PR line; it never blocks the PR.
+
 If the branch already has an open PR, push without creating a new one and
 update the PR description's risk assessment and Screenshots / Output
 with the latest gate results and runtime output. Re-apply the
