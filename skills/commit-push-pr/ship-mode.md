@@ -99,8 +99,9 @@ report instead) and must not edit files — fixes happen in Step 3.
    `/security-review` skill and return its report verbatim. Don't
    invoke the skill in your own session: its instructions make the
    report the session's final reply, which has ended ships before
-   triage ran. If the subagent can't invoke skills, invoke it yourself
-   as the last gate and then carry on to Step 2b. It reviews what
+   triage ran. If the subagent can't invoke the skill, record the
+   gate `NOT RUN` with that reason; never fall back to invoking it
+   yourself. It reviews what
    the current branch introduces relative to `origin/HEAD`. If it errors
    because `origin/HEAD` is unset, run
    `git remote set-head origin --auto` and retry once. If the confirmed
