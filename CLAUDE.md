@@ -74,7 +74,10 @@ drift easily.
   touch, used to be a hard stop, which would block every ship until it
   was patched. The PR now opens as usual with a neutral Needs human
   review line, and the details stay in the ship report. A finding the
-  branch touches or exposes is tagged introduced and does block.
+  branch causes or worsens (it changes the vulnerable lines, opens a
+  new path to them, or adds, bumps or newly uses the vulnerable
+  dependency) is tagged introduced and does block; `finding-triage`
+  has the exact rule.
 - **Unattended is defined, and doubt means attended.** A run is
   unattended only when it is headless or the author said up front to
   work without stopping to ask. `ship-mode.md` Step 3 lists what an
@@ -84,9 +87,9 @@ drift easily.
   implement, review and fix loop where the human only merges. Every PR
   description carries a Needs human review line (unresolved MEDIUM or
   higher, pending decisions, one-way doors, gates that didn't run) and
-  an Unresolved findings list with a reason per entry. A PR whose line
-  lists anything gets the `needs-human-review` label, and the ship
-  report opens with a one-line Status. The one-way doors are listed in
+  an Unresolved findings list with a reason per entry. A PR gets the
+  `needs-human-review` label unless that line reads "nothing beyond a
+  normal review", and the ship report opens with a one-line Status. The one-way doors are listed in
   `pr-description`'s Rules of evidence and put a PR at HIGH or above.
 - **Style is the linter's job.** A style-only finding (formatting, line
   length, wording preference) is not a finding unless a project rule or
