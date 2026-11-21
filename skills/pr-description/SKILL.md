@@ -309,7 +309,8 @@ gaps.
   finding outside ship mode (untagged, or from a full-scope audit), or
   a serious performance regression ⇒ CRITICAL. Only in ship mode does
   an existing critical security finding skip this floor — ship mode
-  makes it a hard stop instead
+  reports it privately and flags it on the Needs human review line
+  instead
 - Failing tests ⇒ CRITICAL
 
 ### Verdict normalization

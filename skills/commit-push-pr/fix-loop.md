@@ -124,5 +124,6 @@ Resolved (a contained finding whose fix reads "none needed" stays), so
 a review gate's risk-table row reads ISSUES exactly when an Unresolved
 entry names that gate. Clean gates proceed directly. `NOT RUN` and
 `N/A` gaps don't block — they are reflected honestly in the risk level
-instead. Existing findings never block, except an existing CRITICAL
-security finding (Step 3 hard stop); Step 2b already routed them.
+instead. Existing findings never block; Step 2b already routed them
+(an existing CRITICAL security finding is also flagged on the Needs
+human review line, in neutral words: Step 3).

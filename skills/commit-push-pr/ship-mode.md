@@ -221,8 +221,8 @@ proceed. Never triage the findings yourself instead.
      body, a commit message, or a public issue with their location,
      class, or exploit path, since that discloses an unpatched
      vulnerability. Recommend a private channel (e.g. a GitHub security
-     advisory). An **existing CRITICAL security finding** is still a
-     Step 3 hard stop.
+     advisory). An **existing CRITICAL security finding** doesn't
+     block the PR either; Step 3 says how the user is told.
    - **Existing non-security findings** go in the PR's Notes for
      Reviewers with
      the matching issue link, or into a new issue (`gh issue create`)
@@ -244,7 +244,6 @@ the `pr-description` rubric — apply its floors exactly (e.g. Tests
 whether to fix first or proceed:**
 
 - Any test failures
-- An existing CRITICAL security finding
 - A serious performance regression
 - An introduced CRITICAL or HIGH finding still open after the fix
   loop's two rounds (`fix-loop.md`)
@@ -273,16 +272,20 @@ review line. Never mark that PR ready and never merge it: only the
 user does. With no remote or no `gh`, end with the Step 6 report and
 the drafted description.
 
-When the hard stop in an unattended run is an existing CRITICAL
-security finding, still open the draft, so the user learns the loop
-stopped. (An attended run opens nothing: it asks the user, as above.) Nothing published may
-name or describe the finding: the title, the body, the Needs human
-review line and every commit message say only "a hard stop that needs
-your decision, details in the ship report". Don't say it is a security
-finding, and give no severity, source, class, location or exploit path.
-Leave out the usual "existing security findings were reported
-privately" line in this draft. The details go in the Step 6 report only
-(Decisions needed and Reported privately).
+**An existing CRITICAL security finding is not a hard stop.** The
+branch didn't cause it and blocking this PR doesn't fix it; a critical
+vulnerability in a dependency would otherwise block every ship until
+it is patched. (When the branch touches or exposes the vulnerable code,
+triage tags the finding introduced, and it goes through the fix loop
+like any other.) The PR opens as usual, and the user is told three
+ways: the sentence "an existing issue needs your attention, details in
+the ship report" goes first on the Needs human review line, which also
+brings the `needs-human-review` label; the Step 6 report's **Decisions
+needed** line leads with it; and **Reported privately** holds the
+details. Nothing published may name or describe the finding: the
+title, the body and every commit message don't say it is a security
+finding, and give no severity, source, class, location or exploit
+path.
 
 **An unattended run never waits for an answer.** Wherever this skill
 says to ask the user, an unattended run takes the default below, writes
@@ -370,8 +373,8 @@ the Risk Assessment block copied exactly:
      `awaiting author decision`, a one-way door from the list in
      `pr-description`'s Rules of evidence (with what makes it one), each review or test gate that is `NOT RUN` or `N/A`, and
      any fix the loop made that changed behavior beyond the request.
-     A hard stop that is an existing CRITICAL security finding is
-     written as Step 3's neutral sentence, nothing more.
+     An existing CRITICAL security finding is written as Step 3's
+     neutral sentence, nothing more.
      Write `**Needs human review:** nothing beyond a normal review`
      only when none of those apply
    - Under Notes for Reviewers: the **Unresolved findings** list — every

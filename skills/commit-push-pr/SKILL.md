@@ -212,8 +212,9 @@ off the release steps, and mark the folders `released`.
   (a LOW goes to the cleanup pass), and a CRITICAL or HIGH still open
   is a hard stop — no mergeable PR opens with one unless the user said
   to proceed (an unattended run opens a `[BLOCKED]` draft instead);
-  existing findings are reported or filed, not blocking (except an
-  existing CRITICAL security finding)
+  existing findings are reported or filed, never blocking (an existing
+  CRITICAL security finding is also flagged on the Needs human review
+  line, in neutral words)
 - Below the threshold, contained findings (needed to deliver what the
   issue and tasks asked for, no design or contract change, too small
   for its own issue) are fixed in this PR too: a single MEDIUM in a
@@ -227,16 +228,12 @@ off the release steps, and mark the folders `released`.
 - Never commit `.env`, secrets, or large binary files
 - Never commit feature work directly to the default branch
 - If there are merge conflicts, stop and report
-- On a hard stop (failing tests, existing critical security finding,
-  serious perf regression, or an introduced CRITICAL or HIGH still open
+- On a hard stop (failing tests, serious perf regression, or an introduced CRITICAL or HIGH still open
   after two fix rounds), never push or open a PR without explicit user
   approval. The one exception is an unattended run (headless, or the
   author said up front to work without stopping to ask; when unsure it
   is attended, see `ship-mode.md` Step 3): push and open a draft PR titled `[BLOCKED]` so the block is
-  visible, and never mark it ready. When the stop is an existing
-  CRITICAL security finding, the draft says only that a hard stop needs
-  a decision, with the details in the ship report (`ship-mode.md`
-  Step 3)
+  visible, and never mark it ready
 - A PR gets the `needs-human-review` label unless its Needs human
   review line reads "nothing beyond a normal review"; every `[BLOCKED]`
   draft gets it, and an update that clears the line removes it
