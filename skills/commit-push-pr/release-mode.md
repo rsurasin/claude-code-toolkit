@@ -95,7 +95,10 @@ saying why.
    listed with "release steps unknown" and the user is asked. A PR that
    only one of `gh` and `git log` shows, and a task folder no PR maps to,
    are reported to the user, never written into the PR text.
-4. **Run the gates**: Ship Mode Steps 2–3 (gates, triage, evaluation)
+4. **Run the gates**: check out `<integration>` at
+   `origin/<integration>` first, because Tests, runtime verification
+   and `/security-review` read the checked-out tree and the current
+   branch. Then run Ship Mode Steps 2–3 (gates, triage, evaluation)
    over what the release brings in,
    `git diff <release-point>...origin/<integration>`. `finding-triage`
    gets that range and, as scope, the issues the release closes. Skip Ship Mode
