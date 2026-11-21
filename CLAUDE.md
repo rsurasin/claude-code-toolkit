@@ -55,19 +55,39 @@ drift easily.
   once over the full branch diff, findings fixed before the PR opens).
 - **The fix loop is bounded and never hides a serious finding.**
   `fix-loop.md` allows at most two fix rounds (which re-run the
-  reviewers) and then one cleanup pass for LOW findings (which re-runs
-  only the tests, so it cannot raise new findings). Unbounded rounds
+  reviewers) and then one cleanup pass for LOW findings. A closing
+  review by `code-reviewer` and `security-auditor` reads only the
+  cleanup commits and can only revert one, never start more fixing, so
+  no commit ships unreviewed and the loop still ends. Unbounded rounds
   did not converge: every fix raised new minor findings. LOW findings
-  are still fixed, not just listed. An introduced CRITICAL or HIGH
-  still open after two rounds, or failing tests, is a hard stop: no
-  mergeable PR opens, and an unattended run opens a draft PR titled
-  `[BLOCKED]`. Don't raise the round count or let a hard stop proceed
-  on its own.
+  are still fixed, not just listed. The hard stops come at two points.
+  A test already failing on the base stops the run before any fix
+  round. A test the branch broke, or an introduced CRITICAL or HIGH,
+  gets the two rounds first and is a hard stop only if still open. On
+  a hard stop no mergeable PR opens: an attended run asks, an
+  unattended run opens a draft PR titled `[BLOCKED]`, and a user who
+  chooses to proceed gets a draft without that title. Release mode has
+  no rounds, so the same findings stop a release at once. Don't raise
+  the round count or let a hard stop proceed on its own.
+- **Existing problems don't block a PR.** An existing CRITICAL
+  security finding, such as a vulnerable dependency the branch didn't
+  touch, used to be a hard stop, which would block every ship until it
+  was patched. The PR now opens as usual with a neutral Needs human
+  review line, and the details stay in the ship report. A finding the
+  branch touches or exposes is tagged introduced and does block.
+- **Unattended is defined, and doubt means attended.** A run is
+  unattended only when it is headless or the author said up front to
+  work without stopping to ask. `ship-mode.md` Step 3 lists what an
+  unattended run does at each point that would ask; it never proceeds
+  for the user, lowers a severity, or makes a one-way-door change.
 - **The PR tells the human what to look at.** The goal is an unattended
   implement, review and fix loop where the human only merges. Every PR
   description carries a Needs human review line (unresolved MEDIUM or
   higher, pending decisions, one-way doors, gates that didn't run) and
-  an Unresolved findings list with a reason per entry.
+  an Unresolved findings list with a reason per entry. A PR whose line
+  lists anything gets the `needs-human-review` label, and the ship
+  report opens with a one-line Status. The one-way doors are listed in
+  `pr-description`'s Rules of evidence and put a PR at HIGH or above.
 - **Style is the linter's job.** A style-only finding (formatting, line
   length, wording preference) is not a finding unless a project rule or
   linter config requires it. The Severity Scale says so in all three
