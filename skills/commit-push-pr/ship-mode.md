@@ -540,7 +540,7 @@ place of a label.
 **Decisions needed:** <questions for the user, or none>
 **Gates:** ran clean: <names>; fixed then clean: <names>; still have issues: <names (severity)>; not run: <names (why)>; N/A: <names>
 **Simplify:** <outcome>
-**Fix rounds:** <0, 1, or 2>
+**Fix rounds:** <0, 1, or 2; more only when the user asked for another round>
 **Cleanup pass:** <n LOW findings fixed, or none>
 **Commits added by ship mode:** <commits, or none>
 **Fixed:** <n> findings
@@ -574,7 +574,9 @@ What each line holds:
 - **Gates** — every row of the PR risk table, named exactly once under
   its final result; write "none" for an empty group.
 - **Simplify** — `Ran — <n> commits`, `Ran — no changes`,
-  `Skipped — <reason>`, or `N/A`.
+  `Skipped — <reason>`, or `N/A`. The same outcome as the PR's
+  Simplify pre-pass line, which names the commit subjects where this
+  gives the count.
 - **Commits added by ship mode** — the simplify and fix commits.
 - **Cleanup pass** — how many LOW findings the cleanup pass fixed.
 - **Fixed** — how many findings the rounds and the cleanup pass

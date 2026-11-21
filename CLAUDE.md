@@ -181,9 +181,11 @@ the default Haiku judge has failed correct runs that needed judgment.
 
 Every case needs frontmatter or the runner rejects it. `prompt.md`
 starts with `max_turns` and `allowed_tools` (listing Bash, Write and Edit
-too); an LLM grader file (`graders/criteria.md`, each
-`graders/criteria-*.md` in `finding-triage-security-marker`, or each
-`graders/reply-*.md` in `ship-mode-builtin-gates`) starts with
+too); an LLM grader file (usually `graders/criteria.md`; several cases
+split it into single-check files, such as `criteria-*.md` in
+`finding-triage-security-marker` and `reply-*.md` in the ship-mode
+and release-mode cases; `grep -rl 'type: llm' evals/*/graders` lists
+them all) starts with
 `type: llm` and `weight: 1`. An
 `llm` grader sees only the final message unless it sets `focus: trace`
 (and then only the first and last 12 messages), so grade behavior —
