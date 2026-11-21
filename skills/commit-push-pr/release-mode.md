@@ -19,6 +19,25 @@ them: release steps come only from task folders or the user.
 
 ## Opening the release PR
 
+**An unattended release** (Ship Mode Step 3's definition) can't ask.
+Where the steps below say to ask or confirm, it does this instead:
+
+- **Branches not stated:** the default branch is the remote's. The
+  integration branch is never guessed: with none named in the starting
+  instructions, stop with nothing published
+- **Uncommitted changes:** stop with nothing published
+- **A release point taken from a tag, or a list that looks too long:**
+  carry on, and say on the Needs human review line how the release
+  point was found and that nobody confirmed it
+- **A PR with no task folder:** list it with "release steps unknown"
+  and put it on the Needs human review line
+- **A hard stop (step 4):** the `[BLOCKED]` draft, never "release
+  anyway"
+- **Release steps after the merge:** never run without approval
+
+A stop with nothing published ends with the report's Status line
+saying why.
+
 1. **Confirm the branches.** Ask for the integration and default branches
    unless the user stated them, suggesting the repo's default branch
    (`git symbolic-ref refs/remotes/origin/HEAD`) as the base. The working
