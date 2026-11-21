@@ -324,7 +324,13 @@ carries on:
   so on the Needs human review line
 - **Triage fails twice (Step 2b):** a hard stop. Nothing graded the
   findings, so open the `[BLOCKED]` draft with every reviewing gate
-  `NOT RUN` (triage failed)
+  `NOT RUN` (triage failed). Its Unresolved findings list reads
+  `not triaged: triage failed twice (<n> raw findings, in the ship
+  report)` and names none of them, since nothing has sorted out which
+  are security findings
+- **A test already fails on the base:** open the `[BLOCKED]` draft
+  without running the fix loop; each introduced finding is listed
+  `not attempted: run stopped at <hard stop>`
 - **A list that still fails its checks after the re-dispatch (Step 2b
   item 2):** the same hard stop as a failed triage
 - **You hold evidence a finding is more severe or introduced, and
@@ -372,7 +378,11 @@ human review line: a finding is listed under Unresolved findings with
 `author chose to proceed`; failing tests are named there as "tests
 failing (<which>), author chose to proceed", and the Tests row reads
 ISSUES. Only an answer given in this conversation counts as choosing
-to proceed.
+to proceed. Proceeding past a test that already fails on the base
+carries on from where the run stopped: the fix loop runs as usual, and
+only test failures the base doesn't have count against the branch.
+Proceeding past a failed triage lists the findings as `not triaged`,
+as an unattended run does.
 
 If the user chooses to fix, follow a round's items 3–5 in `fix-loop.md`. To fix an
 existing security finding, recommend a separate private fix (security
@@ -430,7 +440,7 @@ the Risk Assessment block copied exactly:
    - Under Notes for Reviewers: the **Unresolved findings** list — every
      introduced finding left unfixed, with severity, every source,
      `file:line`, and the reason
-     (one of the six in `fix-loop.md`, written as given there, with
+     (one of the reasons in `fix-loop.md`, written as given there, with
      the issue link once filed), or "None". An unfixed introduced security
      finding is listed neutrally — severity, sources, and "security
      finding, details shared privately" — with its location, class, and

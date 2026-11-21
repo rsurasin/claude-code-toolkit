@@ -134,13 +134,21 @@ and the PR proceeds:
   approves)
 - `awaiting author decision` — you asked and have no answer yet
 - `author chose to proceed` — only when the user said so in this
-  conversation; the only reason a CRITICAL or HIGH may carry, and
-  the PR then opens as a draft
-- `stopped after 2 fix rounds` — a MEDIUM the rounds didn't resolve
+  conversation; the PR then opens as a draft
+- `stopped after 2 fix rounds` — a finding the rounds didn't resolve
+- `not attempted: run stopped at <hard stop>` — the run hit a hard
+  stop before the loop could work on the finding (a test already
+  failing on the base, or a failed triage)
 - `cleanup fix not confirmed` — a LOW whose cleanup fix was reverted or
   not confirmed
 - `no change recommended by triage — <its reason>` — a finding whose
   Fix line in the triage list says none is needed
+
+An introduced CRITICAL or HIGH is never listed in a ready PR. In ship
+mode it appears only in a draft: with `author chose to proceed` when
+the user proceeded, or in a `[BLOCKED]` draft with whichever of
+`stopped after 2 fix rounds`, `awaiting author decision` or
+`not attempted` describes it.
 
 Release mode adds one reason of its own, `release shipped without a
 fix PR` (`release-mode.md`); ship mode never uses it.
