@@ -462,20 +462,22 @@ against exactly what gets sent.
 
 **Label a PR that needs a person.** When the Needs human review line
 says anything other than "nothing beyond a normal review", or the PR is
-a `[BLOCKED]` draft, add the `needs-human-review` label once the PR
-exists, so it stands out in the PR list:
+a `[BLOCKED]` draft, open it with the `needs-human-review` label, so
+it stands out in the PR list. Make sure the label exists, then pass it
+to `gh pr create`:
 
 ```bash
 gh label create needs-human-review --description 'Has items a person must look at before merging' 2>/dev/null || true
-gh pr edit <number> --add-label needs-human-review
+gh pr create --label needs-human-review --title '<title>' --body-file <description-file> --base <confirmed-base>
 ```
 
 When updating an existing PR, make the label match the current line:
-add it, or take it off with `--remove-label needs-human-review` once
-the line reads "nothing beyond a normal review". The label carries no
-detail, so it also goes on a draft blocked by a security finding. If
-labelling fails (no permission, no `gh`), say so on the Step 6 report's
-PR line; it never blocks the PR.
+`gh pr edit <number> --add-label needs-human-review`, or
+`--remove-label needs-human-review` once the line reads "nothing
+beyond a normal review". The label carries no detail, so it is safe on
+any PR. If `gh pr create` fails because of the label (no permission to
+create it), open the PR without it and say so on the Step 6 report's
+PR line; a missing label never blocks the PR.
 
 If the branch already has an open PR, push without creating a new one and
 update the PR description's risk assessment and Screenshots / Output
@@ -527,7 +529,9 @@ What each line holds:
   review: <url>`; `PR open, needs human review (<n> items): <url>`;
   `[BLOCKED] draft PR, <hard stop>: <url>`; `Draft PR, author chose to
   proceed past <hard stop>: <url>`; or `Stopped, nothing
-  published: <the question>`. A label on the PR is not the summary:
+  published: <the question>`. When the PR couldn't be opened (no
+  remote, or `gh` failed), say that in place of the URL: `…: not
+  opened, <why>; description drafted below`. A label on the PR is not the summary:
   the state goes here.
 - **Risk** — LOW, MEDIUM, HIGH, or CRITICAL, with the qualifier the PR
   description gives it.
