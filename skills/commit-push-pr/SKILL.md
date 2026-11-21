@@ -230,8 +230,9 @@ off the release steps, and mark the folders `released`.
 - On a hard stop (failing tests, existing critical security finding,
   serious perf regression, or an introduced CRITICAL or HIGH still open
   after two fix rounds), never push or open a PR without explicit user
-  approval. The one exception is an unattended run, where nobody can
-  answer: push and open a draft PR titled `[BLOCKED]` so the block is
+  approval. The one exception is an unattended run (headless, or the
+  author said up front to work without stopping to ask; when unsure it
+  is attended, see `ship-mode.md` Step 3): push and open a draft PR titled `[BLOCKED]` so the block is
   visible, and never mark it ready. When the stop is an existing
   CRITICAL security finding, the draft says only that a hard stop needs
   a decision, with the details in the ship report (`ship-mode.md`

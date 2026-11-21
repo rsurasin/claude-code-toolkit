@@ -249,8 +249,23 @@ whether to fix first or proceed:**
 - An introduced CRITICAL or HIGH finding still open after the fix
   loop's two rounds (`fix-loop.md`)
 
-A hard stop is never waived by silence. Only when nobody can answer (an
-unattended run, such as a task loop told to work without stopping),
+A hard stop is never waived by silence. A run is **unattended** only
+when one of these holds:
+
+- **It is headless**: there is no interactive user to answer, as in
+  `claude -p`, CI, a scheduled run, or a subagent with no way to ask
+- **The author deferred questions up front**: before the hard stop,
+  the user, or the task instructions that started this run, said in so
+  many words to work without stopping to ask ("don't stop for
+  questions", "run unattended", a task loop told to work to the end)
+
+Anything else is attended: ask and wait. A user who is slow to answer,
+a long-running session, or a request to "ship it" does not make a run
+unattended, and when unsure, treat it as attended (asking publishes
+nothing; a draft PR does). State which case applied on the Step 6
+report's **Decisions needed** line.
+
+Only in an unattended run,
 make the block visible instead of waiting: push the branch and open a
 **draft** PR whose title starts with `[BLOCKED]`
 (`gh pr create --draft`), with the hard stop first on its Needs human
