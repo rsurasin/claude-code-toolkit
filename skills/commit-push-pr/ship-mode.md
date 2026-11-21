@@ -294,8 +294,9 @@ branch didn't cause it and blocking this PR doesn't fix it; a critical
 vulnerability in a dependency would otherwise block every ship until
 it is patched. (When the branch touches or exposes the vulnerable code,
 triage tags the finding introduced, and it goes through the fix loop
-like any other.) The PR opens as usual, and the user is told three
-ways: the sentence "an existing issue needs your attention, details in
+like any other.) The PR opens as usual (ready, not a draft, and with
+no `[BLOCKED]` in the title, attended or not), and the user is told
+three ways: the sentence "an existing issue needs your attention, details in
 the ship report" goes first on the Needs human review line, which also
 brings the `needs-human-review` label; the Step 6 report's **Decisions
 needed** line leads with it; and **Reported privately** holds the
