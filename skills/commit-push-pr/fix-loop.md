@@ -9,8 +9,9 @@ Every introduced finding is fixed before the PR opens, LOW ones
 included: small findings left behind pile up as debt. The work is
 bounded so it converges: **at most two fix rounds, then one cleanup
 pass.** A round re-runs the reviewers, which is what finds new
-problems; the cleanup pass fixes the LOW findings that are left without
-re-running them, so nothing new is raised after it. The bound never
+problems; the cleanup pass fixes the LOW findings that are left, and a
+closing review then reads only the cleanup commits and can only revert
+them, never start more fixing, so the work ends there. The bound never
 lets a serious finding through: **no mergeable PR opens with an
 introduced CRITICAL or HIGH finding unfixed** unless the user said to
 proceed (an unattended run opens a `[BLOCKED]` draft instead).
@@ -87,17 +88,26 @@ ran, if any introduced LOW marked **contained** is still open:
    fix every one of them, each with the smallest change, and commit
    atomically (e.g. `refactor(<scope>): …`, `test(<scope>): …`,
    `docs(<scope>): …`)
-2. Re-run Tests and runtime verification. Don't re-run the review
-   gates: that is what keeps this pass from raising new findings. If a
-   test fails, revert the cleanup commit that broke it
-3. Re-triage once more, with the cleanup commits and no new gate
-   reports. `finding-triage` confirms each fix in the code: a finding
-   it lists under Resolved is done; one it doesn't is listed with
-   `cleanup fix not confirmed`. If it grades a cleanup commit as
-   introducing a MEDIUM or higher, revert that commit and list its
-   finding the same way
+2. Re-run Tests and runtime verification. If a test fails, revert the
+   cleanup commit that broke it
+3. **Closing review.** No commit ships unreviewed: dispatch
+   `code-reviewer` and `security-auditor` once more, each told to
+   review only what the cleanup commits changed
+   (`git diff <commit before the cleanup pass>..HEAD`) and to report
+   only defects those changes introduce. Don't re-run the other gates
+4. Re-triage once more, with the cleanup commits and the closing
+   review's two reports. `finding-triage` confirms each fix in the
+   code: a finding it lists under Resolved is done; one it doesn't is
+   listed with `cleanup fix not confirmed`
+5. **The closing review can only take a cleanup commit back.** If it
+   or the re-triage finds a defect, of any severity, that a cleanup
+   commit introduced, revert that commit, re-run Tests, and list the
+   LOW it was fixing with `cleanup fix not confirmed`. Never fix what
+   the closing review found: a revert restores code the gates already
+   reviewed, so it needs no further review, and nothing new is left to
+   chase
 
-There is no second cleanup pass.
+There is no second cleanup pass and no second closing review.
 
 ## What ships unfixed
 

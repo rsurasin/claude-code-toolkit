@@ -393,7 +393,12 @@ the Risk Assessment block copied exactly:
      `(finding-triage)` finding naming Security;
      otherwise ISSUES with the highest such severity), plus the Simplify
      pre-pass line from Step 1b (`Ran — <commit subjects>`, `Ran — no changes`,
-     `Skipped — <reason>`, or `N/A — /simplify not available`)
+     `Skipped — <reason>`, or `N/A — /simplify not available`). The
+     justification sentence also says what the review rows cover: the
+     commit the review gates last ran on, and for anything after it,
+     "cleanup commits reviewed by the closing review" or "reverts
+     only". Code after the last review that nothing reviewed is a gap:
+     say so there and on the Needs human review line
    - First under Notes for Reviewers: a **Needs human review** line —
      what a person must look at before merging, most serious first:
      every unresolved introduced MEDIUM or higher, every

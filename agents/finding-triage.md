@@ -253,8 +253,11 @@ Carry forward every earlier finding the re-run gates didn't cover. A
 finding a re-run no longer reports is **resolved** only if the fix
 commits touched its location and you confirm the defect is gone in the
 code; otherwise it stays. Grade findings the fix commits introduced like
-any other. After a cleanup pass you get fix commits and no new
-gate reports: confirm each fix in the code the same way. For a contained fix the author reverted, read the revert
+any other. After a cleanup pass you get the cleanup commits and the
+closing review's reports from `code-reviewer` and `security-auditor`,
+which cover only those commits: confirm each fix in the code the same
+way, and name the cleanup commit behind any defect they introduced, so
+it can be reverted. For a contained fix the author reverted, read the revert
 commit and the code and re-run the three tests yourself on the smallest
 fix that would resolve the finding, not on the reverted attempt; the
 author's account is evidence, not a verdict. Return `contained` or
