@@ -31,7 +31,7 @@ project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 |-------|--------------|
 | `commit-message` | Generates conventional commit messages from diffs |
 | `pr-description` | Generates structured PR descriptions: current behavior in the Summary, new behavior in Changes, screenshots or runtime output as evidence, and a risk assessment (Low/Medium/High/Critical) computed from verification evidence and reversibility |
-| `commit-push-pr` | Two-mode inner loop: fast atomic task commits (no gates), then gated PR creation — quality gates (repo tests/verify, review/security/perf/docs agents, and the built-in `/code-review` and `/security-review`) run once over the full branch diff, the `finding-triage` agent grades and merges their findings, introduced findings are fixed in at most two fix rounds plus one cleanup pass for LOW findings (what is left is listed in the PR as unresolved), and the PR opens with a risk assessment. Release mode (integration branch → default branch) lists the features merged since the last release with their release steps, and after the merge confirms the issues closed and marks the task folders released |
+| `commit-push-pr` | Two-mode inner loop: fast atomic task commits (no gates), then gated PR creation — quality gates (repo tests/verify, review/security/perf/docs agents, and the built-in `/code-review` and `/security-review`) run once over the full branch diff, the `finding-triage` agent grades and merges their findings, introduced findings are fixed in at most two fix rounds plus one cleanup pass for LOW findings (what is left is listed in the PR as unresolved), and the PR opens with a risk assessment, a Needs human review line, and a `needs-human-review` label when that line lists anything. A test already failing on the base, or an introduced CRITICAL or HIGH still open after two rounds, is a hard stop: an attended run asks, an unattended run opens a draft PR titled `[BLOCKED]`. The ship report opens with a one-line Status. Release mode (integration branch → default branch) lists the features merged since the last release with their release steps, and after the merge confirms the issues closed and marks the task folders released |
 | `dev-tasks` | Maintains category-organized task files (plan/context/tasks) under `.claude/dev/` for cross-session memory, with a status line per task (`in progress` → `PR open (#N)` → `merged to <base> (<sha>), not released` → `released (<release PR #N>, <date>)`) and the release steps each feature needs. Every product decision reached in conversation is recorded in the same turn, with the options considered, their pros and cons, why the winner won, and the trade-offs accepted |
 | `sharpen` | Proactively encodes a mistake or inefficiency (agent- or user-detected) into a permanent harness improvement — test, lint rule, CLAUDE.md entry — always with user consent before touching the harness |
 | `review-plan` | Fresh-context staff engineer critique of a plan before execution, with a LOW/MEDIUM/HIGH/CRITICAL risk level on the pr-description scale — fires proactively before non-trivial plans |
@@ -253,8 +253,16 @@ each repo's `.claude/` directory — see [Migrating from v2](#migrating-from-v2)
    skills, the code review, security, performance, and docs agents, and
    the built-in `/code-review` and `/security-review` side by side),
    has the `finding-triage` agent grade every reviewer's findings into
-   one list, fixes the ones the branch introduced, reports or files
-   existing ones, then opens a PR with a risk assessment. The task
+   one list, fixes the introduced findings it marks must fix or
+   contained (at most two fix rounds, then one cleanup pass for LOW
+   ones) and lists the rest in the PR with a reason, reports or files
+   existing ones, then opens a PR with a risk assessment and a Needs
+   human review line. A PR with anything on that line gets the
+   `needs-human-review` label. If a serious introduced finding is
+   still open, or a test already fails on the base, no mergeable PR
+   opens: ship mode asks you, or opens a `[BLOCKED]` draft when the
+   run is unattended (headless, or told up front not to stop and ask).
+   The task
    folder's status moves to `PR open (#N)`, then to
    `merged to <base> (<sha>), not released` once the PR merges into an
    integration branch
