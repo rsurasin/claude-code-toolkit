@@ -47,8 +47,12 @@ each round:
 4. Commit the fixes atomically (Commit Mode Steps 3–4, e.g.
    `fix(<scope>): <subject>`) — the gates review `<base>...HEAD`, so an
    uncommitted fix is invisible to them and missing from the PR
-5. Re-run Tests and runtime verification, plus only the affected review
-   gates — the sources named on the findings you fixed. Each re-run
+5. Re-run Tests and runtime verification, plus the affected review
+   gates — the sources named on the findings you fixed — and always
+   `code-reviewer` and `security-auditor`, whether or not they raised
+   one of those findings, so every fix commit gets a code read and a
+   security read (a fix for a non-security finding can still open a
+   security hole). A gate that is neither is not re-run. Each re-run
    still passes `<base>...HEAD` as its range and reference point (so an
    incomplete fix stays `introduced`, and `/code-review`'s range check
    holds); the fix commits' files and the flagged locations are its
