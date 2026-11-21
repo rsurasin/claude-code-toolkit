@@ -117,7 +117,13 @@ ran, if any introduced LOW marked **contained** is still open:
    finding and never a hard stop), and put back the LOW the commit was
    fixing, with `cleanup fix not confirmed`, even if the triage listed
    it under Resolved. This is bookkeeping for a revert, not a triage
-   call: change nothing else on the list
+   call: change nothing else on the list. Step 4's Gate verdicts
+   table predates the reverts too, so after a revert don't copy it:
+   work out each reviewing gate's row from the corrected list (PASS
+   when no entry names that gate as a source, otherwise ISSUES at the
+   highest severity among the entries that do; a `(finding-triage)`
+   entry names Security). The risk level and the hard-stop check use
+   those rows. A gate recorded `NOT RUN` or `N/A` stays as recorded
 
 There is no second cleanup pass and no second closing review.
 

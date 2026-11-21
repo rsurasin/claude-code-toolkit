@@ -238,7 +238,9 @@ yourself instead.
 
 Each reviewing gate's verdict is the one in the agent's Gate verdicts
 table (the `pr-description` verdict normalization, applied to the
-triaged list); Tests and runtime verification are normalized directly
+triaged list), except after a cleanup commit was reverted, when
+`fix-loop.md`'s cleanup step 6 works the rows out from the corrected
+list; Tests and runtime verification are normalized directly
 from their runs.
 
 ## Step 3: Evaluate — fix findings before the PR opens
