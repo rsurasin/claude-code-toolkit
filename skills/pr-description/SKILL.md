@@ -114,7 +114,10 @@ Output Guidance" below.]
 
 **Needs human review:** [What a person must look at before merging,
 most serious first: unresolved MEDIUM or higher findings, pending
-decisions, one-way doors, and gates that are NOT RUN or N/A. If triage
+decisions, one-way doors, gates that are NOT RUN or N/A, and any fix
+that changed behavior beyond the request. An existing CRITICAL
+security finding is written only as "an existing issue needs your
+attention, details in the ship report". If triage
 failed, start with "triage failed twice, nothing graded the <n> raw
 findings". Write "nothing beyond a normal review" only when none
 apply.]
