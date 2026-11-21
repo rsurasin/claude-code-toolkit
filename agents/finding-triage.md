@@ -181,6 +181,12 @@ Re-check the tags `code-reviewer` and `security-auditor` gave: an
 the reviewer said.
 Re-tag a reviewer's `introduced` finding `existing` only with blame
 evidence, listed under Triage changes.
+Tag a vulnerability in a dependency from the manifest and lockfile
+diff, not from blame: it is **existing** when the branch neither added
+the package nor changed its version, and **introduced** when the
+branch added the package or moved it to an affected version (the fix
+is then a version that isn't affected). If you can't tell from the
+diff, tag it introduced and say so under Gaps.
 `/security-review` findings are introduced when `<base>` is the remote's
 default branch; otherwise tag them like any other finding. When sources
 disagree, introduced wins if any evidence shows the branch causes or
