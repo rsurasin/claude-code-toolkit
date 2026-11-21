@@ -114,8 +114,10 @@ Output Guidance" below.]
 
 **Needs human review:** [What a person must look at before merging,
 most serious first: unresolved MEDIUM or higher findings, pending
-decisions, one-way doors, and gates that are NOT RUN or N/A. Write
-"nothing beyond a normal review" only when none apply.]
+decisions, one-way doors, and gates that are NOT RUN or N/A. If triage
+failed, start with "triage failed twice, nothing graded the <n> raw
+findings". Write "nothing beyond a normal review" only when none
+apply.]
 
 ### Unresolved findings
 
@@ -127,6 +129,10 @@ decisions, one-way doors, and gates that are NOT RUN or N/A. Write
   | stopped after 2 fix rounds | cleanup fix not confirmed | no change
   recommended by triage — <its reason> | not attempted: run stopped at
   <hard stop> | release shipped without a fix PR — release mode only)
+If triage failed, the whole list is this one line instead, naming no
+finding:
+- not triaged: triage failed twice (<n> raw findings, in the ship
+  report)
 An unfixed security finding gets severity and sources only: "security
 finding, details shared privately".]
 
@@ -420,7 +426,8 @@ likelihood only when the triggering state is shown to be unreachable.
   "(unverified)"
 - The risk assessment is evidence-based — report what ran, not what should have run
 - Every introduced finding left unfixed is listed under Unresolved
-  findings with its reason, or the list says "None" — a risk-table
+  findings with its reason, or the list says "None" (or, when triage
+  failed, the single `not triaged` line) — a risk-table
   ISSUES entry alone doesn't tell a reviewer what is wrong or where
 - Every description has the Simplify pre-pass line under the risk table,
   with its outcome and reason. It sits outside the rubric: it never

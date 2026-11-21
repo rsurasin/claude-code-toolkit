@@ -144,7 +144,8 @@ saying why.
    introduced finding goes in the release PR's Unresolved findings list
    (reason: `release shipped without a fix PR`, with the follow-up issue
    once filed), and security findings follow Ship Mode Step 2b's
-   routing rule.
+   routing rule. After a failed triage the list is the single
+   `not triaged` line instead (`fix-loop.md`).
 5. **Open the release PR** with the `pr-description` skill, adding these
    sections after the Summary:
 

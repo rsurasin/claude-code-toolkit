@@ -155,7 +155,9 @@ PASS; a gate recorded `NOT RUN` or `N/A` stays as recorded.
 If the agent errors, times out, or returns a report with no
 `Fix loop:` line, dispatch it once more. If that fails too, record
 every reviewing gate `NOT RUN` (triage failed) and ask the user how to
-proceed. Never triage the findings yourself instead.
+proceed: a failed triage is a hard stop (Step 3), and the fix loop
+doesn't run, since nothing says what to fix. Never triage the findings
+yourself instead.
 
 1. **Dispatch it** with:
    - the range `<base>...HEAD` and the base ref;
@@ -254,6 +256,8 @@ Before any fix round, as soon as the gates are back:
 - A test that already fails on `<base>`. The branch can't fix what it
   didn't break, and its own test result can't be trusted until the
   base is green
+- Triage that failed twice (Step 2b). Nothing graded the findings, so
+  nobody knows what they are or how severe
 
 After the fix loop (`fix-loop.md`), which gets two rounds at each of
 these first:
@@ -324,10 +328,12 @@ carries on:
   so on the Needs human review line
 - **Triage fails twice (Step 2b):** a hard stop. Nothing graded the
   findings, so open the `[BLOCKED]` draft with every reviewing gate
-  `NOT RUN` (triage failed). Its Unresolved findings list reads
-  `not triaged: triage failed twice (<n> raw findings, in the ship
+  `NOT RUN` (triage failed). Its Unresolved findings list is the one
+  line `not triaged: triage failed twice (<n> raw findings, in the ship
   report)` and names none of them, since nothing has sorted out which
-  are security findings
+  are security findings. Its Needs human review line starts "triage
+  failed twice, nothing graded the <n> raw findings", and the PR gets
+  the `needs-human-review` label
 - **A test already fails on the base:** open the `[BLOCKED]` draft
   without running the fix loop; each introduced finding is listed
   `not attempted: run stopped at <hard stop>`
@@ -381,10 +387,17 @@ ISSUES. Only an answer given in this conversation counts as choosing
 to proceed. Proceeding past a test that already fails on the base
 carries on from where the run stopped: the fix loop runs as usual, and
 only test failures the base doesn't have count against the branch.
-Proceeding past a failed triage lists the findings as `not triaged`,
-as an unattended run does.
+Proceeding past a failed triage skips the fix loop and writes the PR
+as an unattended run does: the single `not triaged` line under
+Unresolved findings (never `author chose to proceed` per finding,
+since no finding is named), "triage failed twice, nothing graded the
+<n> raw findings, author chose to proceed" first on the Needs human
+review line, and the `needs-human-review` label.
 
-If the user chooses to fix, follow a round's items 3–5 in `fix-loop.md`. To fix an
+If the user chooses to fix, follow a round's items 3–5 in `fix-loop.md`.
+After a failed triage there is nothing graded to fix, so the choice is
+between proceeding and dispatching `finding-triage` again; a triage
+that then returns a list puts the run back at Step 2b item 2. To fix an
 existing security finding, recommend a separate private fix (security
 advisory or private fork) over this PR; if the user wants it here, keep
 the commit message and PR text neutral — no vulnerability class,
@@ -434,7 +447,9 @@ the Risk Assessment block copied exactly:
      `pr-description`'s Rules of evidence (with what makes it one), each review or test gate that is `NOT RUN` or `N/A`, and
      any fix the loop made that changed behavior beyond the request.
      An existing CRITICAL security finding is written as Step 3's
-     neutral sentence, nothing more.
+     neutral sentence, nothing more. After a failed triage (Step 2b)
+     the line starts "triage failed twice, nothing graded the <n> raw
+     findings" and names none of them.
      Write `**Needs human review:** nothing beyond a normal review`
      only when none of those apply
    - Under Notes for Reviewers: the **Unresolved findings** list — every
@@ -444,7 +459,9 @@ the Risk Assessment block copied exactly:
      the issue link once filed), or "None". An unfixed introduced security
      finding is listed neutrally — severity, sources, and "security
      finding, details shared privately" — with its location, class, and
-     exploit path in the Step 6 report only
+     exploit path in the Step 6 report only. After a failed triage the
+     list is the single `not triaged` line from `fix-loop.md` instead,
+     with no per-finding entries
    - Also under Notes for Reviewers: existing non-security findings from
      Step 2b with issue links, and any severity or tag a triage changed,
      with the reason, except changes that touch a security finding
@@ -500,7 +517,8 @@ these two flags decided as follows:
   otherwise: an existing CRITICAL security finding is not a hard stop,
   so its PR is not a draft
 - **`--label needs-human-review`: unless the Needs human review line
-  reads "nothing beyond a normal review"**, and always on a draft, so
+  reads "nothing beyond a normal review"**, and always on a draft or
+  after a failed triage, so
   a PR that needs a person stands out in the PR list. Create the label
   first, as shown
 
@@ -583,9 +601,13 @@ What each line holds:
   resolved, in total.
 - **Unfixed introduced** — the count of entries under Unresolved
   findings in the PR; offer an issue for each not-contained one.
+  After a failed triage, `not triaged (<n> raw findings)` instead of
+  a count.
 - **Reported privately** — existing security findings and unfixed
   introduced security findings (file:line, class, severity), and
-  security re-triage reasons; recommend a security advisory.
+  security re-triage reasons; recommend a security advisory. After a
+  failed triage, every gate's raw findings go here as the gates
+  reported them, since nothing sorted out which are security findings.
 - **`/code-review` checks** — one bullet per finding in
   `finding-triage`'s Verified list: the finding, "kept", and the
   `file:line` it gave as confirming it.

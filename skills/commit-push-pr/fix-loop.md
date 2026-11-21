@@ -138,7 +138,13 @@ and the PR proceeds:
 - `stopped after 2 fix rounds` — a finding the rounds didn't resolve
 - `not attempted: run stopped at <hard stop>` — the run hit a hard
   stop before the loop could work on the finding (a test already
-  failing on the base, or a failed triage)
+  failing on the base)
+- `not triaged: triage failed twice (<n> raw findings, in the ship
+  report)` — triage failed twice (`ship-mode.md` Step 2b), so nothing
+  graded the findings. Unlike the other reasons, this is one line for
+  the whole list, not one per finding: it gives the count and names no
+  finding, severity, source or location, since nothing has sorted out
+  which are security findings
 - `cleanup fix not confirmed` — a LOW whose cleanup fix was reverted or
   not confirmed
 - `no change recommended by triage — <its reason>` — a finding whose
@@ -148,12 +154,16 @@ An introduced CRITICAL or HIGH is never listed in a ready PR. In ship
 mode it appears only in a draft: with `author chose to proceed` when
 the user proceeded, or in a `[BLOCKED]` draft with whichever of
 `stopped after 2 fix rounds`, `awaiting author decision` or
-`not attempted` describes it.
+`not attempted` describes it. A draft opened after a failed triage
+carries only the `not triaged` line: with no triage list, no finding
+has a severity or an introduced tag to list it by.
 
 Release mode adds one reason of its own, `release shipped without a
 fix PR` (`release-mode.md`); ship mode never uses it.
 
-That list is the final triage's Introduced section, after the cleanup
+Except after a failed triage, which has no list and gets the single
+`not triaged` line, that list is the final triage's Introduced
+section, after the cleanup
 pass's step 6 if a cleanup commit was reverted, one entry per
 finding: a finding leaves it only when a re-triage lists it under
 Resolved (a contained finding whose fix reads "none needed" stays), so
