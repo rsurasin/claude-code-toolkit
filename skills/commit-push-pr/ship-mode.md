@@ -464,6 +464,7 @@ place of a label.
 ```
 ## Shipped
 
+**Status:** <one line: how the run ended and what the user must do>
 **Branch:** <branch> → <base>
 **Risk:** <level> (<one-line justification>)
 **Decisions needed:** <questions for the user, or none>
@@ -485,6 +486,13 @@ place of a label.
 
 What each line holds:
 
+- **Status** — the whole outcome in one line that stands alone,
+  because this report is the session's final reply and a stop
+  notification may show only its start. One of: `PR ready for a normal
+  review: <url>`; `PR open, needs human review (<n> items): <url>`;
+  `[BLOCKED] draft PR, <hard stop>: <url>`; or `Stopped, nothing
+  published: <the question>`. A label on the PR is not the summary:
+  the state goes here.
 - **Risk** — LOW, MEDIUM, HIGH, or CRITICAL, with the qualifier the PR
   description gives it.
 - **Decisions needed** — every question still open for the user: a
