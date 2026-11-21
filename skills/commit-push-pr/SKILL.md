@@ -210,8 +210,9 @@ off the release steps, and mark the folders `released`.
   contract change goes to the user); a MEDIUM that two rounds leave
   open is listed under Unresolved findings and raises the risk level
   (a LOW goes to the cleanup pass), and a CRITICAL or HIGH still open
-  is a hard stop — no mergeable PR opens with one unless the user said
-  to proceed (an unattended run opens a `[BLOCKED]` draft instead);
+  is a hard stop — no mergeable PR opens with one: if the user says
+  to proceed the PR opens as a draft, and an unattended run opens a
+  `[BLOCKED]` draft (`ship-mode.md` Steps 3 and 5);
   existing findings are reported or filed, never blocking (an existing
   CRITICAL security finding is also flagged on the Needs human review
   line, in neutral words)

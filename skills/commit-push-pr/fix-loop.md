@@ -13,8 +13,9 @@ problems; the cleanup pass fixes the LOW findings that are left, and a
 closing review then reads only the cleanup commits and can only revert
 them, never start more fixing, so the work ends there. The bound never
 lets a serious finding through: **no mergeable PR opens with an
-introduced CRITICAL or HIGH finding unfixed** unless the user said to
-proceed (an unattended run opens a `[BLOCKED]` draft instead).
+introduced CRITICAL or HIGH finding unfixed**. If the user says to
+proceed, the PR opens as a draft; an unattended run opens a
+`[BLOCKED]` draft (Step 3).
 
 ## Fix rounds (MEDIUM and above)
 
