@@ -26,6 +26,8 @@ Where the steps below say to ask or confirm, it does this instead:
   integration branch is never guessed: with none named in the starting
   instructions, stop with nothing published
 - **Uncommitted changes:** stop with nothing published
+- **Local integration branch has commits the remote doesn't (step
+  4):** stop with nothing published, leaving the branch as it is
 - **A release point taken from a tag, or a list that looks too long:**
   carry on, and say on the Needs human review line how the release
   point was found and that nobody confirmed it
@@ -98,7 +100,19 @@ saying why.
 4. **Run the gates**: check out `<integration>` at
    `origin/<integration>` first, because Tests, runtime verification
    and `/security-review` read the checked-out tree and the current
-   branch. Then run Ship Mode Steps 2–3 (gates, triage, evaluation)
+   branch:
+
+   ```bash
+   git checkout <integration>               # creates it from origin/<integration> if there is no local branch
+   git merge --ff-only origin/<integration>
+   git rev-parse HEAD origin/<integration>  # the two must match
+   ```
+
+   Only ever fast-forward. If the merge is refused or the two commits
+   differ, the local `<integration>` has commits the remote doesn't:
+   stop and ask the user what to do with them. Never use
+   `git reset --hard`, `git checkout -B` or any other forced move to
+   get there, since each would drop those commits. Then run Ship Mode Steps 2–3 (gates, triage, evaluation)
    over what the release brings in,
    `git diff <release-point>...origin/<integration>`. `finding-triage`
    gets that range and, as scope, the issues the release closes. Skip Ship Mode
