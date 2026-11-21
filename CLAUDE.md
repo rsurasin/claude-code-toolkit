@@ -61,7 +61,8 @@ drift easily.
   no commit ships unreviewed and the loop still ends. Unbounded rounds
   did not converge: every fix raised new minor findings. LOW findings
   are still fixed, not just listed. The hard stops come at two points.
-  A test already failing on the base stops the run before any fix
+  A test already failing on the base, or triage that failed twice
+  (nothing graded the findings), stops the run before any fix
   round. A test the branch broke, or an introduced CRITICAL or HIGH,
   gets the two rounds first and is a hard stop only if still open. On
   a hard stop no mergeable PR opens: an attended run asks, an
@@ -117,7 +118,8 @@ drift easily.
   with evidence that a finding is more severe or introduced, or a list
   that fails its checks, it re-dispatches the agent and never edits the
   list, and a disagreement in the other direction goes to the user. If
-  triage fails twice, the reviewing gates are `NOT RUN` and the user
+  triage fails twice, that is a hard stop: the reviewing gates are
+  `NOT RUN`, the PR lists the findings as `not triaged`, and the user
   decides; ship mode never triages inline. Don't move triage back into
   the authoring session.
 - **Atomic commits.** One commit = one task/logical change; never bundle

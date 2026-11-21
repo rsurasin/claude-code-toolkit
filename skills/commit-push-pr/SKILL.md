@@ -229,7 +229,8 @@ off the release steps, and mark the folders `released`.
 - Never commit `.env`, secrets, or large binary files
 - Never commit feature work directly to the default branch
 - If there are merge conflicts, stop and report
-- On a hard stop (a test already failing on the base; or, after two
+- On a hard stop (a test already failing on the base; triage that
+  failed twice, so nothing graded the findings; or, after two
   fix rounds, a test the branch broke still failing or an introduced
   CRITICAL or HIGH still open), never push or open a PR without explicit user
   approval, and with that approval the PR opens as a draft. The one exception is an unattended run (headless, or the
