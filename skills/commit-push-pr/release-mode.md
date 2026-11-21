@@ -103,7 +103,8 @@ them: release steps come only from task folders or the user.
    `git blame` on the finding's lines to the step 2 PR list; write
    "source PR not determined" rather than guess) and suggesting a
    `fix/<slug>` branch off `<integration>`. The user chooses between
-   that fix PR and releasing anyway; an unattended run (Step 3's
+   that fix PR and releasing anyway, which opens the release PR as a
+   draft (Step 3); an unattended run (Step 3's
    definition) never releases anyway, and opens the release PR as a
    `[BLOCKED]` draft instead. An existing CRITICAL security finding is
    not a hard stop here either (Step 3). MEDIUM and LOW findings

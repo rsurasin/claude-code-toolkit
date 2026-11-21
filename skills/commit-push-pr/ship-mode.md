@@ -346,6 +346,16 @@ carries on:
 Never pick "proceed" for the user, lower a severity, or make a
 one-way-door change to keep the run moving.
 
+**If the user chooses to proceed past a hard stop, the PR opens as a
+draft** (`gh pr create --draft`), without `[BLOCKED]` in the title,
+since the user decided. Never mark it ready: the user does, once they
+have looked. The PR says what was proceeded past, first on the Needs
+human review line: a finding is listed under Unresolved findings with
+`author chose to proceed`; failing tests are named there as "tests
+failing (<which>), author chose to proceed", and the Tests row reads
+ISSUES. Only an answer given in this conversation counts as choosing
+to proceed.
+
 If the user chooses to fix, follow a round's items 3–5 in `fix-loop.md`. To fix an
 existing security finding, recommend a separate private fix (security
 advisory or private fork) over this PR; if the user wants it here, keep
@@ -510,7 +520,8 @@ What each line holds:
   because this report is the session's final reply and a stop
   notification may show only its start. One of: `PR ready for a normal
   review: <url>`; `PR open, needs human review (<n> items): <url>`;
-  `[BLOCKED] draft PR, <hard stop>: <url>`; or `Stopped, nothing
+  `[BLOCKED] draft PR, <hard stop>: <url>`; `Draft PR, author chose to
+  proceed past <hard stop>: <url>`; or `Stopped, nothing
   published: <the question>`. A label on the PR is not the summary:
   the state goes here.
 - **Risk** — LOW, MEDIUM, HIGH, or CRITICAL, with the qualifier the PR

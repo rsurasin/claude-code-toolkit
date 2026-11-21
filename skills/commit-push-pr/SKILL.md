@@ -231,7 +231,7 @@ off the release steps, and mark the folders `released`.
 - On a hard stop (a test already failing on the base; or, after two
   fix rounds, a test the branch broke still failing or an introduced
   CRITICAL or HIGH still open), never push or open a PR without explicit user
-  approval. The one exception is an unattended run (headless, or the
+  approval, and with that approval the PR opens as a draft. The one exception is an unattended run (headless, or the
   author said up front to work without stopping to ask; when unsure it
   is attended, see `ship-mode.md` Step 3): push and open a draft PR titled `[BLOCKED]` so the block is
   visible, and never mark it ready

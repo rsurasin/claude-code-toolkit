@@ -67,7 +67,7 @@ still open, or a test the branch broke still failing, is a hard stop**
 (Step 3): no PR opens
 for merging. Report it under **Decisions needed** with what you tried,
 and let the user choose between another round, a different fix, or
-proceeding.
+proceeding (which opens the PR as a draft: Step 3).
 
 The contained call is the agent's, not yours: fix every contained
 finding, and never mark one not contained yourself (Step 2b item 2). If
@@ -112,7 +112,8 @@ and the PR proceeds:
   approves)
 - `awaiting author decision` — you asked and have no answer yet
 - `author chose to proceed` — only when the user said so in this
-  conversation; the only reason a CRITICAL or HIGH may carry
+  conversation; the only reason a CRITICAL or HIGH may carry, and
+  the PR then opens as a draft
 - `stopped after 2 fix rounds` — a MEDIUM the rounds didn't resolve
 - `cleanup fix not confirmed` — a LOW whose cleanup fix was reverted or
   not confirmed
