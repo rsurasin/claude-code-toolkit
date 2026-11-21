@@ -23,6 +23,12 @@ with no remote, recommend the local `main` (or `master`). List other
 long-lived branches if present (`develop`, `release/*`, `staging`) as
 alternatives. Never silently assume the default branch.
 
+An unattended run (Step 3's definition) can't ask, so it doesn't wait
+here: it uses the base its starting instructions name, and with none,
+the remote's default branch. That choice is not silent: it goes on the
+PR's Needs human review line and the Step 6 report's Decisions needed
+line.
+
 ## Step 1b: `/simplify` pre-pass
 
 Run the built-in `/simplify` before the gates, so cleanup (reuse,

@@ -241,7 +241,9 @@ off the release steps, and mark the folders `released`.
   draft gets it, and an update that clears the line removes it
 - Never delete, skip, or weaken a test to make a gate pass
 - Ask for the PR base branch unless the user stated it — before the
-  gates run (Step 1a)
+  gates run (Step 1a). An unattended run doesn't ask: it uses the base
+  its starting instructions name, else the remote's default branch,
+  and says so on the Needs human review line
 - Release PRs list features, PR and issue numbers, and release steps,
   never dev-tasks paths, folder names, task IDs, or secret values
 - Never commit onto the integration or default branch in release mode
