@@ -8,12 +8,13 @@ project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 
 ## What's Inside
 
-### Agents (7) — auto-dispatched by Claude based on your request
+### Agents (8) — auto-dispatched by Claude based on your request, except `finding-triage` (dispatched by ship and release mode, or on explicit request)
 
 | Agent | What It Does |
 |-------|--------------|
 | `code-reviewer` | Parallel multi-axis review of the branch diff — bugs, change impact (removed behavior, callers), security, performance, design and conventions — with a verification pass, defined severities, and introduced/existing tags |
 | `security-auditor` | Deep OWASP-aligned security audit with language-aware vulnerability detection, installed-tool scanning, and confidence-scored false-positive filtering |
+| `finding-triage` | Dispatched by ship and release mode (or on explicit request). Grades every gate's findings cold, so the author never grades its own work — severities on one scale, `/code-review` candidates verified, duplicates merged, introduced/existing tags, the fix-loop decision, the contained / not-contained call measured against the issue, not the diff, and each gate's verdict |
 | `debugger` | Systematic hypothesis-driven bug investigation |
 | `perf-audit` | Runtime perf: startup time, re-renders, N+1 queries, bundle size, memory, concurrency |
 | `doc-sync` | Audits docs against code, fixes documentation drift |
@@ -30,7 +31,7 @@ project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 |-------|--------------|
 | `commit-message` | Generates conventional commit messages from diffs |
 | `pr-description` | Generates structured PR descriptions: current behavior in the Summary, new behavior in Changes, screenshots or runtime output as evidence, and a risk assessment (Low/Medium/High/Critical) computed from verification evidence and reversibility |
-| `commit-push-pr` | Two-mode inner loop: fast atomic task commits (no gates), then gated PR creation — quality gates (repo tests/verify, review/security/perf/docs agents, and the built-in `/code-review` and `/security-review`) run once over the full branch diff, a triage step merges their findings, introduced findings are fixed, and the PR opens with a risk assessment. Release mode (integration branch → default branch) lists the features merged since the last release with their release steps, and after the merge confirms the issues closed and marks the task folders released |
+| `commit-push-pr` | Two-mode inner loop: fast atomic task commits (no gates), then gated PR creation — quality gates (repo tests/verify, review/security/perf/docs agents, and the built-in `/code-review` and `/security-review`) run once over the full branch diff, the `finding-triage` agent grades and merges their findings, introduced findings are fixed in at most two fix rounds plus one cleanup pass for LOW findings (what is left is listed in the PR as unresolved), and the PR opens with a risk assessment, a Needs human review line, and a `needs-human-review` label unless that line reads "nothing beyond a normal review". A test already failing on the base, or triage that failed twice, is a hard stop before any fix round; a test the branch broke that still fails, or an introduced CRITICAL or HIGH still open, is a hard stop after two rounds: an attended run asks, an unattended run opens a draft PR titled `[BLOCKED]`. The ship report opens with a one-line Status. Release mode (integration branch → default branch) lists the features merged since the last release with their release steps, and after the merge confirms the issues closed and marks the task folders released |
 | `dev-tasks` | Maintains category-organized task files (plan/context/tasks) under `.claude/dev/` for cross-session memory, with a status line per task (`in progress` → `PR open (#N)` → `merged to <base> (<sha>), not released` → `released (<release PR #N>, <date>)`) and the release steps each feature needs. Every product decision reached in conversation is recorded in the same turn, with the options considered, their pros and cons, why the winner won, and the trade-offs accepted |
 | `sharpen` | Proactively encodes a mistake or inefficiency (agent- or user-detected) into a permanent harness improvement — test, lint rule, CLAUDE.md entry — always with user consent before touching the harness |
 | `review-plan` | Fresh-context staff engineer critique of a plan before execution, with a LOW/MEDIUM/HIGH/CRITICAL risk level on the pr-description scale — fires proactively before non-trivial plans |
@@ -55,9 +56,10 @@ project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 > agents bring installed tooling, existing-code coverage, performance,
 > docs, test coverage, and `.claude/rules/`; `/code-review` traces
 > callers and audits removed behavior; `/security-review` filters false
-> positives hard but reports only what the diff introduces. A triage
-> step assigns severities, merges duplicates, and separates introduced
-> findings (fixed before the PR) from existing ones (reported or filed).
+> positives hard but reports only what the diff introduces. The
+> `finding-triage` agent, not the session that wrote the code, assigns
+> severities, merges duplicates, and separates introduced findings
+> (fixed before the PR) from existing ones (reported or filed).
 > A built-in skill your Claude Code version lacks is recorded `N/A`,
 > which keeps the PR's risk above LOW.
 
@@ -250,11 +252,22 @@ each repo's `.claude/` directory — see [Migrating from v2](#migrating-from-v2)
    quality gates once over the full branch diff (your repo's qa/verify
    skills, the code review, security, performance, and docs agents, and
    the built-in `/code-review` and `/security-review` side by side),
-   triages every reviewer's findings into one list, fixes the ones the
-   branch introduced, reports or files existing ones, then opens a PR
-   with a risk assessment. The task folder's status moves to `PR open
-   (#N)`, then to `merged to <base> (<sha>), not released` once the PR
-   merges into an integration branch
+   has the `finding-triage` agent grade every reviewer's findings into
+   one list, fixes the introduced findings it marks must fix or
+   contained (at most two fix rounds, then one cleanup pass for LOW
+   ones) and lists the rest in the PR with a reason, reports or files
+   existing ones, then opens a PR with a risk assessment and a Needs
+   human review line. The PR gets the `needs-human-review` label
+   unless that line reads "nothing beyond a normal review". If a test
+   already fails on the base, or triage failed twice (so nothing
+   graded the findings), or after two fix rounds a test the
+   branch broke still fails or an introduced CRITICAL or HIGH is still
+   open, no mergeable PR opens: ship mode asks you, or opens a `[BLOCKED]` draft when the
+   run is unattended (headless, or told up front not to stop and ask).
+   The task
+   folder's status moves to `PR open (#N)`, then to
+   `merged to <base> (<sha>), not released` once the PR merges into an
+   integration branch
 7. Learn: the `sharpen` skill fires on any mistake or correction — agent-
    or user-detected — and proposes a permanent harness improvement,
    applying it only with your consent (`/sharpen` still works explicitly)
@@ -300,6 +313,7 @@ claude-code-toolkit/
 ├── agents/
 │   ├── code-reviewer.md             # Parallel multi-axis code review
 │   ├── security-auditor.md          # Deep security audit (OWASP-aligned)
+│   ├── finding-triage.md            # Independent triage of ship-mode gate findings
 │   ├── debugger.md                  # Systematic bug investigation
 │   ├── perf-audit.md                # Runtime performance analysis
 │   ├── doc-sync.md                  # Documentation parity auditor
@@ -312,7 +326,8 @@ claude-code-toolkit/
 │   │   └── SKILL.md                 # PR description generator w/ risk assessment
 │   ├── commit-push-pr/
 │   │   ├── SKILL.md                 # Two-mode commit → PR inner loop
-│   │   ├── ship-mode.md             # Gates, triage, fix loop, PR (read in ship and release mode)
+│   │   ├── ship-mode.md             # Gates, triage, PR (read in ship and release mode)
+│   │   ├── fix-loop.md              # What is fixed before the PR opens, and when to stop (read in ship mode)
 │   │   └── release-mode.md          # Release PR + post-merge closeout (read in release mode)
 │   ├── dev-tasks/
 │   │   └── SKILL.md                 # Task-specific cross-session context

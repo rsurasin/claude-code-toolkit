@@ -7,7 +7,10 @@ description: >
   performance, test coverage, and convention violations, and reports
   every finding with a defined severity, a concrete failure scenario, a
   fix, and an introduced/existing tag. Use before committing, before PRs,
-  or after implementing a feature. Complements the built-in /code-review
+  or after implementing a feature. Dispatch it whenever the user asks
+  for a review of their changes, a commit, or a branch ("review my
+  changes"), however small the change: never review inline in the
+  session that wrote or set up the code. Complements the built-in /code-review
   skill rather than replacing it: this agent adds the security,
   performance, and test-coverage axes, reads `.claude/rules/` and nested
   CLAUDE.md files, and returns severities a quality gate can normalize —
@@ -159,8 +162,8 @@ Rank by likely impact, with before/after code suggestions.
 
 Read the project context first, then check:
 - **Conventions:** does the code follow the project's stated patterns?
-  Quote the rule (with its file) for every hard-rule violation, and keep
-  hard violations apart from style suggestions.
+  Quote the rule (with its file) for every hard-rule violation. Don't
+  report a style preference no project rule or linter config requires.
 - **Altitude:** does each fix address the root cause at the right depth,
   or does it layer a special case onto shared code to patch one caller?
 - **Reuse:** search the codebase for an existing helper, type, or
@@ -181,8 +184,9 @@ Read the project context first, then check:
 
 Every finding carries one severity, defined by consequence — not by how
 small the fix is or how unlikely the trigger feels. This is the same
-scale as the `pr-description` skill's Severity Scale, which ship mode
-uses to triage every reviewer's findings — keep the two in sync:
+scale as the `pr-description` skill's Severity Scale, which ship mode's
+`finding-triage` agent uses to triage every reviewer's findings — keep
+the three in sync:
 
 - **CRITICAL** — exploitable security vulnerability, data loss or
   corruption, or a change that breaks a core path for every user.
@@ -196,12 +200,15 @@ uses to triage every reviewer's findings — keep the two in sync:
   a codebase that has tests, a hard project-rule violation, or
   docs/comments that now contradict the code. In a codebase with no
   tests, missing coverage is one LOW summary note, not a MEDIUM per path.
-- **LOW** — hardening, simplification, reuse, style, naming, or a
+- **LOW** — hardening, simplification, reuse, naming, or a
   performance improvement without evidence of user-visible impact.
 
-A one-line fix for a real race is still HIGH — never accept it as LOW.
-Lower a severity for likelihood only when you show the triggering state
-is unreachable.
+Style alone — formatting, line length, quoting, ordering, or a wording
+preference — is not a finding, unless a project rule or linter config
+requires it; then it is LOW.
+
+A one-line fix for a real race is still HIGH. Lower a severity for
+likelihood only when the triggering state is shown to be unreachable.
 
 Every finding is also tagged:
 
@@ -223,7 +230,7 @@ condition.
 Before synthesis, confirm or reject every MEDIUM-or-higher candidate
 with independent sub-tasks, in parallel. Batch 3–5 related candidates
 (same file or same root cause) per verifier, so the verifier count
-stays small. LOW candidates (style, reuse, simplification) skip
+stays small. LOW candidates (hardening, reuse, simplification) skip
 verification but must still cite file:line.
 
 - Give each verifier the candidate, its failure scenario, and the code —
@@ -243,7 +250,8 @@ LOW findings into a single report.
 Copy this format exactly, even when you write the rest in your own
 words: the section headings, the `**Verdict:**` line, the
 `[introduced|existing]` tags, and the severity labels are read by
-`commit-push-pr` ship mode's triage and the `pr-description` rubric.
+`commit-push-pr` ship mode's `finding-triage` agent and the
+`pr-description` rubric.
 Paraphrasing them (e.g. "Result: issues found" for
 `**Verdict:** ISSUES (CRITICAL)`) breaks that.
 
@@ -264,7 +272,7 @@ Format each finding as:
 [MEDIUM introduced findings]
 
 ### Low (improve when convenient)
-[LOW introduced findings: hardening, simplification, style]
+[LOW introduced findings: hardening, simplification, reuse, naming]
 
 ### Existing Issues (not introduced by this diff)
 [existing findings at any severity — report, don't block]

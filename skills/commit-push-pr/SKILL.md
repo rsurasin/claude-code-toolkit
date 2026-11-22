@@ -2,16 +2,19 @@
 name: commit-push-pr
 description: >
   Use whenever the user asks to commit ("commit this", "commit and push"),
-  to ship or open a PR, or to open or close out a release. Commit mode
+  to ship or open a PR, or to open or close out a release. Invoke it
+  before any pull request is opened, even when opening one is a single
+  step in a longer list of instructions: never run `gh pr create`
+  directly or write a PR description by hand. Commit mode
   (default): fast, gate-free atomic commits — stage, write a conventional
   commit message per task, push. Ship mode: when the feature is complete
   and a pull request should open, run the built-in /simplify first on code
   changes, then the quality gates (the repo's own test and verification
   skills, the code-reviewer, security-auditor, perf-audit, and doc-sync
   agents, and the built-in /code-review and /security-review skills side
-  by side) over the full branch diff, triage and merge their findings, fix
-  introduced ones, and open a PR with a structured description and risk
-  assessment. Release mode, ship mode's variant for a PR from an
+  by side) over the full branch diff, have the finding-triage agent grade
+  and merge their findings, fix introduced ones, and open a PR with a
+  structured description and risk assessment. Release mode, ship mode's variant for a PR from an
   integration branch (e.g. dev) to the default branch: list the features
   merged since the last release, put them and their release steps in the
   release PR, and after it merges confirm the issues closed and close out
@@ -173,9 +176,9 @@ state and is never staged.
 In ship mode, read [`ship-mode.md`](ship-mode.md) in this skill's
 directory **before taking any ship-mode step**, and follow it. In short:
 commit outstanding work, confirm the PR base branch, run `/simplify` on
-code changes, run every quality gate over `<base>...HEAD`, triage the
-findings into one list, fix introduced findings above the threshold and
-contained ones below it, push, and open the PR with a risk assessment
+code changes, run every quality gate over `<base>...HEAD`, have the
+`finding-triage` agent grade the findings into one list, fix introduced
+findings in at most two rounds (`fix-loop.md`), push, and open the PR with a risk assessment
 and an Unresolved findings list. The Rules below apply in every mode.
 
 ---
@@ -205,13 +208,22 @@ off the release steps, and mark the folders `released`.
   and billed
 - Introduced findings above the threshold (any CRITICAL or HIGH, or 2+
   MEDIUM) are
-  fixed before the PR opens — never shipped with a risk label as a
-  substitute for fixing; existing findings are reported or filed, not
-  blocking (except an existing CRITICAL security finding)
-- Below the threshold, contained fixes (needed to deliver what the
+  fixed before the PR opens, in at most two fix rounds, with the
+  smallest contract-preserving change (one that needs a design or
+  contract change goes to the user); a MEDIUM that two rounds leave
+  open is listed under Unresolved findings and raises the risk level
+  (a LOW goes to the cleanup pass), and a CRITICAL or HIGH still open
+  is a hard stop — no mergeable PR opens with one: if the user says
+  to proceed the PR opens as a draft, and an unattended run opens a
+  `[BLOCKED]` draft (`ship-mode.md` Steps 3 and 5);
+  existing findings are reported or filed, never blocking (an existing
+  CRITICAL security finding is also flagged on the Needs human review
+  line, in neutral words)
+- Below the threshold, contained findings (needed to deliver what the
   issue and tasks asked for, no design or contract change, too small
-  for its own issue)
-  are made in this PR too; every introduced finding left unfixed is
+  for its own issue) are fixed in this PR too: a single MEDIUM in a
+  fix round, and every LOW in a round or in the one cleanup pass that
+  follows the rounds; every introduced finding left unfixed is
   listed under Unresolved findings in the PR with its reason
 - Never publish an existing security finding's location, class, or
   exploit path in a PR body, commit message, or public issue — nor an
@@ -220,11 +232,22 @@ off the release steps, and mark the folders `released`.
 - Never commit `.env`, secrets, or large binary files
 - Never commit feature work directly to the default branch
 - If there are merge conflicts, stop and report
-- On a hard stop (failing tests, existing critical security finding,
-  serious perf regression), never push without explicit user approval;
-  an introduced CRITICAL is fixed, not shipped
+- On a hard stop (a test already failing on the base; triage that
+  failed twice, so nothing graded the findings; or, after two
+  fix rounds, a test the branch broke still failing or an introduced
+  CRITICAL or HIGH still open), never push or open a PR without explicit user
+  approval, and with that approval the PR opens as a draft. The one exception is an unattended run (headless, or the
+  author said up front to work without stopping to ask; when unsure it
+  is attended, see `ship-mode.md` Step 3): push and open a draft PR titled `[BLOCKED]` so the block is
+  visible, and never mark it ready
+- A PR gets the `needs-human-review` label unless its Needs human
+  review line reads "nothing beyond a normal review"; every `[BLOCKED]`
+  draft gets it, and an update that clears the line removes it
+- Never delete, skip, or weaken a test to make a gate pass
 - Ask for the PR base branch unless the user stated it — before the
-  gates run (Step 1a)
+  gates run (Step 1a). An unattended run doesn't ask: it uses the base
+  its starting instructions name, else the remote's default branch,
+  and says so on the Needs human review line
 - Release PRs list features, PR and issue numbers, and release steps,
   never dev-tasks paths, folder names, task IDs, or secret values
 - Never commit onto the integration or default branch in release mode

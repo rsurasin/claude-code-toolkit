@@ -58,7 +58,8 @@ the fix. See "Behavior Before / After" below.]
 
 **Reversibility:** [Two-way door — revertible with a simple `git revert`,
 no data migrations, no published API/schema/infra changes | One-way door —
-state why: migration, deletion, published contract, irreversible infra]
+state why: migration, deletion, published API or schema, auth or
+permission change, major dependency upgrade, infra, or spend]
 
 | Dimension | Verified By | Result |
 |-----------|-------------|--------|
@@ -111,14 +112,31 @@ Output Guidance" below.]
 
 ## Notes for Reviewers
 
+**Needs human review:** [What a person must look at before merging,
+most serious first: unresolved MEDIUM or higher findings, pending
+decisions, one-way doors, gates that are NOT RUN or N/A, and any fix
+that changed behavior beyond the request. An existing CRITICAL
+security finding is written only as "an existing issue needs your
+attention, details in the ship report". If triage
+failed, start with "triage failed twice, nothing graded the <n> raw
+findings". Write "nothing beyond a normal review" only when none
+apply.]
+
 ### Unresolved findings
 
 [Every finding this PR introduces that is not fixed, one per line, or
 "None":
 - [SEVERITY] (sources) `file:line` — what is wrong — why it is unfixed
-  (not contained: <reason>, #<issue> | author chose to proceed — only
-  when they said so | awaiting author decision | stopped after 3 fix
-  rounds)
+  (not contained: scope|contract|size — <reason>, #<issue> | author
+  chose to proceed — only when they said so | awaiting author decision
+  | stopped after 2 fix rounds | cleanup fix not confirmed | found by
+  the closing review | no change recommended by triage — <its reason>
+  | not attempted: run stopped at <hard stop> | release shipped without
+  a fix PR — release mode only)
+If triage failed, the whole list is this one line instead, naming no
+finding:
+- not triaged: triage failed twice (<n> raw findings, in the ship
+  report)
 An unfixed security finding gets severity and sources only: "security
 finding, details shared privately".]
 
@@ -231,6 +249,9 @@ edited out.
   the literal text `<redacted>`. In Testing steps, which a reader runs
   in their own shell, a placeholder such as `$API_TOKEN` or
   `<your-token>` is fine.
+- The same holds for your reply around the description: name a secret
+  by its key (`API_TOKEN`), never by its value, even a test value the
+  user typed themselves.
 - Use only throwaway or local test data (local servers, seeded
   fixtures, fake users). Never paste production records or real users'
   personal data.
@@ -303,7 +324,8 @@ gaps.
   finding outside ship mode (untagged, or from a full-scope audit), or
   a serious performance regression ⇒ CRITICAL. Only in ship mode does
   an existing critical security finding skip this floor — ship mode
-  makes it a hard stop instead
+  reports it privately and flags it on the Needs human review line
+  instead
 - Failing tests ⇒ CRITICAL
 
 ### Verdict normalization
@@ -318,7 +340,7 @@ Verification sources report in different vocabularies. Map them as:
 | Repo verify skill/agent | pass with warnings | ISSUES (LOW) |
 | Repo verify skill/agent | fail | ISSUES (HIGH) |
 | code-reviewer / security-auditor / perf-audit / doc-sync | no findings | PASS |
-| code-reviewer / security-auditor / perf-audit / doc-sync | findings | ISSUES (highest severity found) |
+| code-reviewer / security-auditor / perf-audit / doc-sync | findings | ISSUES (highest severity found; in ship mode, the triaged severity of introduced findings) |
 | `/code-review` | no findings | PASS |
 | `/code-review` | findings | ISSUES (highest severity assigned during triage) |
 | `/security-review` | no findings | PASS |
@@ -327,23 +349,25 @@ Verification sources report in different vocabularies. Map them as:
 | any gate | errored, timed out, or skipped | NOT RUN |
 
 `/code-review` reports findings without a severity, and `perf-audit` and
-`doc-sync` use their own labels; ship mode's triage step maps all of
-them onto the Severity Scale below before normalizing. When ship mode's
-triage has tagged findings **introduced** or **existing**, the verdict's
-severity comes from introduced findings only (LOW included) — a gate
-with only existing findings is PASS. Existing non-security findings are
-listed under Notes for Reviewers (with issue links when filed); existing
-security findings, at any severity, are reported to the user, not
-published in the PR body. A finding merged across reviewers appears in
-every source's row at the severity that source gave it (triage-assigned
-for `/code-review`); the merged, highest severity drives the fix loop
-and the risk level.
+`doc-sync` use their own labels; ship mode's `finding-triage` agent maps
+all of them onto the Severity Scale below before normalizing. When
+ship mode's triage has tagged findings **introduced** or **existing**,
+the verdict's severity comes from introduced findings only (LOW
+included) — a gate with only existing findings is PASS. Existing
+non-security findings are listed under Notes for Reviewers (with issue
+links when filed); existing security findings, at any severity, are
+reported to the user, not published in the PR body. Every row uses the final, triaged severity of
+the findings it names: a finding raised in triage, or merged across
+reviewers at the highest severity, appears at that severity in every
+source's row, and the same severity drives the fix loop and the risk
+level.
 
 ### Severity Scale
 
 All reviewers' findings map onto one scale, defined by consequence — not
 by how small the fix is or how unlikely the trigger feels. The
-`code-reviewer` agent uses the same definitions.
+`code-reviewer` and `finding-triage` agents copy these definitions;
+change all three together.
 
 - **CRITICAL** — exploitable security vulnerability, data loss or
   corruption, or a change that breaks a core path for every user.
@@ -357,8 +381,12 @@ by how small the fix is or how unlikely the trigger feels. The
   a codebase that has tests, a hard project-rule violation, or
   docs/comments that now contradict the code. In a codebase with no
   tests, missing coverage is one LOW summary note, not a MEDIUM per path.
-- **LOW** — hardening, simplification, reuse, style, naming, or a
+- **LOW** — hardening, simplification, reuse, naming, or a
   performance improvement without evidence of user-visible impact.
+
+Style alone — formatting, line length, quoting, ordering, or a wording
+preference — is not a finding, unless a project rule or linter config
+requires it; then it is LOW.
 
 A one-line fix for a real race is still HIGH. Lower a severity for
 likelihood only when the triggering state is shown to be unreachable.
@@ -380,9 +408,17 @@ likelihood only when the triggering state is shown to be unreachable.
   `NOT RUN` (or `N/A` for a built-in skill this Claude Code version
   doesn't have) and let the floors raise the level. Never claim LOW without
   evidence for every dimension.
-- Reversibility is judged from the diff: data migrations, schema changes,
-  deleted data, published API/package changes, and infra mutations are
-  one-way doors. Pure code changes behind an unreleased surface are two-way.
+- Reversibility is judged from the diff. These are one-way doors:
+  - data migrations
+  - deleting data
+  - public API or schema changes, including a published package
+  - auth and permission changes
+  - major dependency upgrades
+  - infra mutations
+  - anything that spends money (a paid service, a billed API, new
+    cloud resources)
+
+  Pure code changes behind an unreleased surface are two-way.
 
 ## Rules
 
@@ -394,7 +430,8 @@ likelihood only when the triggering state is shown to be unreachable.
   "(unverified)"
 - The risk assessment is evidence-based — report what ran, not what should have run
 - Every introduced finding left unfixed is listed under Unresolved
-  findings with its reason, or the list says "None" — a risk-table
+  findings with its reason, or the list says "None" (or, when triage
+  failed, the single `not triaged` line) — a risk-table
   ISSUES entry alone doesn't tell a reviewer what is wrong or where
 - Every description has the Simplify pre-pass line under the risk table,
   with its outcome and reason. It sits outside the rubric: it never

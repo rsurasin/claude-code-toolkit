@@ -19,6 +19,27 @@ them: release steps come only from task folders or the user.
 
 ## Opening the release PR
 
+**An unattended release** (Ship Mode Step 3's definition) can't ask.
+Where the steps below say to ask or confirm, it does this instead:
+
+- **Branches not stated:** the default branch is the remote's. The
+  integration branch is never guessed: with none named in the starting
+  instructions, stop with nothing published
+- **Uncommitted changes:** stop with nothing published
+- **Local integration branch has commits the remote doesn't (step
+  4):** stop with nothing published, leaving the branch as it is
+- **A release point taken from a tag, or a list that looks too long:**
+  carry on, and say on the Needs human review line how the release
+  point was found and that nobody confirmed it
+- **A PR with no task folder:** list it with "release steps unknown"
+  and put it on the Needs human review line
+- **A hard stop (step 4):** the `[BLOCKED]` draft, never "release
+  anyway"
+- **Release steps after the merge:** never run without approval
+
+A stop with nothing published ends with the report's Status line
+saying why.
+
 1. **Confirm the branches.** Ask for the integration and default branches
    unless the user stated them, suggesting the repo's default branch
    (`git symbolic-ref refs/remotes/origin/HEAD`) as the base. The working
@@ -76,9 +97,25 @@ them: release steps come only from task folders or the user.
    listed with "release steps unknown" and the user is asked. A PR that
    only one of `gh` and `git log` shows, and a task folder no PR maps to,
    are reported to the user, never written into the PR text.
-4. **Run the gates**: Ship Mode Steps 2–3 (gates, triage, evaluation)
+4. **Run the gates**: check out `<integration>` at
+   `origin/<integration>` first, because Tests, runtime verification
+   and `/security-review` read the checked-out tree and the current
+   branch:
+
+   ```bash
+   git checkout <integration>               # creates it from origin/<integration> if there is no local branch
+   git merge --ff-only origin/<integration>
+   git rev-parse HEAD origin/<integration>  # the two must match
+   ```
+
+   Only ever fast-forward. If the merge is refused or the two commits
+   differ, the local `<integration>` has commits the remote doesn't:
+   stop and ask the user what to do with them. Never use
+   `git reset --hard`, `git checkout -B` or any other forced move to
+   get there, since each would drop those commits. Then run Ship Mode Steps 2–3 (gates, triage, evaluation)
    over what the release brings in,
-   `git diff <release-point>...origin/<integration>`. Skip Ship Mode
+   `git diff <release-point>...origin/<integration>`. `finding-triage`
+   gets that range and, as scope, the issues the release closes. Skip Ship Mode
    Steps 1a and 1b: the base is the default branch by definition, and
    `/simplify` never runs here, because its fixes would be commits on
    `<integration>` (the release PR's Simplify pre-pass line reads
@@ -89,9 +126,27 @@ them: release steps come only from task folders or the user.
    the release steps makes the release a one-way door in the risk
    assessment.
 
-   Never commit gate fixes onto `<integration>` or `<default>`, so Ship
-   Mode Step 3's fix loop and its contained below-threshold fixes don't
-   apply here. Report the
+   Never commit gate fixes onto `<integration>` or `<default>`, so the
+   fix loop (`fix-loop.md`) and its contained below-threshold fixes don't
+   apply here; the triage agent's must-fix and contained calls only
+   tell the user what a fix PR would cover.
+
+   With no fix rounds, Step 3's hard stops apply at once here: **any
+   introduced CRITICAL or HIGH finding, and any failing test on
+   `<integration>`, is a hard stop as soon as triage returns.** Don't
+   open the release PR. Report each one under **Decisions needed**,
+   naming the merged feature PR that brought it in (match
+   `git blame` on the finding's lines to the step 2 PR list; write
+   "source PR not determined" rather than guess) and suggesting a
+   `fix/<slug>` branch off `<integration>`. The user chooses between
+   that fix PR and releasing anyway, which opens the release PR as a
+   draft (Step 3); an unattended run (Step 3's
+   definition) never releases anyway, and opens the release PR as a
+   `[BLOCKED]` draft instead. An existing CRITICAL security finding is
+   not a hard stop here either (Step 3). MEDIUM and LOW findings
+   don't stop the release: report them with the same source PR.
+
+   Report the
    findings and, with the user's approval, fix them on a new
    `fix/<slug>` branch off `<integration>` with its own dev-tasks folder
    (in `fixes/`, never reusing the feature's `gh-<N>`), ship that
@@ -99,12 +154,14 @@ them: release steps come only from task folders or the user.
    rerun release mode. The gate findings and the fix PR belong to that
    `fixes/` folder. Leave the feature folder's status line alone; its
    Session Log gets a back-reference, `gate fix: PR #<fix PR>`, which
-   folder mapping ignores. If the user releases without fixing, every
+   folder mapping ignores. If the user says to release without fixing, every
    introduced finding goes in the release PR's Unresolved findings list
    (reason: `release shipped without a fix PR`, with the follow-up issue
    once filed), and security findings follow Ship Mode Step 2b's
-   disclosure rule.
-5. **Open the release PR** with the `pr-description` skill, adding these
+   routing rule. After a failed triage the list is the single
+   `not triaged` line instead (`fix-loop.md`).
+5. **Open the release PR** with the `pr-description` skill, invoked
+   with the Skill tool as in Ship Mode Step 5, adding these
    sections after the Summary:
 
    ```markdown
@@ -136,10 +193,17 @@ them: release steps come only from task folders or the user.
    send it, with a fixed title that contains no PR text:
 
    ```bash
-   gh pr create --base <default> --head <integration> \
+   # [--draft] and [--label …] are optional flags, decided by the two
+   # rules under Ship Mode Step 5's command. Don't type the brackets.
+   gh label create needs-human-review --description 'Has items a person must look at before merging' 2>/dev/null || true   # only when passing --label
+   gh pr create [--draft] [--label needs-human-review] --base <default> --head <integration> \
      --title "Release <integration> → <default> (<YYYY-MM-DD>)" \
      --body-file <description-file>; rm -f <description-file>
    ```
+
+   Here `--draft` applies to the two cases in step 4: the user said to
+   release anyway past a hard stop, or an unattended run hit one, where
+   the title also starts with `[BLOCKED] `.
 
    If a release PR from `<integration>` to `<default>` is already open,
    update it the same way, rescanning first, with

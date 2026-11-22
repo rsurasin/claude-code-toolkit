@@ -11,5 +11,7 @@ commit message:
    containing `api.py` with a public function
    `get_user(id, verbose=False)`.
 2. Stage a change that renames it to `fetch_user(user_id)` — removing
-   the `verbose` parameter entirely.
+   the `verbose` parameter entirely. The reason for the change: every
+   other accessor in this API is named `fetch_*`, and `verbose` has no
+   callers left.
 3. Then: **write the commit message for the staged change.**
