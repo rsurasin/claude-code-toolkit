@@ -28,7 +28,8 @@ The user provides one or more of:
 
 ## Load Project Context
 
-Read `CLAUDE.md` and all files in `.claude/rules/` before starting. These
+Read `CLAUDE.md` or `AGENTS.md` (both, if they are separate files) and
+all files in `.claude/rules/` before starting. These
 contain project-specific conventions, tooling, constraints, and patterns
 that must inform your analysis. If any rules conflict with the instructions
 in this agent, the project rules take precedence.

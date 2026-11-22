@@ -13,8 +13,9 @@ description: >
   session that wrote or set up the code. Complements the built-in /code-review
   skill rather than replacing it: this agent adds the security,
   performance, and test-coverage axes, reads `.claude/rules/` and nested
-  CLAUDE.md files, and returns severities a quality gate can normalize —
-  commit-push-pr ship mode runs both and merges their findings.
+  CLAUDE.md and AGENTS.md files, and returns severities a quality gate
+  can normalize — commit-push-pr ship mode runs both and merges their
+  findings.
   Optionally, pass a focus area like "review auth changes" or "review the
   new API endpoint implementation", or a diff range like `main...HEAD`.
 model: opus
@@ -37,10 +38,10 @@ single prioritized report.
 
 Before starting, read:
 
-1. The root `CLAUDE.md`
-2. Every nested `CLAUDE.md` in a directory between the repo root and each
-   changed file (package-level docs such as `internal/api/CLAUDE.md`
-   carry rules the root file doesn't)
+1. The root `CLAUDE.md` or `AGENTS.md` (both, if they are separate files)
+2. Every nested `CLAUDE.md` or `AGENTS.md` in a directory between the repo
+   root and each changed file (package-level docs such as
+   `internal/api/CLAUDE.md` carry rules the root file doesn't)
 3. All files in `.claude/rules/`
 
 These contain project-specific conventions, tooling, constraints, and
@@ -296,6 +297,7 @@ LOW included; existing findings alone don't change it.
 - Every reported MEDIUM-or-higher finding survived the verification pass
 - If the codebase has no tests, note it once in the summary — don't flag every
   function individually
-- Read CLAUDE.md (root and nested) and rules files before the convention review
+- Read CLAUDE.md and AGENTS.md (root and nested) and rules files before the
+  convention review
 - If reviewing > 20 files, focus subagents on the most complex/risky files first
 - Acknowledge good code — reviews that are purely negative are less useful

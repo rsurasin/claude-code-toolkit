@@ -389,6 +389,10 @@ This plugin is built on three principles observed across staff-level engineers:
   Copilot rules, as well as `CLAUDE.md` and `.claude/`) and reports
   where they contradict each other. Rename any `claude-sync` reference
   in your own prompts, hooks, or docs.
+- **`AGENTS.md` is read too.** The reviewers and other components that
+  load project rules now read `AGENTS.md` as well as `CLAUDE.md`, and
+  `sharpen` writes rules to whichever file holds the content, never
+  through a `CLAUDE.md` symlink.
 
 ## Upgrading to v3.1
 

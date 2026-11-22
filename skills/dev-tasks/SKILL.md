@@ -23,8 +23,8 @@ this checkout, not project artifacts, and never committed. Route other
 kinds of persistence elsewhere: personal lessons and preferences that
 span repos go to Claude Code's native auto-memory (user-level);
 team-enforceable rules go through the sharpen skill into committed
-artifacts (CLAUDE.md / `.claude/rules/`). Dev-tasks holds task-scoped
-working state only: plan, context, and task list.
+artifacts (CLAUDE.md or AGENTS.md / `.claude/rules/`). Dev-tasks holds
+task-scoped working state only: plan, context, and task list.
 
 ## Top Priority: Record Product Decisions in the Same Turn
 
