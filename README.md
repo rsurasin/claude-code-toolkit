@@ -327,7 +327,7 @@ claude-code-toolkit/
 ├── agents/
 │   ├── code-reviewer.md             # Parallel multi-axis code review
 │   ├── security-auditor.md          # Deep security audit (OWASP-aligned)
-│   ├── finding-triage.md            # Independent triage of ship-mode gate findings
+│   ├── finding-triage.md            # Independent triage of ship, checkpoint and release-mode gate findings
 │   ├── debugger.md                  # Systematic bug investigation
 │   ├── perf-audit.md                # Runtime performance analysis
 │   ├── doc-sync.md                  # Documentation parity auditor
@@ -341,7 +341,7 @@ claude-code-toolkit/
 │   ├── commit-push-pr/
 │   │   ├── SKILL.md                 # Two-mode commit → PR inner loop
 │   │   ├── ship-mode.md             # Gates, triage, PR (read in ship, release and checkpoint mode)
-│   │   ├── fix-loop.md              # What is fixed before the PR opens, and when to stop (read in ship mode)
+│   │   ├── fix-loop.md              # What is fixed before the PR opens, and when to stop (read in ship and checkpoint mode)
 │   │   ├── checkpoint.md            # Review of one finished phase of a phased plan (read in checkpoint mode)
 │   │   └── release-mode.md          # Release PR + post-merge closeout (read in release mode)
 │   ├── dev-tasks/

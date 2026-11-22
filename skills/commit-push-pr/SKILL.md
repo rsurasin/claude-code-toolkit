@@ -178,7 +178,8 @@ state and is never staged.
 ```
 
 If the commit finished the last task of a phase (Checkpoint Mode), run
-checkpoint mode next and add its report after this one.
+checkpoint mode next and add its report after this one; the Gates line
+then reads `checkpoint review follows; full gates run at PR time`.
 
 ---
 

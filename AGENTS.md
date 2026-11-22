@@ -104,7 +104,8 @@ drift easily.
 - **The PR tells the human what to look at.** The goal is an unattended
   implement, review and fix loop where the human only merges. Every PR
   description carries a Needs human review line (unresolved MEDIUM or
-  higher, pending decisions, one-way doors, gates that didn't run) and
+  higher, pending decisions, one-way doors, gates that didn't run, the
+  large-diff note) and
   an Unresolved findings list with a reason per entry. A PR gets the
   `needs-human-review` label unless that line reads "nothing beyond a
   normal review", and the ship report opens with a one-line Status. The one-way doors are listed in

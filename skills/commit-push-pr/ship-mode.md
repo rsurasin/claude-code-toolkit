@@ -52,11 +52,11 @@ Then:
 - **Over 1,000 lines:** the line gets "large diff (<lines> lines,
   <files> files), review coverage may be thin" instead. First ask the
   author whether to continue or split, stating the lines and files
-  counted and what was left out. If they choose to split, stop with
-  nothing published so they can. An unattended run doesn't ask (Step 3).
+  counted and what was left out. If they choose to split, stop with no
+  PR opened so they can. An unattended run doesn't ask (Step 3).
 
-When every phase of a phased branch has a recorded checkpoint
-(`checkpoint.md`), the note reads "large diff (<lines> lines, <files>
+When every phase of a phased branch but the last has a recorded
+checkpoint sha (`checkpoint.md`; not `incomplete`), the note reads "large diff (<lines> lines, <files>
 files), reviewed in <n> phases" instead, and nobody is asked.
 
 Neither limit is a hard stop: no draft, no `[BLOCKED]`, and the risk
@@ -64,8 +64,8 @@ level doesn't change. A repo may set other limits in its project
 instruction file. The project's instruction file is the file that holds
 the content: if `CLAUDE.md` or `AGENTS.md` is a symlink, its target; if `CLAUDE.md`
 only imports `@AGENTS.md`, `AGENTS.md` (plus any Claude-specific lines
-left in `CLAUDE.md`); otherwise whichever exists. Read and edit that
-file, never the symlink. Keep the count for Step 6's Size line.
+left in `CLAUDE.md`); otherwise whichever exists. Read the limits from
+that file; never edit it here. Keep the count for Step 6's Size line.
 
 ## Step 1c: `/simplify` pre-pass
 
@@ -521,9 +521,9 @@ PR can't be opened and the description is only drafted:
      with the reason, except changes that touch a security finding
      (marked or not) — their reasons stay in the Step 6 report, per
      Step 2b item 3
-   - For a phased branch: a **Phases** list, what each phase does and
-     its commit range
-   - Changes — the new behavior first, then the detail grouped by area
+   - Changes — the new behavior first (for a phased branch, then the
+     **Phases** list, placed as the `pr-description` template shows),
+     then the detail grouped by area
      ("No behavior change." in both places for a docs-only or tests-only
      change; "No intended behavior change" plus how it was verified, or
      "(unverified)", for a refactor)

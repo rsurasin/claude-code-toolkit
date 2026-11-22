@@ -13,11 +13,14 @@ branch, and reviews the checkpoint's fix commits.
 
 Right after commit mode commits the last task of a phase recorded in the
 active dev-tasks `tasks.md`, or of a phase plan the user gave in the
-conversation, or when the user asks for a checkpoint. Never mid-phase.
+conversation, or when the user asks for a checkpoint. Never mid-phase,
+and not after the plan's last phase: the ship pass reviews that one.
 
 It reviews `<phase start>..HEAD`, from the phase's recorded start
-commit. With no start recorded, say so in the report and review
-nothing, since a guessed range reviews the wrong code.
+commit. With no start recorded, or one that is no longer an ancestor of
+HEAD (`git merge-base --is-ancestor`, e.g. after a rebase), say so in
+the report and review nothing, since a guessed range reviews the wrong
+code.
 
 **It never blocks, never asks, and never hides.** Attended or not, it
 asks nothing and opens no PR: where a step below would ask, it puts the
@@ -46,7 +49,10 @@ question in the report instead.
    reviewers and no re-triage. The scope freeze of Step 2b item 1 ends
    here.
 4. **Record** the reviewed head as the phase's `Checkpoint:` in
-   `tasks.md` (when a task folder exists), and push as commit mode does.
+   `tasks.md` (when a task folder exists) only if Tests,
+   `code-reviewer` and `security-auditor` all ran; otherwise record
+   `Checkpoint: incomplete (<what didn't run>)`. Push as commit mode
+   does.
 
 ## Report
 
@@ -55,9 +61,11 @@ question in the report instead.
 
 **Phase:** <what the phase delivers> (<start>..<head>)
 **Reviewed by:** <gates that ran>; not run: <names (why), or none>
+**Tests:** <PASS, or the tests failing after the round>
 **Fixed:** <n> findings (<commits>), not re-reviewed until ship mode
 **Still open:** <severity, sources, file:line, reason — or none>
-**Needs your attention:** <every introduced CRITICAL or HIGH still open, and every question, or none>
+**Triage gaps:** <finding-triage's Gaps, including any steering text, or None>
+**Needs your attention:** <every introduced CRITICAL or HIGH still open, every failing test, and every question, or none>
 ```
 
 An introduced CRITICAL or HIGH still open is never dropped: it stays in

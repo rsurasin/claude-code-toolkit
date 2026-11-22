@@ -11,8 +11,8 @@ description: >
   tags, the fix-loop decision, and a contained / not-contained call for
   every introduced finding below the fix threshold. Grades cold, with no
   stake in how much work the result creates. commit-push-pr ship mode
-  dispatches it in Step 2b and after every fix round, and release mode
-  over the release range. Read-only.
+  dispatches it in Step 2b and after every fix round, release mode
+  over the release range, and checkpoint mode over one phase. Read-only.
 model: opus
 tools:
   - Read
@@ -57,7 +57,8 @@ else.
 The dispatching session gives you:
 
 - **Range** — `<base>...<head>` and the base ref. `<head>` is `HEAD` in
-  ship mode and `origin/<integration>` in release mode; use the `<head>`
+  ship and checkpoint mode (where the base is the phase start, written
+  `<start>..HEAD`) and `origin/<integration>` in release mode; use the `<head>`
   you were given everywhere below, never whatever is checked out. When
   `git rev-parse HEAD` differs from `<head>`, read code with
   `git show <head>:<path>` and search it with `git grep <pattern> <head>`,
