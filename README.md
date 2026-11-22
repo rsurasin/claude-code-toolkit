@@ -259,7 +259,8 @@ each repo's `.claude/` directory — see [Migrating from v2](#migrating-from-v2)
    existing ones, then opens a PR with a risk assessment and a Needs
    human review line. The PR gets the `needs-human-review` label
    unless that line reads "nothing beyond a normal review". If a test
-   already fails on the base, or after two fix rounds a test the
+   already fails on the base, or triage failed twice (so nothing
+   graded the findings), or after two fix rounds a test the
    branch broke still fails or an introduced CRITICAL or HIGH is still
    open, no mergeable PR opens: ship mode asks you, or opens a `[BLOCKED]` draft when the
    run is unattended (headless, or told up front not to stop and ask).
