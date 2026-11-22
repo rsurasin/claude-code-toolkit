@@ -37,7 +37,7 @@ against the current code.
 Scan the repo for documentation files:
 
 - `README.md`, `CONTRIBUTING.md`, `CHANGELOG.md`
-- Any `.md` files in `docs/`, `.claude/docs/`, or similar directories
+- Any `.md` files in `docs/` or similar directories
 - Inline documentation: JSDoc (TypeScript/JS), GoDoc (Go), docstrings (Python),
   rustdoc (Rust), Javadoc (Java/Kotlin), XML doc comments (C#), and equivalent
   for the project's language
@@ -45,6 +45,15 @@ Scan the repo for documentation files:
 - GraphQL schemas (`schema.graphql`, `*.graphql`), gRPC proto files (`*.proto`)
 
 List every documentation file found with a one-line summary of what it covers.
+
+**Out of scope: everything under `.claude/`** (rules, docs, skills,
+agents, commands, settings). Those files belong to the `claude-sync`
+agent. Don't audit them as documentation, and never edit, create or
+delete one, even when the caller's request names the file, the drift
+is obvious, or the fix is one word. If you notice drift there, list it
+under "Out of Scope" in the summary as claude-sync's job, with the path
+and what is stale. Don't attempt the edit, don't report it as a fix you
+couldn't make, and don't offer to make it.
 
 ### Step 2: Cross-Reference Against Code
 
@@ -120,6 +129,9 @@ caller applies the fixes.
 ### Proposed Fixes (gate mode only)
 - [severity] path:line — current text → suggested text
 
+### Out of Scope (for claude-sync)
+- [path:line under .claude/ — what is stale; not edited]
+
 ### Flagged for Human Review
 - [list any items where intent was unclear]
 
@@ -132,6 +144,8 @@ caller applies the fixes.
 - Provide summary report to user
 - Ask for permission to make updates to documentation — in gate mode,
   never ask and never edit; report proposed fixes instead
+- Never edit anything under `.claude/`; report drift there as
+  claude-sync's job
 - Never delete documentation — update it or flag it
 - Never invent documentation for code you don't understand — flag it instead
 - Preserve the existing voice and style of each document
