@@ -174,6 +174,13 @@ directory first): the eval sandbox denies writes to a scratch directory
 under `/tmp`, so every case fails at `git init` with "Read-only file
 system" (anthropics/claude-code#106687). Discard a run that shows it.
 
+A run that fails because a write under `.claude/` was refused is not a
+skill fault: the eval session runs in "don't ask" permission mode,
+which denies some of those writes whatever `--allow-tools` grants
+(path grants such as `'Edit(.claude/**)'` don't help). Cases that
+write task files under `.claude/dev/` fail a run now and then for this
+reason; `evals/README.md` says how to tell it apart.
+
 `--allow-tools Bash Write Edit` is required: every case builds a scratch
 git project, and a case's `allowed_tools` only grants read-only tools on
 its own — gated tools (Bash, Write, Edit) also need the operator grant.

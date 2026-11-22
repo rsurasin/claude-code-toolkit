@@ -66,6 +66,21 @@ the run, e.g. `TMPDIR=$HOME/.cache/eval-tmp claude plugin eval . …`
 (create it first, delete it afterwards). If most cases in a run show
 that error, discard its scores. 2.1.287 is not affected.
 
+A run that fails because a write under `.claude/` was refused is not a
+skill fault. The eval session runs in "don't ask" permission mode, and
+Claude Code denies some writes into `.claude/` there ("Permission to
+use Edit has been denied because Claude Code is running in don't ask
+mode"), whatever `--allow-tools` grants: adding `'Edit(.claude/**)'`
+and `'Write(.claude/**)'` changed nothing in 2.1.322, and no other flag
+covers it. Most shell writes into the folder go through; `Edit`,
+`Write` and a few shell commands (`sed -i`, some heredocs) don't, with
+no pattern we could pin down. The cases that write task files under
+`.claude/dev/` (the `dev-tasks-*` cases, `issue-number-naming`,
+`ship-mode-audit-trail`) each fail a run now and then for this reason.
+To tell it from a real failure, look for that message in the kept trace
+(`--keep-temp`): the agent's reply also says which write was refused.
+An interactive session asks for approval where the eval refuses.
+
 The criteria files also work as manual review checklists when changing
 the corresponding skills and agents.
 
