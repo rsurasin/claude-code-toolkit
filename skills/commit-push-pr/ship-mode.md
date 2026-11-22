@@ -62,7 +62,7 @@ files), reviewed in <n> phases" instead, and nobody is asked.
 Neither limit is a hard stop: no draft, no `[BLOCKED]`, and the risk
 level doesn't change. A repo may set other limits in its project
 instruction file. The project's instruction file is the file that holds
-the content: if `CLAUDE.md` is a symlink, its target; if `CLAUDE.md`
+the content: if `CLAUDE.md` or `AGENTS.md` is a symlink, its target; if `CLAUDE.md`
 only imports `@AGENTS.md`, `AGENTS.md` (plus any Claude-specific lines
 left in `CLAUDE.md`); otherwise whichever exists. Read and edit that
 file, never the symlink. Keep the count for Step 6's Size line.

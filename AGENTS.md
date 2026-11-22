@@ -22,8 +22,10 @@ consistent.
   longer ships a `commands/` directory; all former commands are skills.
   `commit-push-pr` is split across files in its directory: `SKILL.md`
   (commit mode and the Rules), `ship-mode.md` (gates, triage, PR),
-  `fix-loop.md` (what is fixed before the PR opens), and
-  `release-mode.md`.
+  `fix-loop.md` (what is fixed before the PR opens), `checkpoint.md`
+  (the review of each finished phase of a phased plan), and
+  `release-mode.md`. `dev-tasks` splits a plan over 400 lines or 20
+  files into phases of about 400 lines, which checkpoint mode reviews.
 - `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` — the
   plugin manifest and the marketplace catalog. Both carry a `version`
   field that must stay in sync.
@@ -52,9 +54,19 @@ drift easily.
   skills in `.claude/`, which the `commit-push-pr` gates discover. Missing
   ones are recorded `NOT RUN`, raising the PR risk level. Don't re-add
   ecosystem-guessing agents.
-- **Gates run at the PR boundary, not per commit.** `commit-push-pr` is
-  two-mode: commit mode (fast, atomic, gate-free) and ship mode (all gates
-  once over the full branch diff, findings fixed before the PR opens).
+- **Gates run at the PR boundary, not per commit.** The full gate set
+  runs once, in ship mode, over the whole branch; commit mode stays
+  gate-free. The one exception: a plan over 400 lines or 20 files is
+  split into phases, and checkpoint mode reviews each finished phase
+  with fewer reviewers (Tests, `code-reviewer`, `security-auditor`,
+  `/code-review`, `finding-triage`) and one fix round. It never asks,
+  never blocks and opens no PR; ship mode still reviews the whole
+  branch, including the checkpoint fixes.
+- **The size check is advisory.** Ship mode measures the branch diff
+  first; over the limits it adds a note to the Needs human review line
+  (and an attended run over 1,000 lines asks whether to split). It
+  never blocks or changes the risk level; release mode reports the
+  size without asking.
 - **The fix loop is bounded and never hides a serious finding.**
   `fix-loop.md` allows at most two fix rounds (which re-run the
   reviewers) and then one cleanup pass for LOW findings. A closing
@@ -72,8 +84,9 @@ drift easily.
   a hard stop no mergeable PR opens: an attended run asks, an
   unattended run opens a draft PR titled `[BLOCKED]`, and a user who
   chooses to proceed gets a draft without that title. Release mode has
-  no rounds, so the same findings stop a release at once. Don't raise
-  the round count or let a hard stop proceed on its own.
+  no rounds, so the same findings stop a release at once, and
+  checkpoint mode runs one round with no cleanup or re-review. Don't
+  raise the round count or let a hard stop proceed on its own.
 - **Existing problems don't block a PR.** An existing CRITICAL
   security finding, such as a vulnerable dependency the branch didn't
   touch, used to be a hard stop, which would block every ship until it
@@ -102,7 +115,8 @@ drift easily.
   copies.
 - **Review findings are tracked in the task files.** The fix loop
   writes an AUDIT entry in `context.md` per round and one line per
-  finding under `## Review Fixes` in `tasks.md`. `finding-triage` does
+  finding under `## Review Fixes` in `tasks.md`; checkpoint mode
+  writes the same entries for its round. `finding-triage` does
   not read those as scope, so recording a finding cannot make it in
   scope; the rest of `plan.md` and `tasks.md` stays frozen during
   triage.
@@ -114,6 +128,8 @@ drift easily.
   other contributors. Commit messages and PR descriptions carry
   zero trace of them — no paths, no dev-tasks task IDs, no bookkeeping
   mentions. External tracker IDs (Jira keys, GitHub issues) are fine.
+  A phased PR's Phases list says what each phase does and its commit
+  range, with no phase or task numbers and no paths.
 - **The author never grades its own findings.** Ship mode hands every
   gate's raw findings to the `finding-triage` agent, which assigns
   severities, tags introduced vs existing, decides the fix loop, and
