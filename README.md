@@ -393,7 +393,8 @@ required. What changes is how ship mode reviews a branch and opens a PR.
 - **An independent grader.** The new `finding-triage` agent grades every
   gate's findings, not the session that wrote the code. It merges
   duplicates and tags each finding introduced (the branch caused it) or
-  existing. Expect one more opus agent per ship run.
+  existing. It runs on opus once per ship run, and again after each fix
+  round and the closing review, so up to four times.
 - **A bounded fix loop.** Ship mode fixes introduced findings in at most
   two fix rounds, then one cleanup pass for LOW findings. Whatever is
   left goes into the PR's Unresolved findings list with a reason. A test
