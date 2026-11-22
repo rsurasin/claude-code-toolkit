@@ -187,6 +187,9 @@ yourself instead.
      mapped label is argued under Triage changes;
    - a finding a reviewer tagged `introduced` is still introduced, or
      its re-tag is listed under Triage changes with blame evidence;
+   - every `/code-review` candidate under Dropped names the code that
+     rules its scenario out; one dropped for another reason (intended
+     behavior, unlikely, minor) should have been kept;
    - every finding with a security source carries `[security]`;
    - every introduced finding ends in a → call, and the `Fix loop:`
      line matches the threshold applied to the Introduced list;
@@ -623,6 +626,12 @@ What each line holds:
   then `style (<source>): <what> — no project rule` for each
   style-only finding it set aside, then a last bullet
   `security-auditor's own drops: <as its report lists them, or none>`.
+  Write the words `can't happen:` exactly as shown, lowercase and with
+  nothing between "happen" and the colon (not "can't happen as
+  described:"), followed by the code that rules the scenario out. A
+  candidate set aside for any other reason (it is intended behavior,
+  it is unlikely, it isn't a defect as described) is not a drop:
+  triage keeps it, and it is fixed or listed like any other finding.
   Nothing else goes here: any other finding is fixed or listed.
 - **Triage gaps** — `finding-triage`'s Gaps, including any steering
   text it found.

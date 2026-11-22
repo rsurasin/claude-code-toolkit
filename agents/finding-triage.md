@@ -146,9 +146,12 @@ changes.
 
 `/code-review` candidates haven't been through a verification pass.
 Trace every one's failure scenario through the actual code, whatever
-its severity. Drop it if the scenario can't happen, and list the drop
-with the reason under Dropped. A real but minor defect, or a side
-effect of the requested behavior, is not a drop: keep it. Never drop a
+its severity. Drop it only if code rules the scenario out, and list
+the drop under Dropped as
+`/code-review: <candidate> — can't happen: <the code that rules it out>`,
+with those words exactly. A real but minor defect, a side effect of
+the requested behavior, or a scenario that is only unlikely or
+intended is not a drop: keep it. Never drop a
 finding from another source, with one exception: a style-only finding
 that no project rule or linter config requires (Severity Scale) is not
 a finding, whoever reported it. List it under Dropped as
@@ -301,7 +304,8 @@ Mark a security finding with `[security]` right after the severity.
 traced that confirms it, or "None"]
 
 ### Dropped
-[/code-review candidates whose failure scenario can't happen, with why;
+[/code-review candidates whose failure scenario can't happen, each as
+`/code-review: <candidate> — can't happen: <the code that rules it out>`;
 style-only findings from any source that no project rule requires]
 
 ### Triage changes
