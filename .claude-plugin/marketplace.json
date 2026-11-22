@@ -8,7 +8,7 @@
       "name": "claude-code-toolkit",
       "description": "Universal development agents and skills for code quality, security, documentation, performance, and workflow automation.",
       "source": "./",
-      "version": "3.0.0",
+      "version": "3.1.0",
       "category": "code-quality",
       "keywords": [
         "code-review",
