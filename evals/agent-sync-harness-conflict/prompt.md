@@ -12,7 +12,7 @@ request a sync:
    such as `.claude/` and `.bashrc` here; leave them alone, and don't
    create anything under `.claude/`):
    - `package.json` with two scripts, `"test": "node --test"` and
-     `"check": "node --check index.js && node --test"`;
+     `"check": "node --check index.js"`;
    - `index.js` exporting one function, `add(a, b)`;
    - `AGENTS.md` with a "Commands" section containing exactly this line:
      "Before committing, run `npm run check`."
