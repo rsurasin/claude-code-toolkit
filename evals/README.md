@@ -43,9 +43,10 @@ Useful options:
 - `--json [file]`, `--output-dir <dir>`, `--report <path>` — save results.
 - `--max-cost-usd <usd>` — stop at a cost ceiling.
 - `--trust-plugin` — skip the first-run trust prompt (for CI).
-- `--judge-model claude-sonnet-5-5` — the default Haiku judge has failed
+- `--judge-model claude-opus-5-5` — the default Haiku judge has failed
   correct runs that need judgment (e.g. a sandbox refusal the criteria
-  excuse); a Sonnet judge costs cents per case.
+  excuse), and a Sonnet judge has too: on the same saved reply it failed
+  where an Opus judge passed. The judge is a small part of a run's cost.
 - `--no-publish` — keep the HTML report local (it publishes to claude.ai
   by default when your account supports it).
 

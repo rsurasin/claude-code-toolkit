@@ -187,8 +187,12 @@ its own — gated tools (Bash, Write, Edit) also need the operator grant.
 Each run is a full Claude session on your own credential and plan limits,
 and the defaults (3 runs × with/without-plugin arms) multiply that, so
 prefer `--case`, `--runs 1`, `--ablation none`, `--no-publish` and a
-`--max-cost-usd` ceiling while iterating. Pass `--judge-model claude-sonnet-5-5`:
-the default Haiku judge has failed correct runs that needed judgment.
+`--max-cost-usd` ceiling while iterating. Pass `--judge-model claude-opus-5-5`:
+the default Haiku judge has failed correct runs that needed judgment,
+and so has a Sonnet judge. Replaying three replies the Sonnet judge had
+failed, it failed one of them every time and flipped on another, where
+an Opus judge passed all three every time. The judge is a small part of
+a run's cost.
 
 Every case needs frontmatter or the runner rejects it. `prompt.md`
 starts with `max_turns` and `allowed_tools` (listing Bash, Write and Edit
