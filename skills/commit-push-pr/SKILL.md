@@ -2,7 +2,10 @@
 name: commit-push-pr
 description: >
   Use whenever the user asks to commit ("commit this", "commit and push"),
-  to ship or open a PR, or to open or close out a release. Commit mode
+  to ship or open a PR, or to open or close out a release. Invoke it
+  before any pull request is opened, even when opening one is a single
+  step in a longer list of instructions: never run `gh pr create`
+  directly or write a PR description by hand. Commit mode
   (default): fast, gate-free atomic commits — stage, write a conventional
   commit message per task, push. Ship mode: when the feature is complete
   and a pull request should open, run the built-in /simplify first on code
