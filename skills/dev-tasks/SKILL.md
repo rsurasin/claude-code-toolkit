@@ -2,7 +2,8 @@
 name: dev-tasks
 description: >
   Maintain task-specific context files (plan, context, tasks) under
-  .claude/dev/ that persist across Claude Code sessions: task status
+  .claude/dev/ that persist across Claude Code sessions: phases for a
+  large plan, task status
   through PR, merge, and release; the steps a release must carry out; and
   a record of each product decision with its options and why one won. Use
   when starting a non-trivial feature, when resuming work, when a product
@@ -129,6 +130,11 @@ choice is predictable:
 ## Approach
 [Numbered steps of the implementation strategy]
 
+## Size
+[Estimated change: ~<n> changed lines in <m> files, leaving out lockfiles
+and generated files. Over 400 lines or 20 files, list the phases:]
+- [What the phase delivers]: ~[n] lines, tests pass at its end
+
 ## Key Decisions
 - [Decision title]: see context.md → Decisions → "[Decision title] ([YYYY-MM-DDThh:mm:ssZ])"
 - [Decision title]: see context.md → Decisions → "[Decision title] ([YYYY-MM-DDThh:mm:ssZ])"
@@ -145,6 +151,11 @@ choice is predictable:
 ## Open Questions
 - [anything unresolved that needs clarification]
 ```
+
+When the estimate is over `commit-push-pr` ship mode's soft limit (400
+changed lines or 20 files), split the plan into phases of about 400
+changed lines or fewer, each leaving the tests passing, so each phase
+can be reviewed while it is small.
 
 ### context.md
 
@@ -241,7 +252,7 @@ Each product decision gets one record under `## Decisions` in
 - [ ] [new task found while working]
 
 ## Review Fixes
-- [x] [YYYY-MM-DDThh:mm:ssZ] [SEVERITY] [finding, file:line] — fixed in [commit], [round 1 | round 2 | cleanup]
+- [x] [YYYY-MM-DDThh:mm:ssZ] [SEVERITY] [finding, file:line] — fixed in [commit], [round 1 | round 2 | cleanup | checkpoint]
 - [ ] [SEVERITY] [finding, file:line] — unresolved: [reason]
 
 ## Release Steps
@@ -250,10 +261,26 @@ Each product decision gets one record under `## Decisions` in
 Status: in progress
 ```
 
-`## Review Fixes` is written by `commit-push-pr` ship mode: one line per
-finding its review gates raised, ticked with the fix commit or left open
+**Phased plans.** When `plan.md` lists phases, `tasks.md` groups the
+tasks under one heading per phase, in place of In Progress and Done:
+
+```markdown
+## Phase: [what the phase delivers]
+Start: [short sha of HEAD when the phase's first task began]
+Checkpoint: [short sha the checkpoint reviewed, or pending]
+- [ ] [task description]
+```
+
+Record `Start:` (`git rev-parse --short=7 HEAD`) when the phase's first
+task begins. `commit-push-pr` checkpoint mode fills in `Checkpoint:`
+after the phase's last task is committed. The other sections stay, and
+the `Status:` line stays last. A plan with no phases keeps the layout
+above, and nothing changes anywhere.
+
+`## Review Fixes` is written by `commit-push-pr` ship mode and
+checkpoint mode: one line per finding their review gates raised, ticked with the fix commit or left open
 with the reason it shipped unfixed. It is an audit record, not planned
-work: leave it empty until ship mode runs, and never use it to widen
+work: leave it empty until a review runs, and never use it to widen
 what the task covers.
 
 The `## Release Steps` heading and the final `Status:` line are fixed: the
