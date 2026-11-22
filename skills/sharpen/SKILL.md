@@ -93,11 +93,14 @@ Determine which artifact will prevent recurrence:
 
 **If adding an instruction-file rule:**
 - The project's instruction file is the file that holds the content: if
-  `CLAUDE.md` is a symlink, its target; if `CLAUDE.md` only imports
+  `CLAUDE.md` or `AGENTS.md` is a symlink, its target (check with
+  `ls -l`); if `CLAUDE.md` only imports
   `@AGENTS.md`, `AGENTS.md` (plus any Claude-specific lines left in
   `CLAUDE.md`); otherwise whichever exists. Read and edit that file, never
   the symlink. If `CLAUDE.md` and `AGENTS.md` are separate files, name
-  both in the proposal and let the user choose.
+  both in the proposal and let the user choose. If neither exists,
+  propose creating one (`AGENTS.md` or `CLAUDE.md`) and let the user
+  choose.
 - Open that file
 - Find the appropriate section (or create one)
 - Add a concise rule: what NOT to do, what TO do instead, and why

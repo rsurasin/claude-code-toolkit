@@ -337,7 +337,7 @@ claude-code-toolkit/
 │       └── SKILL.md                 # Fresh-context plan critique with risk rubric
 ├── evals/                           # Behavioral eval cases (claude plugin eval layout)
 ├── .gitignore
-├── AGENTS.md                        # Guidance for coding agents working on this repo (Claude Code reads it directly)
+├── AGENTS.md                        # Guidance for coding agents working on this repo (Claude Code 2.1.277+ reads it when no CLAUDE.md exists)
 └── README.md
 ```
 
