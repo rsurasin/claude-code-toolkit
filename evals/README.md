@@ -164,7 +164,9 @@ Add a row for each new case to the tables below.
 | `pr-description-evidence-floors` | pr-description | Unverified dimensions are NOT RUN and floor the risk at HIGH (unverified) |
 | `pr-description-behavior-before-after` | pr-description | Summary states the problem and current behavior, Changes leads with the new behavior, and a refactor says "no intended behavior change" (verified or unverified) in both |
 | `pr-description-non-ui-output` | pr-description | A non-UI change's Screenshots / Output shows the command, exit code, and trimmed output, with the token redacted |
-| `dev-tasks-structure` | dev-tasks | Tasks land in `.claude/dev/<category>/<UTC-date>-<slug>/` with all three files, gitignored |
+| `dev-tasks-structure` | dev-tasks | Tasks land in `.claude/dev/<category>/<UTC-date>-<slug>/` with all three files, gitignored; a small plan (about 100 lines) gets no `## Phase:` headings |
+| `dev-tasks-phased-feature` | dev-tasks | A feature estimated at about 1,300 lines in 24 files is planned in phases: `plan.md` has a `## Size` section with phases of about 400 lines or fewer, and `tasks.md` has two or more `## Phase:` headings with a `Checkpoint:` line and still ends with `Status: in progress` (graded on the reply, which ends with both files, since the sandbox may refuse the write) |
+| `dev-tasks-phased-refactor` | dev-tasks | The same for a refactor of about 900 lines in 30 files, filed under `refactors/`: phasing applies to every category, not only features |
 | `issue-number-naming` | dev-tasks + commit-push-pr | Work from GitHub issue #N gets a `<date>-gh-<N>-<slug>` folder and a `<type>/gh-<N>-<slug>` branch |
 | `pr-description-issue-link` | pr-description | A `gh-<N>-` branch confirmed by the user yields `Closes #N` in the body; branch-only evidence yields `Refs #N` |
 | `dev-tasks-status-transitions` | dev-tasks | A reported merge sets the fixed `merged to <base> (<sha>), not released` status; session start lists folders awaiting release |

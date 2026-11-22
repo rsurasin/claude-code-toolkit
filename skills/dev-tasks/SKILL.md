@@ -155,7 +155,8 @@ and generated files. Over 400 lines or 20 files, list the phases:]
 When the estimate is over `commit-push-pr` ship mode's soft limit (400
 changed lines or 20 files), split the plan into phases of about 400
 changed lines or fewer, each leaving the tests passing, so each phase
-can be reviewed while it is small.
+can be reviewed while it is small. This applies to every category: a
+large fix, refactor or chore is phased like a large feature.
 
 ### context.md
 

@@ -8,5 +8,6 @@ Set up a scratch project, then start planning a feature:
 
 1. In the current (empty) working directory, run `git init` and create an initial commit
    containing a small `server.py`.
-2. Then: **let's plan a rate limiter for the API** — create the task
+2. Then: **let's plan a small rate limiter for the API** (about 100 changed
+   lines in `server.py` and one test file) — create the task
    documentation for it.
