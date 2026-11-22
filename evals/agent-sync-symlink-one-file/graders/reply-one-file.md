@@ -3,7 +3,7 @@ type: llm
 weight: 1
 focus: last_message
 ---
-Grade the final reply to a request to update a project's agent
+Grade the final reply to a request to check a project's agent
 instruction files. The project's `CLAUDE.md` is a symlink to
 `AGENTS.md`, so the two names are one file. This grader checks one
 thing only: that the reply treats them as one file.
