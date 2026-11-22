@@ -31,7 +31,7 @@ project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 |-------|--------------|
 | `commit-message` | Generates conventional commit messages from diffs |
 | `pr-description` | Generates structured PR descriptions: current behavior in the Summary, new behavior in Changes, screenshots or runtime output as evidence, and a risk assessment (Low/Medium/High/Critical) computed from verification evidence and reversibility |
-| `commit-push-pr` | Two-mode inner loop: fast atomic task commits (no gates), then gated PR creation — quality gates (repo tests/verify, review/security/perf/docs agents, and the built-in `/code-review` and `/security-review`) run once over the full branch diff, the `finding-triage` agent grades and merges their findings, introduced findings are fixed in at most two fix rounds plus one cleanup pass for LOW findings (what is left is listed in the PR as unresolved), and the PR opens with a risk assessment, a Needs human review line, and a `needs-human-review` label unless that line reads "nothing beyond a normal review". A test already failing on the base, or triage that failed twice, is a hard stop before any fix round; a test the branch broke that still fails, or an introduced CRITICAL or HIGH still open, is a hard stop after two rounds: an attended run asks, an unattended run opens a draft PR titled `[BLOCKED]`. The ship report opens with a one-line Status. Release mode (integration branch → default branch) lists the features merged since the last release with their release steps, and after the merge confirms the issues closed and marks the task folders released |
+| `commit-push-pr` | Two-mode inner loop: fast atomic task commits (no gates), then gated PR creation — the branch diff is measured first (over 400 lines or 20 files goes on the Needs human review line with a suggestion to split; over 1,000 lines an attended run first asks whether to continue or split, and the line says review coverage may be thin; never a hard stop), then quality gates (repo tests/verify, review/security/perf/docs agents, and the built-in `/code-review` and `/security-review`) run once over the full branch diff, the `finding-triage` agent grades and merges their findings, introduced findings are fixed in at most two fix rounds plus one cleanup pass for LOW findings (what is left is listed in the PR as unresolved), and the PR opens with a risk assessment, a Needs human review line, and a `needs-human-review` label unless that line reads "nothing beyond a normal review". A test already failing on the base, or triage that failed twice, is a hard stop before any fix round; a test the branch broke that still fails, or an introduced CRITICAL or HIGH still open, is a hard stop after two rounds: an attended run asks, an unattended run opens a draft PR titled `[BLOCKED]`. The ship report opens with a one-line Status. Release mode (integration branch → default branch) lists the features merged since the last release with their release steps, and after the merge confirms the issues closed and marks the task folders released |
 | `dev-tasks` | Maintains category-organized task files (plan/context/tasks) under `.claude/dev/` for cross-session memory, with a status line per task (`in progress` → `PR open (#N)` → `merged to <base> (<sha>), not released` → `released (<release PR #N>, <date>)`) and the release steps each feature needs. Every product decision reached in conversation is recorded in the same turn, with the options considered, their pros and cons, why the winner won, and the trade-offs accepted |
 | `sharpen` | Proactively encodes a mistake or inefficiency (agent- or user-detected) into a permanent harness improvement — test, lint rule, CLAUDE.md or AGENTS.md entry — always with user consent before touching the harness |
 | `review-plan` | Fresh-context staff engineer critique of a plan before execution, with a LOW/MEDIUM/HIGH/CRITICAL risk level on the pr-description scale — fires proactively before non-trivial plans |
@@ -248,7 +248,13 @@ each repo's `.claude/` directory — see [Migrating from v2](#migrating-from-v2)
    it as a pre-pass on code changes)
 5. Commit per task: `/commit-push-pr` — commit mode makes a fast, atomic
    commit (one task = one commit) and pushes; no gates, no PR
-6. Ship: when the feature is complete, "open a PR" — ship mode runs the
+6. Ship: when the feature is complete, "open a PR" — ship mode measures
+   the branch diff first (lockfiles, generated, vendored, snapshot and
+   binary files left out): over 400 lines or 20 files, the PR suggests
+   splitting; over 1,000 lines, an attended run asks whether to continue
+   or split, and the PR says review coverage may be thin. It never blocks
+   the PR or changes the risk level, and a repo can set its own limits
+   in its project instructions (`CLAUDE.md` or `AGENTS.md`). Ship mode then runs the
    quality gates once over the full branch diff (your repo's qa/verify
    skills, the code review, security, performance, and docs agents, and
    the built-in `/code-review` and `/security-review` side by side),
@@ -290,7 +296,8 @@ promote it to the default branch later:
 1. "Promote dev to main": `commit-push-pr` release mode lists the PRs
    merged since the last release, maps each to its task folder (by the
    `gh-<N>` in the branch or folder name, or the issue it closes), runs
-   the gates over the release diff, and opens the release PR with the
+   the gates over the release diff (its size is reported but never
+   split, since each feature was reviewed on its own), and opens the release PR with the
    feature list, each feature's release steps (deploy pairings,
    migrations, flags), and a `Closes #N` per issue. It carries no `.claude/dev/` paths or task IDs.
 2. "The release PR merged": release mode confirms every `Closes #N` issue
