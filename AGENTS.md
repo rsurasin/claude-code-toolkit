@@ -1,8 +1,7 @@
 # AGENTS.md
 
 This file provides guidance to any coding agent working with code in this
-repository. `CLAUDE.md` is a symlink to it, so Claude Code reads the same
-file: edit `AGENTS.md`, never the link.
+repository.
 
 ## What This Repo Is
 
