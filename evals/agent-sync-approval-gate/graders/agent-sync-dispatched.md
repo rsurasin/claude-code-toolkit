@@ -1,6 +1,6 @@
 ---
 type: tool_used
 tool: Agent
-input_match: 'claude-sync'
+input_match: 'agent-sync'
 min: 1
 ---

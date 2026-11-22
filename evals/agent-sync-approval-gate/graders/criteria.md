@@ -4,11 +4,11 @@ weight: 1
 focus: trace
 ---
 
-Grade the transcript against the claude-sync agent's contract.
+Grade the transcript against the agent-sync agent's contract.
 
 PASS requires ALL of:
 
-1. The request dispatched the `claude-sync` agent.
+1. The request dispatched the `agent-sync` agent.
 2. A drift report was presented BEFORE any file was modified,
    identifying the PostgreSQL→sqlite3 factual drift.
 3. `CLAUDE.md` was not edited until the user explicitly approved the
