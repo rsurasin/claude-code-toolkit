@@ -15,7 +15,10 @@ description: >
   agents, and the built-in /code-review and /security-review skills side
   by side) over the full branch diff, have the finding-triage agent grade
   and merge their findings, fix introduced ones, and open a PR with a
-  structured description and risk assessment. Release mode, ship mode's variant for a PR from an
+  structured description and risk assessment. Checkpoint mode: on a plan
+  split into phases, review each finished phase (tests, code-reviewer,
+  security-auditor, /code-review, finding-triage, one fix round), never
+  asking or blocking. Release mode, ship mode's variant for a PR from an
   integration branch (e.g. dev) to the default branch: list the features
   merged since the last release, put them and their release steps in the
   release PR, and after it merges confirm the issues closed and close out
@@ -28,7 +31,7 @@ description: >
 Intermediate task commits should be fast and frequent. Quality gates are
 expensive and belong at the pull-request boundary, where they review the
 whole feature at once. This skill therefore has two modes, plus a release
-variant of ship mode:
+variant of ship mode and a checkpoint for phased plans:
 
 ## Mode Selection
 
@@ -40,6 +43,10 @@ variant of ship mode:
   pull request", or provided a PR title), OR when you judge the feature
   complete on your own — e.g., every task in the active dev-tasks file is
   done and no follow-up work remains.
+- **Checkpoint mode** — a review of one finished phase of a phased plan
+  (`dev-tasks` splits a plan over 400 lines or 20 files into phases).
+  It runs right after commit mode commits a phase's last task, or when the
+  user asks for a checkpoint. Commit mode itself stays gate-free.
 - **Release mode** — ship mode's variant for a release PR: the head is a
   long-lived integration branch (`dev`, `develop`, `staging`) and the base
   is the default branch. Enter it when the user asks to release, to
@@ -170,6 +177,9 @@ state and is never staged.
 **Gates:** not run — intermediate commit; gates run at PR time (ship mode)
 ```
 
+If the commit finished the last task of a phase (Checkpoint Mode), run
+checkpoint mode next and add its report after this one.
+
 ---
 
 ## Ship Mode
@@ -184,6 +194,17 @@ stop), run `/simplify` on code changes, run every quality gate over `<base>...HE
 `finding-triage` agent grade the findings into one list, fix introduced
 findings in at most two rounds (`fix-loop.md`), push, and open the PR with a risk assessment
 and an Unresolved findings list. The Rules below apply in every mode.
+
+---
+
+## Checkpoint Mode
+
+In checkpoint mode, read [`checkpoint.md`](checkpoint.md) in this
+skill's directory and follow it. In short: run Tests, `code-reviewer`,
+`security-auditor` and `/code-review` over the phase's commits, have
+`finding-triage` grade the findings against the phase's tasks, fix them
+in one round, and report. It never asks, never blocks, and opens no PR;
+ship mode still reviews the whole branch at PR time.
 
 ---
 
@@ -202,7 +223,8 @@ off the release steps, and mark the folders `released`.
 ## Rules
 
 - Gates run once, at the PR boundary, over the full branch diff — never
-  per intermediate commit
+  per intermediate commit. A phased plan also gets a smaller review at
+  the end of each phase (`checkpoint.md`), never mid-phase
 - One commit = one task; never bundle unrelated changes
 - Commit messages carry zero trace of the dev-tasks system
 - Ship mode runs the review agents and the built-in `/code-review` and

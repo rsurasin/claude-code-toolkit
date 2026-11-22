@@ -84,6 +84,12 @@ findings exist, and what would lower the risk.]
 **New behavior:** [What the user or caller sees after this PR, in the
 same terms as the Summary's current behavior.]
 
+[Only for a branch built and reviewed in phases:
+**Phases:**
+- [What the phase does] (`<start sha>..<end sha>`)
+One bullet per phase, in order, with no phase or task numbers and no
+task-file paths.]
+
 [Implementation detail follows, grouped by area, not by file. Each item
 explains the *what* and *why*, not just the file name.]
 

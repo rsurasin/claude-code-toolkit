@@ -1,7 +1,8 @@
 # Fix Loop
 
-Part of the `commit-push-pr` skill; read this file in ship mode Step 3,
-after `finding-triage` returned its list (Step 2b of `ship-mode.md`).
+Part of the `commit-push-pr` skill; read this file in ship mode Step 3 (and in
+checkpoint mode, which runs one round), after `finding-triage` returned
+its list (Step 2b of `ship-mode.md`).
 Step numbers below refer to `ship-mode.md`; the Rules in `SKILL.md`
 apply here too.
 

@@ -1,7 +1,7 @@
 # Ship Mode
 
 Part of the `commit-push-pr` skill; read this file in ship mode, and in
-release mode where `release-mode.md` runs ship-mode steps. Commit Mode
+release and checkpoint mode where their files run ship-mode steps. Commit Mode
 and the Rules live in `SKILL.md`; the Rules apply here too.
 
 The feature is complete. PRs are the last line of defense before code
@@ -54,6 +54,10 @@ Then:
   author whether to continue or split, stating the lines and files
   counted and what was left out. If they choose to split, stop with
   nothing published so they can. An unattended run doesn't ask (Step 3).
+
+When every phase of a phased branch has a recorded checkpoint
+(`checkpoint.md`), the note reads "large diff (<lines> lines, <files>
+files), reviewed in <n> phases" instead, and nobody is asked.
 
 Neither limit is a hard stop: no draft, no `[BLOCKED]`, and the risk
 level doesn't change. A repo may set other limits in its project
@@ -369,9 +373,8 @@ carries on:
 - **PR base not stated (Step 1a):** use the base the starting
   instructions name; with none, the remote's default branch, and say
   so on the Needs human review line
-- **Diff over 1,000 lines (Step 1b):** nothing to ask; record the
-  "review coverage may be thin" note on the Needs human review line.
-  It is a note, not a stop
+- **Diff over 1,000 lines (Step 1b):** nothing to ask; record Step
+  1b's note on the Needs human review line. It is a note, not a stop
 - **Triage fails twice (Step 2b):** a hard stop. Nothing graded the
   findings, so open the `[BLOCKED]` draft with every reviewing gate
   `NOT RUN` (triage failed). Its Unresolved findings list is the one
@@ -518,6 +521,8 @@ PR can't be opened and the description is only drafted:
      with the reason, except changes that touch a security finding
      (marked or not) — their reasons stay in the Step 6 report, per
      Step 2b item 3
+   - For a phased branch: a **Phases** list, what each phase does and
+     its commit range
    - Changes — the new behavior first, then the detail grouped by area
      ("No behavior change." in both places for a docs-only or tests-only
      change; "No intended behavior change" plus how it was verified, or
