@@ -145,8 +145,10 @@ drift easily.
   user-triggered and billed.
 - **Sharpen is proactive but consent-gated.** The skill fires on
   agent- or user-detected mistakes and inefficiencies, but never modifies
-  a harness file (CLAUDE.md, `.claude/rules/`, lint config, guard tests)
-  without explicit user approval in that conversation.
+  a harness file (CLAUDE.md or AGENTS.md, `.claude/rules/`, lint config,
+  guard tests) without explicit user approval in that conversation. It
+  writes rules to the file that holds the content, never through a
+  symlink.
 
 ## Working Tree vs Installed Plugin
 

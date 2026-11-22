@@ -2,10 +2,11 @@
 name: sharpen
 description: >
   Encode a mistake or inefficiency into a permanent harness improvement —
-  a test, lint rule, or CLAUDE.md / .claude/rules/ entry that prevents
-  recurrence. Use proactively whenever a sharpening moment appears: the
-  user corrects your work or re-explains something they've said before,
-  you discover your own mistake, or you hit the same friction twice.
+  a test, lint rule, or CLAUDE.md / AGENTS.md / .claude/rules/ entry that
+  prevents recurrence. Use proactively whenever a sharpening moment
+  appears: the user corrects your work or re-explains something they've
+  said before, you discover your own mistake, or you hit the same
+  friction twice.
   Always propose the improvement and get explicit user consent before
   modifying any harness file. This is the sword-sharpening loop — each
   session makes the next one more capable.
@@ -45,8 +46,8 @@ only the repo artifact.
 ## Consent Gate (never skip)
 
 The harness belongs to the user. **Never modify a harness file —
-CLAUDE.md, `.claude/rules/`, lint config, or a guard test — without
-explicit consent given in this conversation.**
+CLAUDE.md or AGENTS.md, `.claude/rules/`, lint config, or a guard test —
+without explicit consent given in this conversation.**
 
 Before creating anything, propose:
 
@@ -80,18 +81,24 @@ Determine which artifact will prevent recurrence:
 
 | Mistake Type | Artifact to Create |
 |---|---|
-| Wrong pattern used | CLAUDE.md rule or `.claude/rules/` entry |
+| Wrong pattern used | Instruction-file rule or `.claude/rules/` entry |
 | Type error / wrong signature | Stricter type, type guard, or schema validation |
 | Logic bug | Unit test covering the edge case |
-| Style / convention violation | Lint rule or CLAUDE.md convention entry |
+| Style / convention violation | Lint rule or instruction-file convention entry |
 | Architecture violation | `.claude/rules/` entry with explanation |
-| Wrong dependency usage | CLAUDE.md entry with correct usage example |
+| Wrong dependency usage | Instruction-file entry with correct usage example |
 | Repeated prompting issue | `.claude/rules/` entry with the correction |
 
 ### Step 3: Create the Artifact
 
-**If adding a CLAUDE.md rule:**
-- Open CLAUDE.md
+**If adding an instruction-file rule:**
+- The project's instruction file is the file that holds the content: if
+  `CLAUDE.md` is a symlink, its target; if `CLAUDE.md` only imports
+  `@AGENTS.md`, `AGENTS.md` (plus any Claude-specific lines left in
+  `CLAUDE.md`); otherwise whichever exists. Read and edit that file, never
+  the symlink. If `CLAUDE.md` and `AGENTS.md` are separate files, name
+  both in the proposal and let the user choose.
+- Open that file
 - Find the appropriate section (or create one)
 - Add a concise rule: what NOT to do, what TO do instead, and why
 - Keep it under 3 lines — if it needs more, put it in a rules file
@@ -136,13 +143,14 @@ Determine which artifact will prevent recurrence:
   approval in this conversation, even when you detected the mistake
   yourself
 - Every artifact should be the minimum needed to prevent the mistake
-- Prefer tests over CLAUDE.md rules when possible — tests are enforceable
-- Prefer CLAUDE.md rules over verbal corrections — rules persist across
-  sessions
+- Prefer tests over instruction-file rules when possible — tests are
+  enforceable
+- Prefer instruction-file rules over verbal corrections — rules persist
+  across sessions
 - Never add a rule that contradicts an existing rule — check first
     - If there is a contradiction, flag it so the user can review
 - Before proposing a new artifact, check if an existing `.claude/rules/`
-  entry or CLAUDE.md rule already covers this class of mistake
+  entry or instruction-file rule already covers this class of mistake
 - If the same class of mistake has been sharpened before, strengthen the
   existing artifact rather than adding a duplicate
 - Sharpening should take < 5 minutes; batch multiple observations into

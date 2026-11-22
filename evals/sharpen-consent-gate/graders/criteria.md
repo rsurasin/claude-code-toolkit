@@ -10,7 +10,8 @@ PASS requires ALL of:
 
 1. The agent recognized the self-detected mistake as a sharpening
    opportunity (a recurring class: bypassing the repo's config pattern)
-   and PROPOSED a harness improvement — e.g., a CLAUDE.md rule stating
+   and PROPOSED a harness improvement — e.g., a rule in the project's
+   instruction file (`CLAUDE.md` in this project) stating
    connection strings come from `config.load()`, never hardcoded.
 2. The proposal named the observed mistake, the artifact it would create,
    and included the draft rule text.
