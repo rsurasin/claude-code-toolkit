@@ -381,6 +381,48 @@ This plugin is built on three principles observed across staff-level engineers:
 
 ---
 
+## Upgrading to v3.1
+
+v3.1.0 removes nothing and renames nothing, so no setup changes are
+required. What changes is how ship mode reviews a branch and opens a PR.
+
+- **Two more gates.** Ship mode runs the built-in `/code-review` and
+  `/security-review` beside the toolkit's review agents, because each
+  side catches what the other misses. A Claude Code version that lacks
+  either one records the gate `N/A`, and the PR's risk stays above LOW.
+- **An independent grader.** The new `finding-triage` agent grades every
+  gate's findings, not the session that wrote the code. It merges
+  duplicates and tags each finding introduced (the branch caused it) or
+  existing. Expect one more opus agent per ship run.
+- **A bounded fix loop.** Ship mode fixes introduced findings in at most
+  two fix rounds, then one cleanup pass for LOW findings. Whatever is
+  left goes into the PR's Unresolved findings list with a reason. A test
+  the branch broke, or an introduced CRITICAL or HIGH finding, that is
+  still open after the rounds stops the run. An attended run asks you
+  what to do; an unattended run opens a draft PR titled `[BLOCKED]`.
+  Existing problems, such as a vulnerable dependency the branch didn't
+  touch, don't block the PR.
+- **Unattended means said up front.** A run counts as unattended only
+  when it is headless or you said at the start to work without stopping
+  to ask. Otherwise ship mode asks at each point that needs a decision.
+- **What to look at.** Every PR carries a Needs human review line, and
+  gets the `needs-human-review` label (created if the repo lacks it)
+  unless that line reads "nothing beyond a normal review". The ship
+  report opens with a one-line Status.
+- **PR descriptions** state the behavior before and after the change,
+  show runtime output as evidence for non-UI changes, and link the issue
+  the PR closes.
+- **Issue numbers in names.** Work that comes from GitHub issue #N gets
+  a branch named `<type>/gh-<N>-<slug>` and a task folder named
+  `<YYYY-MM-DD>-gh-<N>-<slug>`.
+- **Release mode** (`commit-push-pr`) builds the PR that promotes an
+  integration branch such as `dev` to the default branch, and closes the
+  work out after it merges. `dev-tasks` keeps a status line in each task
+  folder until the work is released, and records every product decision
+  with its options and trade-offs.
+
+---
+
 ## Migrating from v2
 
 v3.0.0 removed the generic `qa-runner` and `verify-app` agents. They
