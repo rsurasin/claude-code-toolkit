@@ -423,8 +423,12 @@ and hand the user the drafted PR description from Step 5.
 
 ## Step 5: Open PR
 
-Invoke the `pr-description` skill and follow its template, including
-the Risk Assessment block copied exactly:
+Invoke the `pr-description` skill with the Skill tool, under the name
+the skill list gives it, and follow its template, including the Risk
+Assessment block copied exactly. Opening its `SKILL.md` with Read, or
+writing the template from memory, is not invoking it: call the Skill
+tool every time a description is written or rewritten, even when the
+PR can't be opened and the description is only drafted:
 
 1. Analyze all commits on this branch vs the confirmed base
 2. Generate the PR description with:

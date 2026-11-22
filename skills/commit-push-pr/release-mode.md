@@ -160,7 +160,8 @@ saying why.
    once filed), and security findings follow Ship Mode Step 2b's
    routing rule. After a failed triage the list is the single
    `not triaged` line instead (`fix-loop.md`).
-5. **Open the release PR** with the `pr-description` skill, adding these
+5. **Open the release PR** with the `pr-description` skill, invoked
+   with the Skill tool as in Ship Mode Step 5, adding these
    sections after the Summary:
 
    ```markdown
