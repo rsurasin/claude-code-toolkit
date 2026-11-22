@@ -18,4 +18,4 @@ then request a sync:
    Then run `ln -s AGENTS.md CLAUDE.md`, and commit with
    `git add app.py AGENTS.md CLAUDE.md` (naming the files, since
    `git add -A` trips on the placeholders).
-2. Then: **update the agent instruction files to match the codebase.**
+2. Then: **use the agent-sync agent to check the agent instruction files against the codebase and report what's out of date. Don't change anything yet.**
