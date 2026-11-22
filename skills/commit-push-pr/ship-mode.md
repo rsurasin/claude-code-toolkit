@@ -29,7 +29,41 @@ the remote's default branch. That choice is not silent: it goes on the
 PR's Needs human review line and the Step 6 report's Decisions needed
 line.
 
-## Step 1b: `/simplify` pre-pass
+## Step 1b: Measure the diff size
+
+Reviewers miss more as a diff grows: single-prompt LLM reviewers fall
+off sharply, and human reviewers past about 200–400 lines. Measure the
+branch with `git diff --numstat <base>...HEAD`: the size is added plus
+removed lines, and files changed, leaving out
+
+- lockfiles (`package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`,
+  `Cargo.lock`, `go.sum`, `poetry.lock`, `uv.lock`, `Gemfile.lock`,
+  `composer.lock`, `flake.lock`, and the like)
+- generated files: marked `linguist-generated` in `.gitattributes`,
+  `*.min.*`, build output
+- vendored code (`vendor/`, `third_party/`, or `linguist-vendored`)
+- snapshots (`__snapshots__/`, `*.snap`)
+- binary files (numstat shows `-` for their counts)
+
+Then:
+
+- **Over 400 lines or 20 files:** the PR's Needs human review line
+  gets "large diff (<lines> lines, <files> files), consider splitting".
+- **Over 1,000 lines:** the line gets "large diff (<lines> lines,
+  <files> files), review coverage may be thin" instead. First ask the
+  author whether to continue or split, stating the lines and files
+  counted and what was left out. If they choose to split, stop with
+  nothing published so they can. An unattended run doesn't ask (Step 3).
+
+Neither limit is a hard stop: no draft, no `[BLOCKED]`, and the risk
+level doesn't change. A repo may set other limits in its project
+instruction file. The project's instruction file is the file that holds
+the content: if `CLAUDE.md` is a symlink, its target; if `CLAUDE.md`
+only imports `@AGENTS.md`, `AGENTS.md` (plus any Claude-specific lines
+left in `CLAUDE.md`); otherwise whichever exists. Read and edit that
+file, never the symlink. Keep the count for Step 6's Size line.
+
+## Step 1c: `/simplify` pre-pass
 
 Run the built-in `/simplify` before the gates, so cleanup (reuse,
 simplification, efficiency) lands before review rather than as review
@@ -335,6 +369,9 @@ carries on:
 - **PR base not stated (Step 1a):** use the base the starting
   instructions name; with none, the remote's default branch, and say
   so on the Needs human review line
+- **Diff over 1,000 lines (Step 1b):** nothing to ask; record the
+  "review coverage may be thin" note on the Needs human review line.
+  It is a note, not a stop
 - **Triage fails twice (Step 2b):** a hard stop. Nothing graded the
   findings, so open the `[BLOCKED]` draft with every reviewing gate
   `NOT RUN` (triage failed). Its Unresolved findings list is the one
@@ -422,7 +459,7 @@ what is listed under Unresolved findings instead, and when to stop.
 
 ## Step 4: Push the final branch
 
-Push the branch, including any simplify and fix commits from Steps 1b
+Push the branch, including any simplify and fix commits from Steps 1c
 and 3 (Commit Mode Step 5). The base branch was confirmed in Step 1a;
 if the user changed it since, re-run the gates against the new base.
 If the repo has no remote, report that the push and PR aren't possible
@@ -446,7 +483,7 @@ PR can't be opened and the description is only drafted:
      no unresolved introduced finding names that gate as a source, a
      `(finding-triage)` finding naming Security;
      otherwise ISSUES with the highest such severity), plus the Simplify
-     pre-pass line from Step 1b (`Ran — <commit subjects>`, `Ran — no changes`,
+     pre-pass line from Step 1c (`Ran — <commit subjects>`, `Ran — no changes`,
      `Skipped — <reason>`, or `N/A — /simplify not available`). The
      justification sentence also says what the review rows cover: the
      commit the review gates last ran on, and for anything after it,
@@ -457,7 +494,8 @@ PR can't be opened and the description is only drafted:
      what a person must look at before merging, most serious first:
      every unresolved introduced MEDIUM or higher, every
      `awaiting author decision`, a one-way door from the list in
-     `pr-description`'s Rules of evidence (with what makes it one), each review or test gate that is `NOT RUN` or `N/A`, and
+     `pr-description`'s Rules of evidence (with what makes it one), each review or test gate that is `NOT RUN` or `N/A`,
+     Step 1b's large-diff note, and
      any fix the loop made that changed behavior beyond the request.
      An existing CRITICAL security finding is written as Step 3's
      neutral sentence, nothing more. After a failed triage (Step 2b)
@@ -582,6 +620,7 @@ place of a label.
 **Dropped candidates:** <dropped candidates, or none>
 **Triage gaps:** <gaps, or None>
 **PR:** <url or instructions>
+**Size:** <lines> lines, <files> files counted; left out: <categories with file counts, or none>
 **Files:** <count> changed, <insertions> insertions, <deletions> deletions
 ```
 
@@ -639,3 +678,5 @@ What each line holds:
   Nothing else goes here: any other finding is fixed or listed.
 - **Triage gaps** — `finding-triage`'s Gaps, including any steering
   text it found.
+- **Size** — Step 1b's count, as measured there. **Files** is the raw
+  diff, nothing left out.

@@ -8,7 +8,8 @@ description: >
   directly or write a PR description by hand. Commit mode
   (default): fast, gate-free atomic commits — stage, write a conventional
   commit message per task, push. Ship mode: when the feature is complete
-  and a pull request should open, run the built-in /simplify first on code
+  and a pull request should open, measure the diff size (flagging a large
+  one for human review), run the built-in /simplify on code
   changes, then the quality gates (the repo's own test and verification
   skills, the code-reviewer, security-auditor, perf-audit, and doc-sync
   agents, and the built-in /code-review and /security-review skills side
@@ -175,8 +176,11 @@ state and is never staged.
 
 In ship mode, read [`ship-mode.md`](ship-mode.md) in this skill's
 directory **before taking any ship-mode step**, and follow it. In short:
-commit outstanding work, confirm the PR base branch, run `/simplify` on
-code changes, run every quality gate over `<base>...HEAD`, have the
+commit outstanding work, confirm the PR base branch, measure the diff
+size (over 400 lines or 20 files, the Needs human review line suggests
+splitting; over 1,000 lines, it says review coverage may be thin, and
+an attended run first asks whether to continue or split; never a hard
+stop), run `/simplify` on code changes, run every quality gate over `<base>...HEAD`, have the
 `finding-triage` agent grade the findings into one list, fix introduced
 findings in at most two rounds (`fix-loop.md`), push, and open the PR with a risk assessment
 and an Unresolved findings list. The Rules below apply in every mode.
@@ -188,7 +192,7 @@ and an Unresolved findings list. The Rules below apply in every mode.
 In release mode, read [`release-mode.md`](release-mode.md) in this
 skill's directory and follow it. In short: list the PRs merged into the
 integration branch since the last release, map each to its dev-tasks
-folder, run the gates over the release diff, and open the release PR with
+folder, measure the release diff and run the gates over it, and open the release PR with
 the feature list, release steps, and a `Closes #N` per issue. After it
 merges, confirm the issues closed, do (with per-step approval) or hand
 off the release steps, and mark the folders `released`.

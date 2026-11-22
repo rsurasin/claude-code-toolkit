@@ -1,7 +1,7 @@
 # Release Mode
 
 Part of the `commit-push-pr` skill; read this file only in release mode.
-Release mode runs Ship Mode steps (Steps 2–3, 5, and 6), which live in
+Release mode runs Ship Mode steps (Steps 1b, 2–3, 5, and 6), which live in
 [`ship-mode.md`](ship-mode.md); read that file too.
 
 A release PR promotes an integration branch (`<integration>`, e.g. `dev`)
@@ -116,7 +116,7 @@ saying why.
    over what the release brings in,
    `git diff <release-point>...origin/<integration>`. `finding-triage`
    gets that range and, as scope, the issues the release closes. Skip Ship Mode
-   Steps 1a and 1b: the base is the default branch by definition, and
+   Steps 1a and 1c: the base is the default branch by definition, and
    `/simplify` never runs here, because its fixes would be commits on
    `<integration>` (the release PR's Simplify pre-pass line reads
    `Skipped — release PR`). (A two-tree
@@ -125,6 +125,13 @@ saying why.
    not together with the others. A migration or other one-way step among
    the release steps makes the release a one-way door in the risk
    assessment.
+
+   Before the gates, measure that range as in Ship Mode Step 1b and
+   put it on the report's Size line, but suggest no split and ask
+   nothing: the release gathers PRs already reviewed one by one, and
+   only a new release point would make it smaller. Over 1,000 lines,
+   the Needs human review line still gets "large diff (<lines> lines,
+   <files> files), review coverage may be thin".
 
    Never commit gate fixes onto `<integration>` or `<default>`, so the
    fix loop (`fix-loop.md`) and its contained below-threshold fixes don't
