@@ -41,15 +41,17 @@ Glob for every one of these that exists, including nested copies:
 ### Which File Holds the Content
 
 The project's instruction file is the file that holds the content: if
-`CLAUDE.md` is a symlink, its target; if `CLAUDE.md` only imports
+`CLAUDE.md` or `AGENTS.md` is a symlink, its target; if `CLAUDE.md` only imports
 `@AGENTS.md`, `AGENTS.md` (plus any Claude-specific lines left in
 `CLAUDE.md`); otherwise whichever exists. Read and edit that file, never
 the symlink.
 
 Read follows symlinks, so tell them apart by content:
 
-- `CLAUDE.md` and `AGENTS.md` identical: one file, most likely a
-  symlink. Audit it once, and cite and edit `AGENTS.md`.
+- `CLAUDE.md` and `AGENTS.md` identical: one file through a symlink,
+  or two identical copies; without a shell you can't tell which. Audit
+  it once, as one file. Before an approved edit, ask which path holds
+  the content (the link's target, or both copies).
 - `CLAUDE.md` holding only `@AGENTS.md` (plus Claude-specific lines):
   one file. Audit `AGENTS.md` and the extra lines.
 - `CLAUDE.md` whose whole content is the text `AGENTS.md`: a symlink
