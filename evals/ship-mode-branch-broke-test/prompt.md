@@ -91,6 +91,9 @@ setup.
      if (!Number.isInteger(page) || page < 0) {
        throw new RangeError('page must be a positive integer');
      }
+     if (!Number.isInteger(pageSize) || pageSize <= 0) {
+       throw new RangeError('pageSize must be a positive integer');
+     }
      const start = (page - 1) * pageSize;
      return items.slice(start, start + pageSize);
    }
