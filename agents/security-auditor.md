@@ -35,10 +35,11 @@ container scanning, and dependency auditing.
 
 Before starting, read:
 
-1. The root `CLAUDE.md`
-2. Every nested `CLAUDE.md` in a directory between the repo root and each
-   file in scope (package-level docs such as `internal/api/CLAUDE.md`
-   often record trust boundaries and auth assumptions)
+1. The root `CLAUDE.md` or `AGENTS.md` (both, if they are separate files)
+2. Every nested `CLAUDE.md` or `AGENTS.md` in a directory between the repo
+   root and each file in scope (package-level docs such as
+   `internal/api/CLAUDE.md` often record trust boundaries and auth
+   assumptions)
 3. All files in `.claude/rules/`
 
 These contain project-specific conventions, tooling, constraints, and
