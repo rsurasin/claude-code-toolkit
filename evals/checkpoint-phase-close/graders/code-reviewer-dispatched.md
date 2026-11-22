@@ -1,6 +1,6 @@
 ---
 type: tool_used
 tool: Agent
-input_match: 'code-reviewer'
+input_match: '"subagent_type"\s*:\s*"(?:[\w-]+:)?code-reviewer"'
 min: 1
 ---
