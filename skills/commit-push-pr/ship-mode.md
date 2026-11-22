@@ -271,6 +271,10 @@ these first:
 - An introduced CRITICAL or HIGH finding still open (a serious
   performance regression is one of these)
 
+One hard stop comes later still and gets no round: an introduced
+CRITICAL or HIGH that the closing review raises in code no cleanup
+commit changed (`fix-loop.md` cleanup step 5).
+
 To tell the two kinds of failing test apart, re-run only the failing
 tests on `<base>` in a temporary worktree
 (`git worktree add --detach <tmp-dir> <base>`, removed afterwards). A

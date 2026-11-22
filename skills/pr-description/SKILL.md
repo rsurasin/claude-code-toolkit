@@ -129,9 +129,10 @@ apply.]
 - [SEVERITY] (sources) `file:line` — what is wrong — why it is unfixed
   (not contained: scope|contract|size — <reason>, #<issue> | author
   chose to proceed — only when they said so | awaiting author decision
-  | stopped after 2 fix rounds | cleanup fix not confirmed | no change
-  recommended by triage — <its reason> | not attempted: run stopped at
-  <hard stop> | release shipped without a fix PR — release mode only)
+  | stopped after 2 fix rounds | cleanup fix not confirmed | found by
+  the closing review | no change recommended by triage — <its reason>
+  | not attempted: run stopped at <hard stop> | release shipped without
+  a fix PR — release mode only)
 If triage failed, the whole list is this one line instead, naming no
 finding:
 - not triaged: triage failed twice (<n> raw findings, in the ship

@@ -64,7 +64,9 @@ drift easily.
   A test already failing on the base, or triage that failed twice
   (nothing graded the findings), stops the run before any fix
   round. A test the branch broke, or an introduced CRITICAL or HIGH,
-  gets the two rounds first and is a hard stop only if still open. On
+  gets the two rounds first and is a hard stop only if still open (one
+  the closing review raises outside the cleanup commits is a hard stop
+  at once, since the rounds are over). On
   a hard stop no mergeable PR opens: an attended run asks, an
   unattended run opens a draft PR titled `[BLOCKED]`, and a user who
   chooses to proceed gets a draft without that title. Release mode has

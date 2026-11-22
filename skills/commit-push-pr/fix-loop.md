@@ -109,7 +109,13 @@ ran, if any introduced LOW marked **contained** is still open:
    commit introduced, revert that commit and re-run Tests. Never fix
    what the closing review found: a revert restores code the gates
    already reviewed, so it needs no further review or re-triage, and
-   nothing new is left to chase
+   nothing new is left to chase. A finding the closing review raises
+   that the re-triage ties to no cleanup commit (a defect in code the
+   cleanup pass didn't change) is not reverted and not fixed either:
+   it stays on the triage list as graded. A LOW or MEDIUM ships listed
+   with `found by the closing review`; a CRITICAL or HIGH is a hard
+   stop at once (Step 3), with no further round unless the user asks
+   for one
 6. **Bring the list in line with the reverts.** Step 4's triage read
    the code before any revert, so for each reverted cleanup commit,
    and only for those: take off the list every finding the triage
@@ -153,14 +159,17 @@ and the PR proceeds:
   which are security findings
 - `cleanup fix not confirmed` — a LOW whose cleanup fix was reverted or
   not confirmed
+- `found by the closing review` — a finding the closing review raised
+  in code no cleanup commit changed (cleanup step 5): the loop fixes
+  nothing after the cleanup pass
 - `no change recommended by triage — <its reason>` — a finding whose
   Fix line in the triage list says none is needed
 
 An introduced CRITICAL or HIGH is never listed in a ready PR. In ship
 mode it appears only in a draft: with `author chose to proceed` when
 the user proceeded, or in a `[BLOCKED]` draft with whichever of
-`stopped after 2 fix rounds`, `awaiting author decision` or
-`not attempted` describes it. A draft opened after a failed triage
+`stopped after 2 fix rounds`, `awaiting author decision`,
+`not attempted` or `found by the closing review` describes it. A draft opened after a failed triage
 carries only the `not triaged` line: with no triage list, no finding
 has a severity or an introduced tag to list it by.
 

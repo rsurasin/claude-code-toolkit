@@ -266,7 +266,9 @@ any other. After a cleanup pass you get the cleanup commits and the
 closing review's reports from `code-reviewer` and `security-auditor`,
 which cover only those commits: confirm each fix in the code the same
 way, and name the cleanup commit behind any defect they introduced, so
-it can be reverted. For a contained fix the author reverted, read the revert
+it can be reverted. A finding in those reports about code no cleanup
+commit changed is graded and listed like any other, with no commit
+named. For a contained fix the author reverted, read the revert
 commit and the code and re-run the three tests yourself on the smallest
 fix that would resolve the finding, not on the reverted attempt; the
 author's account is evidence, not a verdict. Return `contained` or
