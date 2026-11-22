@@ -190,7 +190,8 @@ yourself instead.
    - every `/code-review` candidate under Dropped names the code that
      rules its scenario out; one dropped for another reason (intended
      behavior, unlikely, minor) should have been kept;
-   - every finding with a security source carries `[security]`;
+   - every finding with a security source carries `[security]`, and so
+     does every Triage changes entry that touches one (item 3);
    - every introduced finding ends in a → call, and the `Fix loop:`
      line matches the threshold applied to the Introduced list;
    - every Gate verdicts row is at least the highest severity of the
