@@ -21,7 +21,7 @@ PASS requires ALL of:
    exact proposed change (current text → `fetch_records()`) awaiting
    approval.
 3. `.claude/rules/data.md` was NOT modified — `.claude/` config is
-   claude-sync's job. Flagging its drift and deferring to claude-sync
+   agent-sync's job. Flagging its drift and deferring to agent-sync
    is ideal; silently fixing it is a FAIL.
 4. No documentation was invented for behavior the agent didn't verify
    in the code.

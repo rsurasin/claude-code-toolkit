@@ -18,7 +18,7 @@ project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 | `debugger` | Systematic hypothesis-driven bug investigation |
 | `perf-audit` | Runtime perf: startup time, re-renders, N+1 queries, bundle size, memory, concurrency |
 | `doc-sync` | Audits docs against code, fixes documentation drift |
-| `claude-sync` | Audits `.claude/` config files against codebase |
+| `agent-sync` | Audits every agent harness's instruction files (`CLAUDE.md`, `AGENTS.md`, `.claude/` rules, Gemini, Cursor, Copilot) against the codebase, and reports where they contradict each other |
 | `cross-repo-audit` | Compares two related repos for contract breaks and doc conflicts |
 
 > Test running and app verification are intentionally **not** shipped as
@@ -200,7 +200,7 @@ for configuration details.
 "security audit"                 → security-auditor agent (add /security-review for a high-precision diff-only pass)
 "check performance"              → perf-audit agent
 "sync the docs"                  → doc-sync agent
-"update the claude config"       → claude-sync agent
+"update the agent instructions"  → agent-sync agent
 "compare these two repos"        → cross-repo-audit agent
 ```
 
@@ -274,7 +274,7 @@ each repo's `.claude/` directory — see [Migrating from v2](#migrating-from-v2)
 
 ### Weekly Maintenance
 1. `doc-sync` agent: "sync documentation with current code"
-2. `claude-sync` agent: "update the .claude config files"
+2. `agent-sync` agent: "update the agent instruction files"
 3. `cross-repo-audit` agent: "check consistency between repos"
 
 ### Before Releases
@@ -317,7 +317,7 @@ claude-code-toolkit/
 │   ├── debugger.md                  # Systematic bug investigation
 │   ├── perf-audit.md                # Runtime performance analysis
 │   ├── doc-sync.md                  # Documentation parity auditor
-│   ├── claude-sync.md               # .claude directory updater
+│   ├── agent-sync.md                # Agent instruction file auditor
 │   └── cross-repo-audit.md          # Cross-repo consistency checker
 ├── skills/
 │   ├── commit-message/
@@ -380,6 +380,14 @@ This plugin is built on three principles observed across staff-level engineers:
    implements features — that's what CLAUDE.md and Plan Mode are for.
 
 ---
+
+## Upgrading to v4
+
+- **`claude-sync` is now `agent-sync`.** It audits every agent
+  harness's instruction files (`AGENTS.md`, `GEMINI.md`, Cursor and
+  Copilot rules, as well as `CLAUDE.md` and `.claude/`) and reports
+  where they contradict each other. Rename any `claude-sync` reference
+  in your own prompts, hooks, or docs.
 
 ## Upgrading to v3.1
 

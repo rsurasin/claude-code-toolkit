@@ -5,7 +5,8 @@ description: >
   may have drifted from implementation — after refactors, new features, or
   dependency upgrades. Covers READMEs, onboarding guides, architecture docs,
   API docs, inline JSDoc/GoDoc, and any markdown in the repo. Does NOT cover
-  .claude/ directory. That is claude-sync's job.
+  .claude/ or agent instruction files (CLAUDE.md, AGENTS.md, GEMINI.md,
+  Cursor and Copilot rules). That is agent-sync's job.
 model: sonnet
 tools:
   - Read
@@ -47,11 +48,13 @@ Scan the repo for documentation files:
 List every documentation file found with a one-line summary of what it covers.
 
 **Out of scope: everything under `.claude/`** (rules, docs, skills,
-agents, commands, settings). Those files belong to the `claude-sync`
-agent. Don't audit them as documentation, and never edit, create or
+agents, commands, settings) **and every agent instruction file**
+(`CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, `.cursor/rules/`,
+`.github/copilot-instructions.md`, and similar, at any depth). Those
+files belong to the `agent-sync` agent. Don't audit them as documentation, and never edit, create or
 delete one, even when the caller's request names the file, the drift
 is obvious, or the fix is one word. If you notice drift there, list it
-under "Out of Scope" in the summary as claude-sync's job, with the path
+under "Out of Scope" in the summary as agent-sync's job, with the path
 and what is stale. Don't attempt the edit, don't report it as a fix you
 couldn't make, and don't offer to make it.
 
@@ -129,8 +132,8 @@ caller applies the fixes.
 ### Proposed Fixes (gate mode only)
 - [severity] path:line — current text → suggested text
 
-### Out of Scope (for claude-sync)
-- [path:line under .claude/ — what is stale; not edited]
+### Out of Scope (for agent-sync)
+- [path:line of a .claude/ or agent instruction file — what is stale; not edited]
 
 ### Flagged for Human Review
 - [list any items where intent was unclear]
@@ -144,8 +147,8 @@ caller applies the fixes.
 - Provide summary report to user
 - Ask for permission to make updates to documentation — in gate mode,
   never ask and never edit; report proposed fixes instead
-- Never edit anything under `.claude/`; report drift there as
-  claude-sync's job
+- Never edit anything under `.claude/` or an agent instruction file;
+  report drift there as agent-sync's job
 - Never delete documentation — update it or flag it
 - Never invent documentation for code you don't understand — flag it instead
 - Preserve the existing voice and style of each document
