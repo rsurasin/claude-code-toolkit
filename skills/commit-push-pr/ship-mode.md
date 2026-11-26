@@ -191,8 +191,9 @@ yourself instead.
      rules its scenario out; one dropped for another reason (intended
      behavior, unlikely, minor) should have been kept;
    - every finding with a security source carries `[security]`, and so
-     does every Triage changes entry that touches a security finding
-     (item 3: marked `[security]` or with a security source);
+     does every Triage changes entry that touches a security finding,
+     meaning a finding marked `[security]` or with a security source
+     (item 3), whether or not the entry itself carries the mark yet;
    - every introduced finding ends in a → call, and the `Fix loop:`
      line matches the threshold applied to the Introduced list;
    - every Gate verdicts row is at least the highest severity of the
