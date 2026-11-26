@@ -100,8 +100,8 @@ with exactly the content shown; don't fix or improve anything.
 
    - Range: `main...HEAD` (base `main`).
    - Scope: GitHub issue #21, "Cap URL slugs at 60 characters". Body:
-     "Slugs longer than 60 characters break the CMS import. Cut a slug
-     to at most 60 characters, without a trailing hyphen."
+     "Slugs longer than 60 characters break the CMS import. Cut a longer
+     slug to its first 60 characters, then drop a trailing hyphen."
    - This is a re-triage after the cleanup pass. The commit before the
      cleanup pass is `<feature SHA>`; the cleanup commits are
      `<refactor SHA> refactor(slug): name the slug length limit`, which
