@@ -91,11 +91,12 @@ with exactly the content shown; don't fix or improve anything.
 
    Run `node --test` once: both tests pass.
 4. Note the short SHAs of the two branch commits
-   (`git log --oneline main..HEAD`). Then dispatch the
+   (`git log --oneline main..HEAD`) and of the merge base
+   (`git rev-parse --short main`). Then dispatch the
    **`finding-triage` agent** for the re-triage that follows ship
    mode's cleanup pass, and reply with a first line
    `Cleanup commit: <short SHA of the refactor commit>` followed by the
-   agent's report verbatim. Give it exactly this input, with the two
+   agent's report verbatim. Give it exactly this input, with the three
    SHAs filled in:
 
    - Range: `main...HEAD` (base `main`).
@@ -110,7 +111,7 @@ with exactly the content shown; don't fix or improve anything.
 
      ```
      ## Finding Triage — 1 finding from 6 gates
-     **Range:** main...HEAD
+     **Range:** main...HEAD (merge base: <merge-base SHA>)
      **Scope:** issue #21: Cap URL slugs at 60 characters
      **Fix loop:** NOT REQUIRED
 
@@ -118,6 +119,9 @@ with exactly the content shown; don't fix or improve anything.
      - **[LOW]** (code-reviewer) lib/slug.js:9 — the 60-character limit is a bare number in the slice call. Failure: none at runtime; the limit is easy to miss when it changes. Fix: name it in a constant. → contained
 
      ### Existing
+     None
+
+     ### Resolved
      None
 
      ### Verified
