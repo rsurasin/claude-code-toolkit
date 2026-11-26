@@ -145,11 +145,12 @@ fix or improve anything during setup.
    - `perf-audit`: no findings.
    - `doc-sync`: no findings.
 
-   The list `finding-triage` returned, verbatim:
+   The list `finding-triage` returned, verbatim (read `<merge-base SHA>`
+   as the output of `git rev-parse --short main`):
 
    ```
    ## Finding Triage — 1 finding from 6 gates
-   **Range:** main...HEAD
+   **Range:** main...HEAD (merge base: <merge-base SHA>)
    **Scope:** issue #7: let callers choose the page size
    **Fix loop:** REQUIRED (the dropped last item at lib/paginate.js:14)
 

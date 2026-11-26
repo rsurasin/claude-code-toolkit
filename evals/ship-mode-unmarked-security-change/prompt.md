@@ -142,11 +142,12 @@ nothing in this task needs it running.
    - `perf-audit`: no findings.
    - `doc-sync`: no findings.
 
-   The list `finding-triage` returned, verbatim:
+   The list `finding-triage` returned, verbatim (read `<merge-base SHA>`
+   as the output of `git rev-parse --short main`):
 
    ```
    ## Finding Triage — 2 findings from 6 gates
-   **Range:** main...HEAD
+   **Range:** main...HEAD (merge base: <merge-base SHA>)
    **Scope:** issue #21: slugs should be at most 60 characters
    **Fix loop:** NOT REQUIRED
 
