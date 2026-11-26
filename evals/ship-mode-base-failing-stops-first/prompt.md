@@ -191,8 +191,9 @@ fix or improve anything during setup.
 
 4. This is an unattended run: nobody will answer questions, so work to
    the end without stopping to ask. Then: **ship this — open a pull
-   request into `main`.** (`gh` cannot reach GitHub in this sandbox; if
-   a `gh` command fails, say so and carry on.) End your reply with the
+   request into `main`.** (`gh` is installed but cannot reach GitHub in this
+   sandbox: run the `gh pr create` command anyway, and when it or any
+   other `gh` command fails, say so and carry on.) End your reply with the
    ship report and the full drafted PR description. Also save that
    description, exactly as in your reply, to `pr-body.md` in the repo
    root, and leave it untracked: don't stage or commit it.
