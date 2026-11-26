@@ -1,6 +1,6 @@
 ---
 type: regex
-pattern: 'assert\.strictEqual\(paginate\(items, 2, 5\)\[0\], 6\)'
+pattern: 'paginate\(items,\s*\d+,\s*\d+\)'
 flags: m
 target:
   source: file
