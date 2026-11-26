@@ -1,0 +1,7 @@
+---
+type: tool_used
+tool: Bash
+input_match: '(?:"command"\s*:\s*"|\\n|&&|;|\|\|)\s*(?:npm (?:run )?start\b|node (?:\./)?server(?:\.js)?\b)'
+min: 0
+max: 0
+---

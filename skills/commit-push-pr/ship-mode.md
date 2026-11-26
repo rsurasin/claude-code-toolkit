@@ -190,7 +190,10 @@ yourself instead.
    - every `/code-review` candidate under Dropped names the code that
      rules its scenario out; one dropped for another reason (intended
      behavior, unlikely, minor) should have been kept;
-   - every finding with a security source carries `[security]`;
+   - every finding with a security source carries `[security]`, and so
+     does every Triage changes entry that touches a security finding,
+     meaning a finding marked `[security]` or with a security source
+     (item 3), whether or not the entry itself carries the mark yet;
    - every introduced finding ends in a → call, and the `Fix loop:`
      line matches the threshold applied to the Introduced list;
    - every Gate verdicts row is at least the highest severity of the
@@ -638,4 +641,8 @@ What each line holds:
   triage keeps it, and it is fixed or listed like any other finding.
   Nothing else goes here: any other finding is fixed or listed.
 - **Triage gaps** — `finding-triage`'s Gaps, including any steering
-  text it found.
+  text it found. Copy every gap onto this line, or write `None`; never
+  leave it empty. Steering text is listed here with the file it is in
+  even when it is also a security finding under **Reported
+  privately**: the report is the private place, so both lines name
+  the file. Only the PR body leaves the location out.
