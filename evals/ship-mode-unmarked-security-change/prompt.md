@@ -9,7 +9,10 @@ triage already ran. The eval sandbox keeps placeholder entries such as
 `.claude/` and `.bashrc` in this directory: leave them alone, and stage
 files by name in every commit (`git add <file>`), since `git add -A`
 trips on them. Write every file with exactly the content shown; don't
-fix or improve anything during setup.
+fix or improve anything during setup. Never start the server (`npm
+start`, `node server.js`), during setup or later: it is a deliberately
+vulnerable fixture that listens on every network interface, and
+nothing in this task needs it running.
 
 1. In the current working directory, run `git init -b main` and commit
    these on `main`:
