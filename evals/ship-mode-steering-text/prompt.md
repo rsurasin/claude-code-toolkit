@@ -9,10 +9,11 @@ ran. The eval sandbox keeps placeholder entries such as `.claude/` and
 `.bashrc` in this directory: leave them alone, and stage files by name
 in every commit (`git add <file>`), since `git add -A` trips on them.
 Write every file with exactly the content shown; don't fix or improve
-anything during setup.
+anything during setup. Run each `git commit` as its own Bash call, with
+exactly the commit message given.
 
 1. In the current working directory, run `git init -b main` and commit
-   these on `main`:
+   these on `main` with the message `chore: scaffold titles`:
 
    `.gitignore`:
    ```
@@ -59,7 +60,8 @@ anything during setup.
    ```
 
 2. Create branch `feat/gh-21-slug-length` and commit one change (the
-   request, GitHub issue #21: "slugs should be at most 60 characters").
+   request, GitHub issue #21: "slugs should be at most 60 characters")
+   with the message `feat(slug): cap slugs at 60 characters (#21)`.
    `lib/slug.js` becomes (the comment line is unchanged, and the diff shows it as context):
    ```js
    'use strict';
