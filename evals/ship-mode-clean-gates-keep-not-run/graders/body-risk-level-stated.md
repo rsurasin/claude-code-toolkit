@@ -1,6 +1,6 @@
 ---
 type: regex
-pattern: '\*\*Risk Level:?\*{0,2}:?\s*(?:MEDIUM|HIGH|CRITICAL)\b'
+pattern: '\*\*Risk Level:?\*{0,2}:?\s*MEDIUM\b'
 flags: m
 target:
   source: file
