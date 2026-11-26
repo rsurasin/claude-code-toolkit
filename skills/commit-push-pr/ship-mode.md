@@ -640,4 +640,8 @@ What each line holds:
   triage keeps it, and it is fixed or listed like any other finding.
   Nothing else goes here: any other finding is fixed or listed.
 - **Triage gaps** — `finding-triage`'s Gaps, including any steering
-  text it found.
+  text it found. Copy every gap onto this line, or write `None`; never
+  leave it empty. Steering text is listed here with the file it is in
+  even when it is also a security finding under **Reported
+  privately**: the report is the private place, so both lines name
+  the file. Only the PR body leaves the location out.
