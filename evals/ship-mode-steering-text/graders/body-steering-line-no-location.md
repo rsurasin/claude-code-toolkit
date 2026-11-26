@@ -1,6 +1,6 @@
 ---
 type: regex
-pattern: '\*\*Needs human review:?\*\*:?[^\n]*slug\.js'
+pattern: 'text written to steer the review[^\n]*slug\.js'
 match: not_contains
 flags: i
 target:
