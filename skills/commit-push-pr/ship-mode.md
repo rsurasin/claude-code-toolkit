@@ -73,9 +73,8 @@ report instead) and must not edit files — fixes happen in Step 3.
    `.claude/` directory, run that. Otherwise run the test suite using the
    commands documented in the repo's instruction files (`AGENTS.md`,
    `CLAUDE.md`, `.claude/CLAUDE.md`, and the rules in `.agents/rules/` or
-   `.claude/rules/`) or its package scripts. If they give different
-   commands, run each one and note the disagreement on the Needs human
-   review line. If none of these exists, record `NOT RUN`.
+   `.claude/rules/`) or its package scripts. If none of these exists,
+   record `NOT RUN`.
 2. **Runtime verification** — If the repo defines a verify skill or agent
    in its `.claude/` directory, run that. Otherwise record `NOT RUN`.
    Besides the verdict, keep the output it produced: the requests or
