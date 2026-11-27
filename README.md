@@ -18,7 +18,7 @@ project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 | `debugger` | Systematic hypothesis-driven bug investigation |
 | `perf-audit` | Runtime perf: startup time, re-renders, N+1 queries, bundle size, memory, concurrency |
 | `doc-sync` | Audits docs against code, fixes documentation drift |
-| `agent-sync` | Audits every agent harness's instruction files (`CLAUDE.md`, `AGENTS.md`, `.claude/` rules, Gemini, Cursor, Copilot) against the codebase, and reports where they contradict each other |
+| `agent-sync` | Audits every agent harness's instruction files (`AGENTS.md`, `.agents/rules/`, `CLAUDE.md`, `.claude/` rules, Gemini, Cursor, Copilot) against the codebase, reports where they contradict each other, and checks the `AGENTS.md` / `.agents/rules` setup (files that hide `AGENTS.md` from Claude Code, an unlinked `.claude/rules`, rules Antigravity drops) |
 | `cross-repo-audit` | Compares two related repos for contract breaks and doc conflicts |
 
 > Test running and app verification are intentionally **not** shipped as
@@ -33,7 +33,7 @@ project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 | `pr-description` | Generates structured PR descriptions: current behavior in the Summary, new behavior in Changes, screenshots or runtime output as evidence, and a risk assessment (Low/Medium/High/Critical) computed from verification evidence and reversibility |
 | `commit-push-pr` | Two-mode inner loop: fast atomic task commits (no gates), then gated PR creation — quality gates (repo tests/verify, review/security/perf/docs agents, and the built-in `/code-review` and `/security-review`) run once over the full branch diff, the `finding-triage` agent grades and merges their findings, introduced findings are fixed in at most two fix rounds plus one cleanup pass for LOW findings (what is left is listed in the PR as unresolved), and the PR opens with a risk assessment, a Needs human review line, and a `needs-human-review` label unless that line reads "nothing beyond a normal review". A test already failing on the base, or triage that failed twice, is a hard stop before any fix round; a test the branch broke that still fails, or an introduced CRITICAL or HIGH still open, is a hard stop after two rounds: an attended run asks, an unattended run opens a draft PR titled `[BLOCKED]`. The ship report opens with a one-line Status. Release mode (integration branch → default branch) lists the features merged since the last release with their release steps, and after the merge confirms the issues closed and marks the task folders released |
 | `dev-tasks` | Maintains category-organized task files (plan/context/tasks) under `.claude/dev/` for cross-session memory, with a status line per task (`in progress` → `PR open (#N)` → `merged to <base> (<sha>), not released` → `released (<release PR #N>, <date>)`) and the release steps each feature needs. Every product decision reached in conversation is recorded in the same turn, with the options considered, their pros and cons, why the winner won, and the trade-offs accepted |
-| `sharpen` | Proactively encodes a mistake or inefficiency (agent- or user-detected) into a permanent harness improvement — test, lint rule, CLAUDE.md or AGENTS.md entry — always with user consent before touching the harness |
+| `sharpen` | Proactively encodes a mistake or inefficiency (agent- or user-detected) into a permanent harness improvement — test, lint rule, `AGENTS.md` or `.agents/rules/` entry (`CLAUDE.md` or `.claude/rules/` in a Claude project) — always with user consent before touching the harness |
 | `review-plan` | Fresh-context staff engineer critique of a plan before execution, with a LOW/MEDIUM/HIGH/CRITICAL risk level on the pr-description scale — fires proactively before non-trivial plans |
 
 ### Bundled (already in Claude Code — use alongside this plugin)
@@ -388,10 +388,22 @@ This plugin is built on three principles observed across staff-level engineers:
   Copilot rules, as well as `CLAUDE.md` and `.claude/`) and reports
   where they contradict each other. Rename any `claude-sync` reference
   in your own prompts, hooks, or docs.
-- **`AGENTS.md` is read too.** The reviewers and other components that
-  load project rules now read `AGENTS.md` as well as `CLAUDE.md`, and
-  `sharpen` writes rules to whichever file holds the content, never
-  through a `CLAUDE.md` symlink.
+- **`AGENTS.md` and `.agents/rules/` are the source of truth.** The
+  reviewers and other components that load project rules read
+  `AGENTS.md` and `.agents/rules/` as well as `CLAUDE.md`,
+  `.claude/CLAUDE.md` and `.claude/rules/`, and `sharpen` writes new
+  rules to `AGENTS.md` and `.agents/rules/`. A repo with no `AGENTS.md`
+  is treated as a Claude project and keeps using `CLAUDE.md` and
+  `.claude/rules/`. To move a repo over:
+  - rename `CLAUDE.md` (or `.claude/CLAUDE.md`) to `AGENTS.md`;
+  - move `.claude/rules/*.md` to `.agents/rules/`, adding a
+    `trigger:` header to each (`always_on`, or `glob` with `globs:`)
+    for Antigravity;
+  - link the old folder back: `ln -s ../.agents/rules .claude/rules`.
+
+  Claude Code ignores `AGENTS.md` while a `CLAUDE.md`,
+  `.claude/CLAUDE.md` or `CLAUDE.local.md` exists; `agent-sync`
+  reports it.
 
 ## Upgrading to v3.1
 
