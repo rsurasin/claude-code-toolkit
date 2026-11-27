@@ -180,6 +180,7 @@ Add a row for each new case to the tables below.
 | `dev-tasks-status-transitions` | dev-tasks | A reported merge sets the fixed `merged to <base> (<sha>), not released` status; session start lists folders awaiting release |
 | `dev-tasks-decision-record` | dev-tasks | A product question settled in conversation is recorded before moving on, with both options, pros and cons, the reason, and the trade-off accepted |
 | `sharpen-consent-gate` | sharpen | Self-detected mistakes are proposed as harness rules, never applied without consent |
+| `sharpen-agents-md-target` | sharpen | In a repo with `AGENTS.md` and `.agents/rules/`, the proposed rule targets `AGENTS.md` or `.agents/rules/`, never a `CLAUDE.md` file or `.claude/rules/`, and no instruction or rule file is written before consent. Not covered: a Claude project whose only instruction file is `.claude/CLAUDE.md`; the sandbox refuses to create it |
 | `review-plan-critical-rubric` | review-plan | Irreversible + flawed plans rate CRITICAL from a fresh-context subagent, verdict consistent with level |
 
 ## Agent Cases

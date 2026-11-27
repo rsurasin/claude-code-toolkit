@@ -2,7 +2,8 @@
 name: sharpen
 description: >
   Encode a mistake or inefficiency into a permanent harness improvement —
-  a test, lint rule, or CLAUDE.md / AGENTS.md / .claude/rules/ entry that
+  a test, lint rule, or AGENTS.md / .agents/rules/ entry (CLAUDE.md /
+  .claude/rules/ in a Claude project) that
   prevents recurrence. Use proactively whenever a sharpening moment
   appears: the user corrects your work or re-explains something they've
   said before, you discover your own mistake, or you hit the same
@@ -46,7 +47,7 @@ only the repo artifact.
 ## Consent Gate (never skip)
 
 The harness belongs to the user. **Never modify a harness file —
-CLAUDE.md or AGENTS.md, `.claude/rules/`, lint config, or a guard test —
+AGENTS.md or CLAUDE.md, a rules folder, lint config, or a guard test —
 without explicit consent given in this conversation.**
 
 Before creating anything, propose:
@@ -56,7 +57,8 @@ Before creating anything, propose:
 
 **Observed:** [the mistake or inefficiency, and who caught it]
 **Class:** [the general class of problem this belongs to]
-**Proposed artifact:** [what would be created/changed, and where]
+**Proposed artifact:** [what would be created/changed, and the exact
+path, chosen by "Where the rule goes" in Step 3]
 **Draft:** [the actual rule text / test outline]
 
 Add this to the harness? (yes / edit / no)
@@ -81,35 +83,48 @@ Determine which artifact will prevent recurrence:
 
 | Mistake Type | Artifact to Create |
 |---|---|
-| Wrong pattern used | Instruction-file rule or `.claude/rules/` entry |
+| Wrong pattern used | Instruction-file rule or rules-folder entry |
 | Type error / wrong signature | Stricter type, type guard, or schema validation |
 | Logic bug | Unit test covering the edge case |
 | Style / convention violation | Lint rule or instruction-file convention entry |
-| Architecture violation | `.claude/rules/` entry with explanation |
+| Architecture violation | Rules-folder entry with explanation |
 | Wrong dependency usage | Instruction-file entry with correct usage example |
-| Repeated prompting issue | `.claude/rules/` entry with the correction |
+| Repeated prompting issue | Rules-folder entry with the correction |
 
 ### Step 3: Create the Artifact
 
+**Where the rule goes** (name the target in the proposal):
+- A repo with an `AGENTS.md` keeps its instructions in `AGENTS.md`
+  (root, or a nested `AGENTS.md` beside the code the rule covers) and
+  its rule files in `.agents/rules/`.
+- A repo with no `AGENTS.md` is a Claude project. Its instructions are
+  in `CLAUDE.md` or `.claude/CLAUDE.md`, whichever holds the content,
+  and its rule files in `.claude/rules/`.
+- With no instruction file at all, propose creating `AGENTS.md`.
+- Edit the real path, never a link (`ls -l` shows one; the Edit tool
+  refuses to write through it). When `.claude/rules` links to
+  `.agents/rules`, write in `.agents/rules/`.
+- If a `CLAUDE.md`, `.claude/CLAUDE.md` or `CLAUDE.local.md`, or a
+  `CLAUDE.md` in a parent folder, sits beside `AGENTS.md` (not a link
+  to it, nor only an `@AGENTS.md` import), Claude Code ignores
+  `AGENTS.md`. Say so in the proposal and let the user choose the
+  target.
+- Never put a team rule in `CLAUDE.local.md`: it is personal and not
+  committed.
+
 **If adding an instruction-file rule:**
-- The project's instruction file is the file that holds the content: if
-  `CLAUDE.md` or `AGENTS.md` is a symlink, its target (check with
-  `ls -l`); if `CLAUDE.md` only imports
-  `@AGENTS.md`, `AGENTS.md` (plus any Claude-specific lines left in
-  `CLAUDE.md`); otherwise whichever exists. Read and edit that file, never
-  the symlink. If `CLAUDE.md` and `AGENTS.md` are separate files, name
-  both in the proposal and let the user choose. If neither exists,
-  propose creating one (`AGENTS.md` or `CLAUDE.md`) and let the user
-  choose.
-- Open that file
+- Open the target file
 - Find the appropriate section (or create one)
 - Add a concise rule: what NOT to do, what TO do instead, and why
 - Keep it under 3 lines — if it needs more, put it in a rules file
 
 **If adding a rules file entry:**
-- Check if a relevant `.claude/rules/*.md` file exists
+- Check if a relevant rule file exists in the rules folder above
 - If so, add the rule to the existing file
-- If not, create a new rules file for the domain
+- If not, create a new rules file for the domain. In `.agents/rules/`,
+  start it with a `trigger:` header (`always_on`, or `glob` with
+  `globs:`; Antigravity drops a rule without one), plus `paths:` when
+  Claude Code should load it only for those paths
 - Include: the wrong pattern, the correct pattern, and why
 
 **If adding a test:**
@@ -152,7 +167,7 @@ Determine which artifact will prevent recurrence:
   across sessions
 - Never add a rule that contradicts an existing rule — check first
     - If there is a contradiction, flag it so the user can review
-- Before proposing a new artifact, check if an existing `.claude/rules/`
+- Before proposing a new artifact, check if an existing rules-folder
   entry or instruction-file rule already covers this class of mistake
 - If the same class of mistake has been sharpened before, strengthen the
   existing artifact rather than adding a duplicate
