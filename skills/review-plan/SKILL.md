@@ -29,8 +29,9 @@ Spawn a dedicated subagent for the review — never critique in the
 context that authored the plan. The author's context inherits the
 plan's assumptions and its investment in them; a fresh context reads
 the plan cold, the same independence principle the commit-push-pr
-quality gates use. Give the subagent the plan, pointers to CLAUDE.md
-or AGENTS.md and rules files, and the instructions below. Relay its
+quality gates use. Give the subagent the plan, pointers to AGENTS.md
+or CLAUDE.md and the rules folders (`.agents/rules/`, `.claude/rules/`),
+and the instructions below. Relay its
 findings to the user unfiltered — the developer decides what to act on.
 
 ## Subagent Instructions
@@ -52,8 +53,8 @@ Read the plan and evaluate:
 
 #### 2. Architectural Fit
 
-- Does this plan follow the project's established patterns? (Read CLAUDE.md
-  or AGENTS.md and relevant rules files)
+- Does this plan follow the project's established patterns? (Read AGENTS.md
+  or CLAUDE.md and relevant rules files)
 - Are there new patterns being introduced? If so, are they justified?
 - Does this create technical debt that will need to be addressed later?
 - Is the plan consistent with the codebase's layer boundaries?
@@ -139,5 +140,5 @@ HIGH-severity issues first / reconsider approach]
 - Don't nitpick style or naming — focus on correctness and architecture
 - Don't suggest alternatives unless they're meaningfully better
 - Acknowledge what's good — purely negative reviews are less useful
-- Read CLAUDE.md or AGENTS.md and rules files BEFORE reviewing
+- Read AGENTS.md or CLAUDE.md and rules files BEFORE reviewing
 - This should take < 3 minutes — quick gut-check, not a thesis

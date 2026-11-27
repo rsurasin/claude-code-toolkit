@@ -35,12 +35,14 @@ container scanning, and dependency auditing.
 
 Before starting, read:
 
-1. The root `CLAUDE.md` or `AGENTS.md` (both, if they are separate files)
-2. Every nested `CLAUDE.md` or `AGENTS.md` in a directory between the repo
+1. Each root instruction file that exists: `AGENTS.md`, `CLAUDE.md`,
+   `.claude/CLAUDE.md` (once, if one name links to another)
+2. Every nested `AGENTS.md` or `CLAUDE.md` in a directory between the repo
    root and each file in scope (package-level docs such as
-   `internal/api/CLAUDE.md` often record trust boundaries and auth
+   `internal/api/AGENTS.md` often record trust boundaries and auth
    assumptions)
-3. All files in `.claude/rules/`
+3. All files in `.agents/rules/` and `.claude/rules/` (once, if one
+   folder links to the other)
 
 These contain project-specific conventions, tooling, constraints, and
 patterns that must inform your analysis. If any rules conflict with the
@@ -135,9 +137,10 @@ patterns, tools, and vulnerability classes to check throughout the audit.
 
 Before starting analysis, discover what tools are available. Check in order:
 
-### 1. Check `.claude/rules/` for documented tooling
+### 1. Check the rules folders for documented tooling
 
-Read all files in `.claude/rules/` looking for references to security tools,
+Read all files in `.agents/rules/` and `.claude/rules/` looking for
+references to security tools,
 testing frameworks, or scanning configurations.
 
 ### 2. Scan project for common tool configs

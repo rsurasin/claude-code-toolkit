@@ -71,8 +71,11 @@ report instead) and must not edit files — fixes happen in Step 3.
 
 1. **Tests** — If the target repo defines a qa/test skill or agent in its
    `.claude/` directory, run that. Otherwise run the test suite using the
-   commands documented in the repo's CLAUDE.md or AGENTS.md or package scripts. If
-   neither exists, record `NOT RUN`.
+   commands documented in the repo's instruction files (`AGENTS.md`,
+   `CLAUDE.md`, `.claude/CLAUDE.md`, and the rules in `.agents/rules/` or
+   `.claude/rules/`) or its package scripts. If they give different
+   commands, run each one and note the disagreement on the Needs human
+   review line. If none of these exists, record `NOT RUN`.
 2. **Runtime verification** — If the repo defines a verify skill or agent
    in its `.claude/` directory, run that. Otherwise record `NOT RUN`.
    Besides the verdict, keep the output it produced: the requests or
@@ -123,7 +126,7 @@ the turn on a gate's report.
 Agents and built-in skills run side by side, never one instead of the
 other: side-by-side runs showed each catches defects the other misses.
 The agents bring installed tooling, existing-code coverage, performance,
-docs, test coverage, and `.claude/rules/`; `/code-review` traces callers
+docs, test coverage, and the rules folders; `/code-review` traces callers
 and audits removed behavior; `/security-review` confirms every finding
 with a strict false-positive check. Step 2b merges them into one verdict.
 
