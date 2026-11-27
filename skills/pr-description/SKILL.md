@@ -17,8 +17,9 @@ understand what changed, why, how risky it is, and how to verify it.
 ## Process
 
 1. Read the diff: `git diff main...HEAD` (or the target branch)
-2. Read any related AGENTS.md or CLAUDE.md rules, and the rules folders
-   (`.agents/rules/`, `.claude/rules/`), for context
+2. Read any related rules in AGENTS.md, CLAUDE.md or .claude/CLAUDE.md,
+   and the rules folders (`.agents/rules/`, `.claude/rules/`), for
+   context
 3. Identify the category and scope of changes
 4. Gather verification evidence from the session (see Risk Assessment
    Rubric), including any runtime-verification output for the
@@ -399,7 +400,8 @@ likelihood only when the triggering state is shown to be unreachable.
 
 - Tests and runtime verification come from the **target repo's own** qa/verify
   skill or agent (defined in that repo's `.claude/`), or from the test
-  commands documented in its AGENTS.md or CLAUDE.md. The toolkit
+  commands documented in its AGENTS.md, CLAUDE.md or .claude/CLAUDE.md.
+  The toolkit
   deliberately does not ship generic test/verify agents.
 - When this skill is invoked from `commit-push-pr` ship mode, the evidence
   table comes from that single whole-branch gate run (`<base>...HEAD`)

@@ -29,10 +29,11 @@ Spawn a dedicated subagent for the review — never critique in the
 context that authored the plan. The author's context inherits the
 plan's assumptions and its investment in them; a fresh context reads
 the plan cold, the same independence principle the commit-push-pr
-quality gates use. Give the subagent the plan, pointers to AGENTS.md
-or CLAUDE.md and the rules folders (`.agents/rules/`, `.claude/rules/`),
-and the instructions below. Relay its
-findings to the user unfiltered — the developer decides what to act on.
+quality gates use. Give the subagent the plan, pointers to the
+instruction files (`AGENTS.md`, `CLAUDE.md`, `.claude/CLAUDE.md`) and
+the rules folders (`.agents/rules/`, `.claude/rules/`), and the
+instructions below. Relay its findings to the user unfiltered — the
+developer decides what to act on.
 
 ## Subagent Instructions
 
