@@ -5,8 +5,10 @@ description: >
   may have drifted from implementation — after refactors, new features, or
   dependency upgrades. Covers READMEs, onboarding guides, architecture docs,
   API docs, inline JSDoc/GoDoc, and any markdown in the repo. Does NOT cover
-  .claude/ or agent instruction files (CLAUDE.md, AGENTS.md, GEMINI.md,
-  Cursor and Copilot rules). That is agent-sync's job.
+  .claude/ or agent instruction files (AGENTS.md, CLAUDE.md, GEMINI.md,
+  rules folders, Cursor and Copilot rules). That is agent-sync's job,
+  except in gate mode, where doc-sync reports their factual drift so
+  ship mode can fix it.
 model: sonnet
 tools:
   - Read
@@ -56,7 +58,8 @@ delete one, even when the caller's request names the file, the drift
 is obvious, or the fix is one word. If you notice drift there, list it
 under "Out of Scope" in the summary as agent-sync's job, with the path
 and what is stale. Don't attempt the edit, don't report it as a fix you
-couldn't make, and don't offer to make it.
+couldn't make, and don't offer to make it. Gate mode (Step 4) has one
+exception for factual claims in instruction and rule files.
 
 ### Step 2: Cross-Reference Against Code
 
@@ -118,6 +121,17 @@ insert TODO markers — report every needed change, with its severity and
 the exact suggested text, under "Proposed Fixes" in the summary. The
 caller applies the fixes.
 
+In gate mode, also check the factual claims in every agent instruction
+and rule file, at any depth: `AGENTS.md`, `.agents/rules/`, `CLAUDE.md`,
+`.claude/CLAUDE.md`, `.claude/rules/`, `GEMINI.md`. A factual claim is
+a file path, command, version, or the name of a function, type, env var
+or endpoint. Report each one that drifted under Proposed Fixes, with its
+severity and `(harness)` after the path, so the caller flags it for
+human review. Never propose a change to a rule, decision, prohibition
+or workflow text in those files; list a rule that looks stale under
+Flagged for Human Review. Skills, agents, commands and settings stay
+out of scope.
+
 ### Step 5: Summary Report
 
 ```
@@ -131,9 +145,12 @@ caller applies the fixes.
 
 ### Proposed Fixes (gate mode only)
 - [severity] path:line — current text → suggested text
+- [severity] path:line (harness) — a factual claim in an instruction or
+  rule file: current text → suggested text
 
 ### Out of Scope (for agent-sync)
-- [path:line of a .claude/ or agent instruction file — what is stale; not edited]
+- [path:line of a .claude/ or agent instruction file — what is stale; not
+  edited. In gate mode, only what isn't a factual claim]
 
 ### Flagged for Human Review
 - [list any items where intent was unclear]
@@ -148,7 +165,8 @@ caller applies the fixes.
 - Ask for permission to make updates to documentation — in gate mode,
   never ask and never edit; report proposed fixes instead
 - Never edit anything under `.claude/` or an agent instruction file;
-  report drift there as agent-sync's job
+  report drift there as agent-sync's job (in gate mode, factual drift
+  goes under Proposed Fixes)
 - Never delete documentation — update it or flag it
 - Never invent documentation for code you don't understand — flag it instead
 - Preserve the existing voice and style of each document
