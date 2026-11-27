@@ -168,9 +168,19 @@ code and disagree.
 
 ### Step 4: Check Token Budget
 
-Measure the approximate token count of the project's instruction file. If
-it exceeds ~3k tokens, flag sections that could be moved to
-`.claude/rules/` files to keep the main file concise.
+Measure the approximate token count of the root instruction file
+(`AGENTS.md`, or `CLAUDE.md` / `.claude/CLAUDE.md` in a Claude project).
+If it exceeds ~3k tokens, flag sections that could move out to keep it
+concise:
+
+- In an `AGENTS.md` repo, into `.agents/rules/` files, each with a
+  `trigger:` header (`always_on`, or `glob` with `globs:` and a matching
+  `paths:` for a section about one part of the code). A nested
+  `AGENTS.md` beside that code also works for Claude Code and Codex, but
+  Antigravity doesn't load it. Never suggest `.claude/rules/` here: only
+  Claude Code reads it, so the section would vanish for every other
+  harness.
+- In a Claude project, into `.claude/rules/` files.
 
 ### Step 5: Identify Coverage Gaps
 
