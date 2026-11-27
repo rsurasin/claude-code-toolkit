@@ -37,7 +37,9 @@ consumed by `commit-push-pr` ship mode, whose `finding-triage` agent
 assigns severities to every gate's findings using `pr-description`'s
 Severity Scale — which `code-reviewer` and `finding-triage` both copy,
 so change all three together. `doc-sync` leaves `.claude/` and every
-agent instruction file to `agent-sync`.
+agent instruction file to `agent-sync`, except that in gate mode it
+reports factual drift in them, which ship mode fixes and flags for
+human review.
 `commit-push-pr` release mode also uses the `dev-tasks` skill's release
 closeout to map merged PRs to task folders and mark them released. When renaming or
 changing a component's behavior, grep for its name across `skills/`,
@@ -91,7 +93,9 @@ drift easily.
 - **The PR tells the human what to look at.** The goal is an unattended
   implement, review and fix loop where the human only merges. Every PR
   description carries a Needs human review line (unresolved MEDIUM or
-  higher, pending decisions, one-way doors, gates that didn't run) and
+  higher, pending decisions, one-way doors, gates that didn't run, and
+  every harness file the diff changes, including a fact the fix loop
+  corrected in AGENTS.md or a rules file) and
   an Unresolved findings list with a reason per entry. A PR gets the
   `needs-human-review` label unless that line reads "nothing beyond a
   normal review", and the ship report opens with a one-line Status. The one-way doors are listed in

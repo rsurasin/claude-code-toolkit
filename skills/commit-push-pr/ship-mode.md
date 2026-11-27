@@ -463,8 +463,16 @@ PR can't be opened and the description is only drafted:
      what a person must look at before merging, most serious first:
      every unresolved introduced MEDIUM or higher, every
      `awaiting author decision`, a one-way door from the list in
-     `pr-description`'s Rules of evidence (with what makes it one), each review or test gate that is `NOT RUN` or `N/A`, and
-     any fix the loop made that changed behavior beyond the request.
+     `pr-description`'s Rules of evidence (with what makes it one), each review or test gate that is `NOT RUN` or `N/A`,
+     any fix the loop made that changed behavior beyond the request,
+     and every harness file the diff changes, named with what changed
+     and marked `(fix loop)` when a fix made the change. Harness files
+     are agent instruction files at any depth (`AGENTS.md`,
+     `CLAUDE.md`, `GEMINI.md`), everything under `.agents/` and
+     `.claude/` (rules, skills, agents, commands, settings), and lint
+     config. The fix loop may correct a factual claim in one (a
+     doc-sync `(harness)` finding), but never a rule, decision or
+     workflow text.
      An existing CRITICAL security finding is written as Step 3's
      neutral sentence, nothing more. After a failed triage (Step 2b)
      the line starts "triage failed twice, nothing graded the <n> raw
