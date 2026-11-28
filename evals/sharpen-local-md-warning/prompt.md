@@ -10,8 +10,8 @@ from Claude Code, then work through a self-detected mistake:
 1. In the current working directory, run `git init` and create, with
    Bash heredocs (the eval sandbox keeps placeholder entries such as
    `.claude/` and `.bashrc` here; leave them alone, and don't create
-   anything under `.claude/`): an `AGENTS.md` containing a
-   "Conventions" section; a `CLAUDE.local.md` containing the line
+   anything under `.claude/`): an `AGENTS.md` containing only a
+   `## Conventions` heading and the line "Use type hints."; a `CLAUDE.local.md` containing the line
    "Prefer verbose test output."; a `.gitignore` containing
    `CLAUDE.local.md`; and a `db.py` that reads its connection string
    from `config.load()`. Commit with `git add AGENTS.md .gitignore db.py`.
