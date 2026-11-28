@@ -46,7 +46,7 @@ project type — Go, Python, Rust, TypeScript, Java, Ruby, C#, PHP, and more.
 | `/code-review` | Correctness review of the diff or branch with caller tracing and a removed-behavior audit — ship mode runs it as a gate alongside `code-reviewer`; `/code-review ultra` runs a multi-agent cloud review (user-triggered, billed — never run automatically) |
 | `/security-review` | Security review of what the current branch introduces, each finding confirmed by a false-positive check — ship mode runs it as a gate alongside `security-auditor`, which adds tools and existing-code coverage |
 | `/run` | Launch and drive the project's app to confirm a change works — build repo-local verify skills on top of it |
-| `/init` | Generate a CLAUDE.md for a repo |
+| `/init` | Generate a CLAUDE.md for a repo. In a repo with an `AGENTS.md`, merge the result into `AGENTS.md` instead of keeping it: while a `CLAUDE.md` exists, Claude Code ignores `AGENTS.md` |
 | Auto-memory / `/remember` | Personal, user-level lessons and preferences (not committed, invisible to teammates) — vs `sharpen` (repo-shared rules) and `dev-tasks` (repo-shared task state) |
 
 > Availability varies by Claude Code version and surface. Where a
@@ -395,11 +395,14 @@ This plugin is built on three principles observed across staff-level engineers:
   rules to `AGENTS.md` and `.agents/rules/`. A repo with no `AGENTS.md`
   is treated as a Claude project and keeps using `CLAUDE.md` and
   `.claude/rules/`. To move a repo over:
-  - rename `CLAUDE.md` (or `.claude/CLAUDE.md`) to `AGENTS.md`;
-  - move `.claude/rules/*.md` to `.agents/rules/`, adding a
-    `trigger:` header to each (`always_on`, or `glob` with `globs:`)
-    for Antigravity;
-  - link the old folder back: `ln -s ../.agents/rules .claude/rules`.
+  - `git mv CLAUDE.md AGENTS.md` (or `git mv .claude/CLAUDE.md AGENTS.md`);
+  - `mkdir -p .agents && git mv .claude/rules .agents/rules` (if
+    `.agents/rules/` already exists, move the files into it and remove
+    the empty `.claude/rules` folder instead);
+  - add a `trigger:` header to each rule (`always_on`, or `glob` with
+    `globs:`) for Antigravity;
+  - link the old folder back: `ln -s ../.agents/rules .claude/rules`,
+    then `git add .claude/rules`.
 
   Claude Code ignores `AGENTS.md` while a `CLAUDE.md`,
   `.claude/CLAUDE.md` or `CLAUDE.local.md` exists; `agent-sync`
