@@ -71,8 +71,11 @@ report instead) and must not edit files — fixes happen in Step 3.
 
 1. **Tests** — If the target repo defines a qa/test skill or agent in its
    `.claude/` directory, run that. Otherwise run the test suite using the
-   commands documented in the repo's CLAUDE.md or package scripts. If
-   neither exists, record `NOT RUN`.
+   commands documented in the repo's instruction files: `AGENTS.md` and
+   `.agents/rules/` in a repo with an `AGENTS.md`, or `CLAUDE.md`,
+   `.claude/CLAUDE.md` and `.claude/rules/` in a Claude project (no
+   `AGENTS.md`). When they name no test command, use the package
+   scripts. If none of these exists, record `NOT RUN`.
 2. **Runtime verification** — If the repo defines a verify skill or agent
    in its `.claude/` directory, run that. Otherwise record `NOT RUN`.
    Besides the verdict, keep the output it produced: the requests or
@@ -123,7 +126,7 @@ the turn on a gate's report.
 Agents and built-in skills run side by side, never one instead of the
 other: side-by-side runs showed each catches defects the other misses.
 The agents bring installed tooling, existing-code coverage, performance,
-docs, test coverage, and `.claude/rules/`; `/code-review` traces callers
+docs, test coverage, and the rules folders; `/code-review` traces callers
 and audits removed behavior; `/security-review` confirms every finding
 with a strict false-positive check. Step 2b merges them into one verdict.
 
@@ -460,8 +463,17 @@ PR can't be opened and the description is only drafted:
      what a person must look at before merging, most serious first:
      every unresolved introduced MEDIUM or higher, every
      `awaiting author decision`, a one-way door from the list in
-     `pr-description`'s Rules of evidence (with what makes it one), each review or test gate that is `NOT RUN` or `N/A`, and
-     any fix the loop made that changed behavior beyond the request.
+     `pr-description`'s Rules of evidence (with what makes it one), each review or test gate that is `NOT RUN` or `N/A`,
+     any fix the loop made that changed behavior beyond the request,
+     and every harness file the diff changes, named with what changed
+     and marked `(fix loop)` when a fix made the change. Harness files
+     are agent instruction files at any depth (`AGENTS.md`,
+     `CLAUDE.md`, `GEMINI.md`, `.cursorrules`, `.windsurfrules`,
+     `.clinerules`, `.github/copilot-instructions.md`,
+     `.github/instructions/`), everything under `.agents/`, `.claude/`,
+     `.gemini/` and `.cursor/` (rules, skills, agents, commands,
+     settings), and lint config. What the fix loop may change in one
+     is set in `fix-loop.md` step 3.
      An existing CRITICAL security finding is written as Step 3's
      neutral sentence, nothing more. After a failed triage (Step 2b)
      the line starts "triage failed twice, nothing graded the <n> raw

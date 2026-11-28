@@ -17,7 +17,9 @@ understand what changed, why, how risky it is, and how to verify it.
 ## Process
 
 1. Read the diff: `git diff main...HEAD` (or the target branch)
-2. Read any related CLAUDE.md rules for context
+2. Read any related rules in AGENTS.md, CLAUDE.md or .claude/CLAUDE.md,
+   and the rules folders (`.agents/rules/`, `.claude/rules/`), for
+   context
 3. Identify the category and scope of changes
 4. Gather verification evidence from the session (see Risk Assessment
    Rubric), including any runtime-verification output for the
@@ -114,8 +116,11 @@ Output Guidance" below.]
 
 **Needs human review:** [What a person must look at before merging,
 most serious first: unresolved MEDIUM or higher findings, pending
-decisions, one-way doors, gates that are NOT RUN or N/A, and any fix
-that changed behavior beyond the request. An existing CRITICAL
+decisions, one-way doors, gates that are NOT RUN or N/A, any fix
+that changed behavior beyond the request, and every harness file the
+diff changes (instruction files such as AGENTS.md or CLAUDE.md,
+anything under `.agents/` or `.claude/`, lint config), marked
+"(fix loop)" when a fix made the change. An existing CRITICAL
 security finding is written only as "an existing issue needs your
 attention, details in the ship report". If triage
 failed, start with "triage failed twice, nothing graded the <n> raw
@@ -152,7 +157,7 @@ follow-up work.]
 - [ ] Breaking changes noted (if any)
 ```
 
-Extend this checklist with project-specific items in your `.github/PULL_REQUEST_TEMPLATE.md` or `.claude/rules/`.
+Extend this checklist with project-specific items in your `.github/PULL_REQUEST_TEMPLATE.md` or `.agents/rules/`.
 
 ## Behavior Before / After
 
@@ -395,8 +400,9 @@ likelihood only when the triggering state is shown to be unreachable.
 
 - Tests and runtime verification come from the **target repo's own** qa/verify
   skill or agent (defined in that repo's `.claude/`), or from the test
-  commands documented in its CLAUDE.md. The toolkit deliberately does not
-  ship generic test/verify agents.
+  commands documented in its AGENTS.md, CLAUDE.md or .claude/CLAUDE.md.
+  The toolkit
+  deliberately does not ship generic test/verify agents.
 - When this skill is invoked from `commit-push-pr` ship mode, the evidence
   table comes from that single whole-branch gate run (`<base>...HEAD`)
   after its triage step. Introduced findings above the fix threshold,

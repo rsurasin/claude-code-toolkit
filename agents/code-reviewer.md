@@ -12,9 +12,10 @@ description: >
   changes"), however small the change: never review inline in the
   session that wrote or set up the code. Complements the built-in /code-review
   skill rather than replacing it: this agent adds the security,
-  performance, and test-coverage axes, reads `.claude/rules/` and nested
-  CLAUDE.md files, and returns severities a quality gate can normalize —
-  commit-push-pr ship mode runs both and merges their findings.
+  performance, and test-coverage axes, reads `.agents/rules/`,
+  `.claude/rules/` and nested AGENTS.md and CLAUDE.md files, and returns
+  severities a quality gate can normalize — commit-push-pr ship mode runs both and merges their
+  findings.
   Optionally, pass a focus area like "review auth changes" or "review the
   new API endpoint implementation", or a diff range like `main...HEAD`.
 model: opus
@@ -37,11 +38,13 @@ single prioritized report.
 
 Before starting, read:
 
-1. The root `CLAUDE.md`
-2. Every nested `CLAUDE.md` in a directory between the repo root and each
-   changed file (package-level docs such as `internal/api/CLAUDE.md`
-   carry rules the root file doesn't)
-3. All files in `.claude/rules/`
+1. Each root instruction file that exists: `AGENTS.md`, `CLAUDE.md`,
+   `.claude/CLAUDE.md` (once, if one name links to another)
+2. Every nested `AGENTS.md` or `CLAUDE.md` in a directory between the repo
+   root and each changed file (package-level docs such as
+   `internal/api/AGENTS.md` carry rules the root file doesn't)
+3. All files in `.agents/rules/` and `.claude/rules/` (once, if one
+   folder links to the other)
 
 These contain project-specific conventions, tooling, constraints, and
 patterns that must inform your analysis. If any rules conflict with the
@@ -296,6 +299,7 @@ LOW included; existing findings alone don't change it.
 - Every reported MEDIUM-or-higher finding survived the verification pass
 - If the codebase has no tests, note it once in the summary — don't flag every
   function individually
-- Read CLAUDE.md (root and nested) and rules files before the convention review
+- Read AGENTS.md and CLAUDE.md (root and nested) and both rules folders
+  before the convention review
 - If reviewing > 20 files, focus subagents on the most complex/risky files first
 - Acknowledge good code — reviews that are purely negative are less useful

@@ -1,6 +1,7 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to any coding agent working with code in this
+repository.
 
 ## What This Repo Is
 
@@ -35,7 +36,10 @@ a `/simplify` pre-pass on code changes); `pr-description`'s risk rubric is
 consumed by `commit-push-pr` ship mode, whose `finding-triage` agent
 assigns severities to every gate's findings using `pr-description`'s
 Severity Scale — which `code-reviewer` and `finding-triage` both copy,
-so change all three together.
+so change all three together. `doc-sync` leaves `.claude/` and every
+agent instruction file to `agent-sync`, except that in gate mode it
+reports factual drift in them, which ship mode fixes and flags for
+human review.
 `commit-push-pr` release mode also uses the `dev-tasks` skill's release
 closeout to map merged PRs to task folders and mark them released. When renaming or
 changing a component's behavior, grep for its name across `skills/`,
@@ -89,7 +93,9 @@ drift easily.
 - **The PR tells the human what to look at.** The goal is an unattended
   implement, review and fix loop where the human only merges. Every PR
   description carries a Needs human review line (unresolved MEDIUM or
-  higher, pending decisions, one-way doors, gates that didn't run) and
+  higher, pending decisions, one-way doors, gates that didn't run, and
+  every harness file the diff changes, including a fact the fix loop
+  corrected in AGENTS.md or a rules file) and
   an Unresolved findings list with a reason per entry. A PR gets the
   `needs-human-review` label unless that line reads "nothing beyond a
   normal review", and the ship report opens with a one-line Status. The one-way doors are listed in
@@ -142,8 +148,31 @@ drift easily.
   user-triggered and billed.
 - **Sharpen is proactive but consent-gated.** The skill fires on
   agent- or user-detected mistakes and inefficiencies, but never modifies
-  a harness file (CLAUDE.md, `.claude/rules/`, lint config, guard tests)
-  without explicit user approval in that conversation.
+  a harness file (AGENTS.md or CLAUDE.md, `.agents/rules/` or
+  `.claude/rules/`, lint config, guard tests) without explicit user
+  approval in that conversation. It writes rules to the file that holds
+  the content, never through a symlink.
+- **AGENTS.md and `.agents/` are the source of truth.** Nearly every
+  harness reads `AGENTS.md`, and Antigravity reads `.agents/rules/`, so
+  the components treat a repo's root and nested `AGENTS.md` and
+  `.agents/rules/*.md` as its instructions. A repo with no `AGENTS.md`
+  is a Claude project, and they use its `CLAUDE.md` and `.claude/rules/`
+  instead. In an `AGENTS.md` repo:
+  - there is no `CLAUDE.md`, since Claude Code 2.1.277+ reads `AGENTS.md`
+    when none exists;
+  - `.claude/rules` is a link to `../.agents/rules`, since Claude Code
+    reads no `.agents/` path;
+  - each rule file carries a `trigger:` header, without which
+    Antigravity drops the rule, plus `paths:` for Claude Code when it is
+    path-scoped.
+
+  A `CLAUDE.md`, `.claude/CLAUDE.md` or `CLAUDE.local.md`, or a
+  `CLAUDE.md` in a parent folder, makes Claude Code ignore `AGENTS.md`.
+  Agents edit the real path, never through a link: Claude Code's Edit
+  tool refuses links, and a tool that saves by replacing the file turns
+  a link into a copy that drifts. `agent-sync` reports a setup that
+  breaks any of this. Don't move the source of truth back to
+  `CLAUDE.md`.
 
 ## Working Tree vs Installed Plugin
 

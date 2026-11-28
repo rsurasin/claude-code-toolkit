@@ -5,7 +5,10 @@ description: >
   may have drifted from implementation — after refactors, new features, or
   dependency upgrades. Covers READMEs, onboarding guides, architecture docs,
   API docs, inline JSDoc/GoDoc, and any markdown in the repo. Does NOT cover
-  .claude/ directory. That is claude-sync's job.
+  .claude/ or agent instruction files (AGENTS.md, CLAUDE.md, GEMINI.md,
+  rules folders, Cursor and Copilot rules). That is agent-sync's job,
+  except in gate mode, where doc-sync reports their factual drift so
+  ship mode can fix it.
 model: sonnet
 tools:
   - Read
@@ -47,13 +50,16 @@ Scan the repo for documentation files:
 List every documentation file found with a one-line summary of what it covers.
 
 **Out of scope: everything under `.claude/`** (rules, docs, skills,
-agents, commands, settings). Those files belong to the `claude-sync`
-agent. Don't audit them as documentation, and never edit, create or
+agents, commands, settings) **and every agent instruction file**
+(`CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, `.cursor/rules/`,
+`.github/copilot-instructions.md`, and similar, at any depth). Those
+files belong to the `agent-sync` agent. Don't audit them as documentation, and never edit, create or
 delete one, even when the caller's request names the file, the drift
 is obvious, or the fix is one word. If you notice drift there, list it
-under "Out of Scope" in the summary as claude-sync's job, with the path
+under "Out of Scope" in the summary as agent-sync's job, with the path
 and what is stale. Don't attempt the edit, don't report it as a fix you
-couldn't make, and don't offer to make it.
+couldn't make, and don't offer to make it. Gate mode (Step 4) has one
+exception for factual claims in instruction and rule files.
 
 ### Step 2: Cross-Reference Against Code
 
@@ -115,6 +121,28 @@ insert TODO markers — report every needed change, with its severity and
 the exact suggested text, under "Proposed Fixes" in the summary. The
 caller applies the fixes.
 
+In gate mode, also check the factual claims in every agent instruction
+and rule file, at any depth: `AGENTS.md`, `.agents/rules/`, `CLAUDE.md`,
+`.claude/CLAUDE.md`, `.claude/rules/`, `.claude/docs/`, `GEMINI.md`,
+`.cursor/rules/`, `.cursorrules`, `.github/copilot-instructions.md`,
+`.github/instructions/`, `.windsurfrules` and `.clinerules`. Skip
+`.git/`, `node_modules/`, `vendor/`, `.claude/worktrees/`, any other
+worktree or nested repo, and every path git ignores. A factual claim is
+a file path, command, version, or the name of a function, type, env var
+or endpoint. Report each one that drifted under Proposed Fixes, with its
+severity and `(harness)` after the path; the fix loop fixes only facts
+in these files and puts each one it changes on the PR's Needs human
+review line. Never propose a change to a rule, decision, prohibition
+or workflow text in those files; list a rule that looks stale under
+Flagged for Human Review. Skills, agents, commands and settings stay
+out of scope.
+
+A `CLAUDE.md`-family file or a `.claude/rules/` file is often a link
+to `AGENTS.md` or `.agents/rules/`. When one has the same content as
+its `AGENTS.md` or `.agents/rules/` counterpart, treat the two as one
+file: report its drift once, at the `AGENTS.md` or `.agents/rules/`
+path, so the fix is made there and not through the link.
+
 ### Step 5: Summary Report
 
 ```
@@ -128,9 +156,13 @@ caller applies the fixes.
 
 ### Proposed Fixes (gate mode only)
 - [severity] path:line — current text → suggested text
+- [severity] path:line (harness) — a factual claim in an instruction or
+  rule file: current text → suggested text
 
-### Out of Scope (for claude-sync)
-- [path:line under .claude/ — what is stale; not edited]
+### Out of Scope (for agent-sync)
+- [path:line of a .claude/ or agent instruction file — what is stale; not
+  edited. Standalone runs only: in gate mode a factual claim goes under
+  Proposed Fixes and a stale rule under Flagged for Human Review]
 
 ### Flagged for Human Review
 - [list any items where intent was unclear]
@@ -144,8 +176,9 @@ caller applies the fixes.
 - Provide summary report to user
 - Ask for permission to make updates to documentation — in gate mode,
   never ask and never edit; report proposed fixes instead
-- Never edit anything under `.claude/`; report drift there as
-  claude-sync's job
+- Never edit anything under `.claude/` or an agent instruction file;
+  report drift there as agent-sync's job (in gate mode, factual drift
+  goes under Proposed Fixes)
 - Never delete documentation — update it or flag it
 - Never invent documentation for code you don't understand — flag it instead
 - Preserve the existing voice and style of each document
