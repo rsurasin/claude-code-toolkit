@@ -123,14 +123,25 @@ caller applies the fixes.
 
 In gate mode, also check the factual claims in every agent instruction
 and rule file, at any depth: `AGENTS.md`, `.agents/rules/`, `CLAUDE.md`,
-`.claude/CLAUDE.md`, `.claude/rules/`, `GEMINI.md`. A factual claim is
+`.claude/CLAUDE.md`, `.claude/rules/`, `.claude/docs/`, `GEMINI.md`,
+`.cursor/rules/`, `.cursorrules`, `.github/copilot-instructions.md`,
+`.github/instructions/`, `.windsurfrules` and `.clinerules`. Skip
+`.git/`, `node_modules/`, `vendor/`, `.claude/worktrees/`, any other
+worktree or nested repo, and every path git ignores. A factual claim is
 a file path, command, version, or the name of a function, type, env var
 or endpoint. Report each one that drifted under Proposed Fixes, with its
-severity and `(harness)` after the path, so the caller flags it for
-human review. Never propose a change to a rule, decision, prohibition
+severity and `(harness)` after the path; the fix loop fixes only facts
+in these files and puts each one it changes on the PR's Needs human
+review line. Never propose a change to a rule, decision, prohibition
 or workflow text in those files; list a rule that looks stale under
 Flagged for Human Review. Skills, agents, commands and settings stay
 out of scope.
+
+A `CLAUDE.md`-family file or a `.claude/rules/` file is often a link
+to `AGENTS.md` or `.agents/rules/`. When one has the same content as
+its `AGENTS.md` or `.agents/rules/` counterpart, treat the two as one
+file: report its drift once, at the `AGENTS.md` or `.agents/rules/`
+path, so the fix is made there and not through the link.
 
 ### Step 5: Summary Report
 
@@ -150,7 +161,8 @@ out of scope.
 
 ### Out of Scope (for agent-sync)
 - [path:line of a .claude/ or agent instruction file — what is stale; not
-  edited. In gate mode, only what isn't a factual claim]
+  edited. Standalone runs only: in gate mode a factual claim goes under
+  Proposed Fixes and a stale rule under Flagged for Human Review]
 
 ### Flagged for Human Review
 - [list any items where intent was unclear]
