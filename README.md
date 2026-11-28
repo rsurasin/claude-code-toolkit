@@ -114,6 +114,81 @@ managed as immutable by home-manager. Run `/plugin install` once after
 
 ---
 
+## Setting Up a Project
+
+The toolkit reads a project's instructions and rules from one place,
+and expects one of two setups. It doesn't repair other setups;
+`agent-sync` reports them so you can fix them.
+
+### AGENTS.md project (recommended)
+
+`AGENTS.md` and `.agents/` are the source of truth. Most agent tools
+read them, so Claude Code, Codex, Antigravity and Gemini all see the
+same instructions.
+
+```
+AGENTS.md                 # main instructions, including the test command
+src/api/AGENTS.md         # optional: one part of the code (Claude Code, Codex; not Antigravity)
+.agents/rules/*.md        # rule files
+.claude/rules -> ../.agents/rules   # link, so Claude Code reads the rules
+```
+
+- **No `CLAUDE.md`.** Claude Code 2.1.277 and later reads `AGENTS.md`,
+  but only while there is no `CLAUDE.md`, `.claude/CLAUDE.md` or
+  `CLAUDE.local.md` in the repo and no `CLAUDE.md` in a folder above
+  it. If you need a `CLAUDE.md` anyway, make it a link:
+  `ln -s AGENTS.md CLAUDE.md`.
+- **Give every rule file a `trigger:` header.** Antigravity silently
+  drops a rule without one. Claude Code scopes a rule to files only by
+  `paths:`, so a rule for one part of the code carries both:
+
+  ```markdown
+  ---
+  trigger: glob
+  globs: src/api/**
+  paths:
+    - "src/api/**"
+  ---
+  ```
+
+  A rule for the whole repo needs only `trigger: always_on`.
+- **Link `.claude/rules` back:** `ln -s ../.agents/rules .claude/rules`,
+  then commit the link. Claude Code never reads `.agents/` directly.
+- **Gemini CLI** reads `AGENTS.md` only when `.gemini/settings.json`
+  lists it: `{"context": {"fileName": ["AGENTS.md"]}}`.
+- **Edit the real files**, `AGENTS.md` and `.agents/rules/`, not the
+  links. Some editors save by replacing a link with a copy, which then
+  drifts.
+- **On Windows**, links need `git config core.symlinks true` (and
+  Developer Mode). Without it, git checks a link out as a small text
+  file.
+
+### Claude project
+
+A repo with no `AGENTS.md` is a Claude project. Its instructions are in
+`CLAUDE.md` or `.claude/CLAUDE.md` and its rules in `.claude/rules/`.
+This works with every toolkit component, but other agent tools won't
+read the files.
+
+### Both setups
+
+- **Write the test command in the instruction file.** Ship mode's
+  Tests gate runs your repo's qa skill if it has one. Otherwise it runs
+  the command your instruction file names, and only falls back to the
+  package scripts when the file names none.
+- **Add qa and verify skills** in `.claude/skills/` for the Tests and
+  Runtime verification gates. See [Migrating from v2](#migrating-from-v2)
+  for an example.
+- **Check the setup** by asking Claude to "check the agent instruction
+  files". `agent-sync` reports any file that hides `AGENTS.md`, a
+  missing or unlinked `.claude/rules`, a rule without `trigger:`, a
+  broken link, and facts that no longer match the code.
+
+To move an existing Claude project over, see
+[Upgrading to v4](#upgrading-to-v4).
+
+---
+
 ## MCP Server Configuration (optional, for mobile verification)
 
 If your repo-local verification skill covers a **mobile app** (React
@@ -406,7 +481,8 @@ This plugin is built on three principles observed across staff-level engineers:
 
   Claude Code ignores `AGENTS.md` while a `CLAUDE.md`,
   `.claude/CLAUDE.md` or `CLAUDE.local.md` exists; `agent-sync`
-  reports it.
+  reports it. [Setting Up a Project](#setting-up-a-project) has the
+  full setup.
 
 ## Upgrading to v3.1
 
