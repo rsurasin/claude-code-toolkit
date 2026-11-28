@@ -43,7 +43,12 @@ each round:
    ask the user, and list the finding as `awaiting author decision`
    until they answer (for a CRITICAL or HIGH, that is a hard stop too).
    Never delete, skip, or weaken a test to make a gate pass; a test you
-   believe is wrong is a question for the user
+   believe is wrong is a question for the user. In a harness file (the
+   list under Step 5's Needs human review line), fix only a factual
+   claim, such as a doc-sync `(harness)` finding, and never a rule,
+   decision, prohibition or workflow text: a finding that needs one
+   changed is `awaiting author decision`. Edit the file's real path
+   (`readlink -f`), never through a link
 4. Commit the fixes atomically (Commit Mode Steps 3–4, e.g.
    `fix(<scope>): <subject>`) — the gates review `<base>...HEAD`, so an
    uncommitted fix is invisible to them and missing from the PR
@@ -90,8 +95,8 @@ Run this once, after the last round, or straight away when no round
 ran, if any introduced LOW marked **contained** is still open:
 
 1. Record them as in a round's item 2 (`AUDIT (ship gates, cleanup)`),
-   fix every one of them, each with the smallest change, and commit
-   atomically (e.g. `refactor(<scope>): …`, `test(<scope>): …`,
+   fix every one of them, each with the smallest change (in a harness
+   file, facts only, as in a round's item 3), and commit atomically (e.g. `refactor(<scope>): …`, `test(<scope>): …`,
    `docs(<scope>): …`)
 2. Re-run Tests and runtime verification. If a test fails, revert the
    cleanup commit that broke it
