@@ -71,10 +71,11 @@ report instead) and must not edit files — fixes happen in Step 3.
 
 1. **Tests** — If the target repo defines a qa/test skill or agent in its
    `.claude/` directory, run that. Otherwise run the test suite using the
-   commands documented in the repo's instruction files (`AGENTS.md`,
-   `CLAUDE.md`, `.claude/CLAUDE.md`, and the rules in `.agents/rules/` or
-   `.claude/rules/`) or its package scripts. If none of these exists,
-   record `NOT RUN`.
+   commands documented in the repo's instruction files: `AGENTS.md` and
+   `.agents/rules/` in a repo with an `AGENTS.md`, or `CLAUDE.md`,
+   `.claude/CLAUDE.md` and `.claude/rules/` in a Claude project (no
+   `AGENTS.md`). When they name no test command, use the package
+   scripts. If none of these exists, record `NOT RUN`.
 2. **Runtime verification** — If the repo defines a verify skill or agent
    in its `.claude/` directory, run that. Otherwise record `NOT RUN`.
    Besides the verdict, keep the output it produced: the requests or
