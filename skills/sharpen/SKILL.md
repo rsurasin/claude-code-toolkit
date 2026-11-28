@@ -104,6 +104,12 @@ Determine which artifact will prevent recurrence:
 - Edit the real path, never a link (`ls -l` shows one; the Edit tool
   refuses to write through it). When `.claude/rules` links to
   `.agents/rules`, write in `.agents/rules/`.
+- Before proposing a rule file in `.agents/rules/`, check
+  `ls -l .claude/rules`. If it is missing or a real folder rather than
+  a link to `../.agents/rules`, Claude Code won't load the new rule:
+  say so in the proposal and offer the link
+  (`ln -s ../.agents/rules .claude/rules`, after moving any rules
+  already in a real `.claude/rules` folder) as part of it.
 - If a `CLAUDE.md`, `.claude/CLAUDE.md` or `CLAUDE.local.md`, or a
   `CLAUDE.md` in a parent folder, sits beside `AGENTS.md` (not a link
   to it, nor only an `@AGENTS.md` import), Claude Code ignores
